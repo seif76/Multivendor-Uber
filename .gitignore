@@ -1,0 +1,16 @@
+# Node.js
+node_modules/
+.env
+
+# Expo / React Native
+.expo/
+.expo-shared/
+*.apk
+*.keystore
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
