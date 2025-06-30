@@ -7,6 +7,12 @@ app.use(cors());
 app.use(express.json());
 
 
+//
+const syncDatabase = require('./src/app/models/seeders/seeders');
+//
+
+syncDatabase();
+
 // Routes
 app.get('/', (req, res) => {
   res.send('API is working!');
