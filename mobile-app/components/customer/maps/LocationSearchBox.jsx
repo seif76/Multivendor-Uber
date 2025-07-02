@@ -37,7 +37,7 @@
 //             });
 //           }}
 //         query={{
-//           key: 'AIzaSyDH1wWCQY2Q5kPjPzyNGA1NoGjq0r05GyQ',
+//           key: 'key',
 //           language: 'en',
 //         }}
 //         predefinedPlaces={[]}
