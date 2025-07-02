@@ -35,6 +35,14 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    driver_license_photo: {
+      type: DataTypes.STRING, // URL to the photo
+      allowNull: false,
+    },
+    national_id_photo: {
+      type: DataTypes.STRING, // URL to the photo
+      allowNull: false,
+    },
   });
 
   return Vehicle;
