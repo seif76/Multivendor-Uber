@@ -2,6 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
+//import "../../global.css";
+
+
 export default function CaptainLogin() {
   const router = useRouter();
 
