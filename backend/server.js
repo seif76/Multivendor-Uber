@@ -9,9 +9,11 @@ app.use(express.json());
 
 //
 const syncDatabase = require('./src/app/models/seeders/seeders');
+const captainRoutes = require('./src/modules/captain/routes/captain.routes')
 //
 
-syncDatabase();
+//syncDatabase();
+app.use('/api/captain', captainRoutes);
 
 // Routes
 app.get('/', (req, res) => {
