@@ -1,0 +1,28 @@
+import React from 'react';
+import { ScrollView, View } from 'react-native';
+import CategorySlider from '../custom/CategorySlider';
+import DealsSection from '../custom/DealsSection';
+import LocationBanner from "../custom/LocationBanner";
+import ServiceSelector from '../custom/ServiceSelector';
+import SupportAccess from '../custom/SupportAccess';
+import VendorList from '../custom/VendorList';
+import WalletCard from '../custom/WalletCard';
+import CustomerTopNav from '../navigation/CustomerTopNav';
+
+export default function CustomerHomePage() {
+  return (
+    <View className="flex-1 bg-white">
+      <CustomerTopNav />
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        <LocationBanner />
+        <ServiceSelector />
+        <CategorySlider />
+        <VendorList />
+        <DealsSection />
+        <WalletCard />
+        <SupportAccess />
+        <View className="h-10" />
+      </ScrollView>
+    </View>
+  );
+}

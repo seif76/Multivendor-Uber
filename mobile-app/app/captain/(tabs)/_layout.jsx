@@ -1,11 +1,16 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { Slot, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import OnlineStatusBar from '../../../components/captain/custom/OnlineStatusBar';
 import TopNavbar from '../../../components/captain/navigation/TopNavbar';
+import SideNav from '../../../components/captain/navigation/sideNav';
 
 export default function CaptainLayout() {
     const segments = useSegments();
     const [showTabs, setShowTabs] = useState(true);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [isOnline, setIsOnline] = useState(false);
   
     useEffect(() => {
       const current = segments[segments.length - 1];
@@ -16,8 +21,14 @@ export default function CaptainLayout() {
       return <Slot />; // render screen without tab bar
     }
   return (
-    <>
-    <TopNavbar />
+    <View className="flex-1 relative">
+    <TopNavbar  
+      onProfilePress={() => setMenuOpen(true)} 
+      isOnline={isOnline}
+      setIsOnline={setIsOnline}
+    />
+    <SideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+    <OnlineStatusBar isOnline={isOnline} />
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#0f9d58',
@@ -46,6 +57,6 @@ export default function CaptainLayout() {
         }}
       />
     </Tabs>
-    </>
+    </View>
   );
 }
