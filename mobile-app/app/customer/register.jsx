@@ -165,7 +165,7 @@
 import axios from 'axios';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function CustomerRegister() {
   const [form, setForm] = useState({
@@ -184,12 +184,12 @@ export default function CustomerRegister() {
 
   const handleRegister = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/customers/register', form);
-      Alert.alert('Success', 'Registration successful!');
+      const res = await axios.post('http://192.168.1.42:5000/api/customers/register', form);
+      alert('Success', 'Registration successful!');
       router.push('/customer/login');
     } catch (err) {
-      console.error(err);
-      Alert.alert('Error', err?.response?.data?.message || 'Something went wrong');
+      alert(err);
+     // Alert.alert('Error', err?.response?.data?.message || 'Something went wrong');
     }
   };
 
