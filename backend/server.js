@@ -10,10 +10,12 @@ app.use(express.json());
 //
 const syncDatabase = require('./src/app/models/seeders/seeders');
 const captainRoutes = require('./src/modules/captain/routes/captain.routes')
+const customerRoutes = require('./src/modules/customer/routes/customer.routes');
 //
 
 //syncDatabase();
 app.use('/api/captain', captainRoutes);
+app.use('/api/customers',customerRoutes)
 
 // Routes
 app.get('/', (req, res) => {

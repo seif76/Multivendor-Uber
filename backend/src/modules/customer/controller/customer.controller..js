@@ -1,0 +1,111 @@
+const { 
+    registerCustomer,
+    getCustomerByPhone,
+    editCustomer,
+    deleteCustomer,
+    setCustomerStatus,
+     } = require('../services/customer.service');
+
+const registerCustomerController = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      phone_number,
+      gender,
+      profile_photo,
+    } = req.body;
+
+    if (!name || !email || !password || !phone_number) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const newUser = await registerCustomer({
+      name,
+      email,
+      password,
+      phone_number,
+      gender,
+      profile_photo,
+    });
+
+    res.status(201).json({ message: 'Customer registered successfully', user: newUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getCustomerByPhoneController = async (req, res) => {
+  try {
+    const { phone_number } = req.query;
+
+    if (!phone_number) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const customer = await getCustomerByPhone(phone_number);
+
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    res.status(200).json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const editCustomerController = async (req, res) => {
+  try {
+    const { phone_number, updates } = req.body;
+
+    if (!phone_number || !updates) {
+      return res.status(400).json({ error: 'Phone number and updates are required' });
+    }
+
+    const updatedCustomer = await editCustomer(phone_number, updates);
+
+    res.status(200).json({ message: 'Customer updated', user: updatedCustomer });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteCustomerController = async (req, res) => {
+  try {
+    const { phone_number } = req.body;
+
+    if (!phone_number) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const result = await deleteCustomer(phone_number);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const setCustomerStatusController = async (req, res) => {
+  try {
+    const { phone_number, status } = req.body;
+
+    if (!phone_number || !status) {
+      return res.status(400).json({ error: 'Phone number and status are required' });
+    }
+
+    const updatedCustomer = await setCustomerStatus(phone_number, status);
+    res.status(200).json({ message: 'Customer status updated', user: updatedCustomer });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+    registerCustomerController ,
+    getCustomerByPhoneController,
+    editCustomerController,
+    deleteCustomerController,
+    setCustomerStatusController,
+};
