@@ -11,12 +11,16 @@ app.use(express.json());
 
 // db staff
 const syncDatabase = require('./src/app/models/seeders/seeders');
-const captainRoutes = require('./src/modules/captain/routes/captain.routes')
+//syncDatabase();
 //
 
-//syncDatabase();
+
+// Routes
+const captainRoutes = require('./src/modules/captain/routes/captain.routes')
+
+
 app.use('/api/captain', captainRoutes);
-//syncDatabase();
+
 
 //
 

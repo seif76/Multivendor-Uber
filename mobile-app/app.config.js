@@ -1,4 +1,5 @@
-{
+import 'dotenv/config';
+export default   {
   "expo": {
     "name": "mobile-app",
     "slug": "mobile-app",
@@ -8,6 +9,9 @@
     "scheme": "mobileapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY
+    },
     "ios": {
       "supportsTablet": true
     },

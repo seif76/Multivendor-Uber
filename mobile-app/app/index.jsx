@@ -3,15 +3,15 @@ import { Image, Pressable, Text, View } from 'react-native';
 
 import "../global.css";
 
-
 const roles = [
   { name: 'Captain', path: '/captain/home' },
   { name: 'Vendor', path: '/vendor/login' },
   { name: 'Delivery Man', path: '/delivery/login' },
-  { name: 'Customer', path: '/customer/home' },
+  { name: 'Customer', path: '/customer/register' },
 ];
 
 export default function RoleSelector() {
+  //alert( Constants.expoConfig.extra.GOOGLE_MAPS_API_KEY)
   return (
     <View className="flex-1 justify-center items-center bg-white px-4">
       

@@ -58,7 +58,8 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import LocationSearchBox from '../../components/customer/maps/LocationSearchBox';
 import { socket } from '../../config/socket';
 
 
@@ -94,9 +95,15 @@ export default function CustomerMap() {
     };
   }, []);
 
+  // for handling when customer selects where to go location
+  const handlePlaceSelect = (location) => {
+    console.log('Selected:', location);
+    // Optional: Navigate, place a marker, update state, etc.
+  };
+
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => router.push('/')} className="z-[100] mt-10 ml-4 mb-4 w-10">
+      <Pressable onPress={() => router.push('/customer/home')} className="z-[100] mt-10 ml-4 mb-4 w-10">
         <Ionicons name="arrow-back" size={24} color="black" />
       </Pressable>
       <MapView
@@ -120,6 +127,7 @@ export default function CustomerMap() {
           />
         ))}
       </MapView>
+      <LocationSearchBox  onPlaceSelected={handlePlaceSelect}  />
     </View>
   );
 }
