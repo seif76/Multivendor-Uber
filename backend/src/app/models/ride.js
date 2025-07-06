@@ -7,24 +7,56 @@ module.exports = (sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    passenger_id: {
+    customer_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    pickup_location: {
-      type: DataTypes.JSON, // Store as { latitude: xx, longitude: xx }
+    captain_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    // Pickup
+    pickup_coordinates: {
+      type: DataTypes.JSON, // { lat: xx, lng: yy }
       allowNull: false,
     },
-    dropoff_location: {
+    pickup_address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    pickup_place_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Drop-off
+    dropoff_coordinates: {
       type: DataTypes.JSON,
       allowNull: false,
     },
+    dropoff_address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    dropoff_place_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Fare
     requested_fare: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+    accepted_fare: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+
+    // Status
     status: {
-      type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+      type: DataTypes.ENUM('pending', 'negotiating', 'accepted', 'in_progress', 'completed', 'cancelled'),
       defaultValue: 'pending',
     },
   });
