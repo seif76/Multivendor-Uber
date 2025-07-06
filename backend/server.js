@@ -4,13 +4,14 @@ require('dotenv').config();
 const http = require('http');
 const socketIo = require('socket.io');
 
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 
 // db staff
-const syncDatabase = require('./src/app/models/seeders/seeders');
+//const syncDatabase = require('./src/app/models/seeders/seeders');
 //syncDatabase();
 //
 
@@ -25,6 +26,8 @@ const io = socketIo(server, {
     origin: "*" // or set to your frontend URL
   }
 });
+
+app.set('io', io);
 
 // Track connected captains
 let captains = {};
@@ -71,10 +74,12 @@ io.on('connection', (socket) => {
 // Routes
 const captainRoutes = require('./src/modules/captain/routes/captain.routes')
 const customerRoutes = require('./src/modules/customer/routes/customer.routes');
+const rideRoutes = require('./src/modules/rides/routes/ride.routes');
 //
 
 app.use('/api/captain', captainRoutes);
 app.use('/api/customers',customerRoutes)
+app.use('/api/rides', rideRoutes);
 
 // Routes
 app.get('/', (req, res) => {
