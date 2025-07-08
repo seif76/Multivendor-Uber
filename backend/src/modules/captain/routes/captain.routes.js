@@ -19,4 +19,5 @@ router.get('/deactivated',authenticate, getDeactivatedCaptainsController);
 router.get('/profile',authenticate,getCaptainProfileController)
 
 
+
 module.exports = router;
