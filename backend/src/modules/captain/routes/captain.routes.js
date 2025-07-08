@@ -21,6 +21,7 @@ router.get('/profile',authenticate,getCaptainProfileController)
 
 
 
+
 // for Admin Dashboard
 
 router.get('/all', getAllCaptainsController);
