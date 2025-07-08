@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { Pressable, Text, TextInput, View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+
 
 export default function CaptainLogin() {
   const router = useRouter();
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  
 
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +23,7 @@ export default function CaptainLogin() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://192.168.1.22:5000/api/captain/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/api/captain/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +79,7 @@ export default function CaptainLogin() {
           autoCapitalize="none"
         />
         <Pressable
-          className={`py-3 px-8 rounded ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
+          className={`py-3 px-8 rounded ${loading ? 'bg-gray-400' : 'bg-primary'}`}
           onPress={handleLogin}
           disabled={loading}
         >

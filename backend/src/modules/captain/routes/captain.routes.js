@@ -1,7 +1,9 @@
 const express = require('express');
 const { deleteCaptainController, editCaptainController,
         getCaptainByPhoneController,setCaptainStatusController,getActiveCaptainsController,
-        getPendingCaptainsController,getDeactivatedCaptainsController,getCaptainProfileController
+        getPendingCaptainsController,getDeactivatedCaptainsController,getCaptainProfileController,
+        getAllCaptainsController,
+        getAllCaptainStatusCountsController
       } = require('../controllers/captain.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware')
 const router = express.Router();
@@ -9,7 +11,6 @@ const authRoutes = require('../routes/auth.routes')
 router.use('/auth', authRoutes);
 
 //router.post('/register', registerCaptainController);
-router.delete('/delete',authenticate, deleteCaptainController);
 router.put('/edit',authenticate, editCaptainController);
 router.get('/get',authenticate, getCaptainByPhoneController);
 router.put('/status',authenticate, setCaptainStatusController);
@@ -17,6 +18,18 @@ router.get('/active',authenticate, getActiveCaptainsController);
 router.get('/pending',authenticate, getPendingCaptainsController);
 router.get('/deactivated',authenticate, getDeactivatedCaptainsController);
 router.get('/profile',authenticate,getCaptainProfileController)
+
+
+
+
+// for Admin Dashboard
+
+router.get('/all', getAllCaptainsController);
+router.get('/get-all-captains-status', getAllCaptainStatusCountsController);
+router.delete('/delete', deleteCaptainController);
+
+
+
 
 
 module.exports = router;

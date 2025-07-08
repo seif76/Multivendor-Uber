@@ -3,15 +3,10 @@ const { deleteCaptain, editCaptain, getCaptainByPhone,
        setCaptainStatus,getCaptainsByStatus,getCaptainProfile    
       } = require('../services/captain.service');
 
-const deleteCaptainController = async (req, res) => {
-  try {
-    const { phone_number } = req.body;
-    const deleted = await deleteCaptain(phone_number);
-    res.status(200).json({ message: deleted });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+const { Op } = require('sequelize');
+const { User } = require('../../../app/models');
+
+
 
 const editCaptainController = async (req, res) => {
   try {
@@ -102,6 +97,85 @@ const getCaptainProfileController = async (req, res) => {
   }
 };
 
+// For Admins dashboard
+
+const getAllCaptainsController = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status;
+
+    const where = {
+      captain_status: { [Op.ne]: 'none' }, // only users who are captains
+    };
+
+    if (status) {
+      where.captain_status = status;
+    }
+
+    const { count, rows } = await User.findAndCountAll({
+      where,
+      //status,
+      offset: (page - 1) * limit,
+      limit,
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({
+      captains: rows,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalCaptains: count,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+const getAllCaptainStatusCountsController = async (req, res) => {
+  try {
+    const [active, pending, deactivated, total] = await Promise.all([
+      User.count({ where: { captain_status: 'Active' } }),
+      User.count({ where: { captain_status: 'pending' } }),
+      User.count({ where: { captain_status: 'Deactivated' } }),
+      User.count({ where: { captain_status: { [Op.ne]: 'none' } } }),
+    ]);
+
+    return res.status(200).json({
+      total,
+      active,
+      pending,
+      deactivated,
+    });
+  } catch (error) {
+    console.error('Error counting captains:', error.message);
+    return res.status(500).json({ error: 'Failed to count captains' });
+  }
+};
+
+
+
+const deleteCaptainController = async (req, res) => {
+  try {
+    const { phone_number } = req.query; // use query, not body
+
+    if (!phone_number) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const deleted = await deleteCaptain(phone_number);
+    res.status(200).json({ message: deleted });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
 module.exports = {
   deleteCaptainController,
   editCaptainController,
@@ -111,4 +185,6 @@ module.exports = {
   getPendingCaptainsController,
   getDeactivatedCaptainsController,
   getCaptainProfileController,
+  getAllCaptainsController,
+  getAllCaptainStatusCountsController,
 };
