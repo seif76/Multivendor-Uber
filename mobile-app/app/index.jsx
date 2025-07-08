@@ -4,7 +4,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import "../global.css";
 
 const roles = [
-  { name: 'Captain', path: '/captain/home' },
+  { name: 'Captain', path: '/captain/login' },
   { name: 'Vendor', path: '/vendor/login' },
   { name: 'Delivery Man', path: '/delivery/login' },
   { name: 'Customer', path: '/customer/register' },

@@ -120,6 +120,23 @@ const getCaptainsByStatus = async (status) => {
   return captains;
 };
 
+const getCaptainProfile = async (captainId) => {
+  const captain = await User.findOne({
+    where: {
+      id: captainId,
+      captain_status: { [Op.ne]: 'none' },
+    },
+  });
+
+  if (!captain) {
+    const error = new Error('Captain not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return captain;
+};
+
 
 
 
@@ -130,4 +147,5 @@ module.exports = {
   getCaptainByPhone,
   setCaptainStatus,
   getCaptainsByStatus,
+  getCaptainProfile,
 };
