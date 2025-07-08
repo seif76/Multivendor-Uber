@@ -10,7 +10,8 @@ export default   {
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
-      "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY
+      "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY,
+      "BACKEND_URL":process.env.BACKEND_URL
     },
     "ios": {
       "supportsTablet": true
