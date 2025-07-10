@@ -23,6 +23,7 @@ const registerCaptain = async (userData, vehicleData) => {
 
     return result;
   } catch (error) {
+   // console.log(JSON.stringify(error))
     throw new Error(`Error registering captain: ${error.message}`);
   }
 };
@@ -66,7 +67,9 @@ const getCaptainByPhone = async (phone_number) => {
     const user = await User.findOne({
       where: {
         phone_number: normalizedPhone,
-        captain_status: { [Op.in]: [ 'Active'] },
+        //captain_status: { [Op.in]: [ 'Active'] },
+        captain_status: { [Op.in]: ['Active', 'pending'] },
+
       },
     });
 
@@ -140,6 +143,7 @@ const getCaptainProfile = async (captainId) => {
 
 
 
+
 module.exports = {
   registerCaptain,
   editCaptain,
@@ -148,4 +152,5 @@ module.exports = {
   setCaptainStatus,
   getCaptainsByStatus,
   getCaptainProfile,
+  
 };

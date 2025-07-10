@@ -34,7 +34,7 @@ module.exports = (sequelize) => {
         allowNull: false,
     },
     customer_status:{
-        type: DataTypes.ENUM('none','pending', 'Active' ,'Deactivated'),
+        type: DataTypes.ENUM('none', 'Active' ,'Deactivated'),
         defaultValue: 'none',
         allowNull: false,
     },

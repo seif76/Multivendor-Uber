@@ -7,7 +7,6 @@ const { Op } = require('sequelize');
 const { User } = require('../../../app/models');
 
 
-
 const editCaptainController = async (req, res) => {
   try {
     const { phone_number, user, vehicle } = req.body;
@@ -172,6 +171,39 @@ const deleteCaptainController = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+// get captain details for pending request 
+
+
+// const getCaptainByPhoneController = async (req, res) => {
+//   try {
+//     const { phone_number } = req.query;
+
+//     if (!phone_number) {
+//       return res.status(400).json({ error: 'Phone number is required' });
+//     }
+
+//     // Find user by phone and ensure it's a captain
+//     const user = await User.findOne({ where: { phone_number } });
+
+//     if (!user) {
+//       return res.status(404).json({ error: 'Captain not found' });
+//     }
+
+//     if (user.captain_status === 'none') {
+//       return res.status(400).json({ error: 'This user is not a captain' });
+//     }
+
+//     // Get the vehicle info linked to this captain
+//     const vehicle = await CaptainVehicle.findOne({ where: { captain_id: user.id } });
+
+//     return res.status(200).json({ user, vehicle });
+//   } catch (error) {
+//     console.error('Error fetching captain details:', error.message);
+//     return res.status(500).json({ error: 'Server error' });
+//   }
+// };
 
 
 
