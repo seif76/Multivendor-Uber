@@ -74,6 +74,7 @@ const registerCaptainController = async (req, res) => {
       vehicle: result.vehicle,
     });
   } catch (error) {
+    console.log(JSON.stringify(error))
     return res
       .status(500)
       .json({ error: `Failed to register captain: ${error.message}` });
