@@ -15,7 +15,15 @@ app.use(express.json());
 //syncDatabase();
 //
 
+// start Swagger 
+if (process.env.NODE_ENV !== 'production') {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerSpec = require('./src/config/swagger/swagger');
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
+
+// End Swagger 
 
 
 // Start Socket io  //
