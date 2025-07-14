@@ -4,10 +4,10 @@ import { Image, Pressable, Text, View } from 'react-native';
 import "../global.css";
 
 const roles = [
-  { name: 'Captain', path: '/captain/login' },
-  { name: 'Vendor', path: '/vendor/login' },
+  { name: 'Captain', path: '/captain/home' },
+  { name: 'Vendor', path: '/vendor/home' },
   { name: 'Delivery Man', path: '/delivery/login' },
-  { name: 'Customer', path: '/customer/register' },
+  { name: 'Customer', path: '/customer/home' },
 ];
 
 export default function RoleSelector() {

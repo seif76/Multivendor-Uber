@@ -1,23 +1,6 @@
-import { useContext } from 'react';
 import { Text, View } from 'react-native';
-import { CaptainAuthContext } from '../../../context/CaptainAuthContext';
 
 export default function WalletScreen() {
-
-  // redirecting and auth staff
-  const context = useContext(CaptainAuthContext);
-
-  if (!context) {
-    console.warn("CaptainAuthContext is undefined —  you forget to wrap with the provider");
-    return null;
-  }
-
-  const { isCaptainVerified, loading } = context;
-
-  if (loading) return <Text>Loading...</Text>;
-  if (!isCaptainVerified) return <Text>Redirecting...</Text>;
-
-
   return (
     <View className="flex-1 bg-white p-4">
       <Text className="text-2xl font-bold text-green-600 mb-4">Wallet</Text>

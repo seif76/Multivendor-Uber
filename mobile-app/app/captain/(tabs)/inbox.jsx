@@ -1,6 +1,21 @@
+import { useContext } from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import { CaptainAuthContext } from '../../../context/CaptainAuthContext';
 
 export default function InboxScreen() {
+
+  const context = useContext(CaptainAuthContext);
+
+  if (!context) {
+    console.warn("CaptainAuthContext is undefined — did you forget to wrap with the provider?");
+    return null;
+  }
+
+  const { isCaptainVerified, loading } = context;
+
+  if (loading) return <Text>Loading...</Text>;
+  if (!isCaptainVerified) return <Text>Redirecting...</Text>;
+  
   const dummyNotifications = [
     { id: 1, message: 'Your ride has been completed successfully.', time: 'Just now' },
     { id: 2, message: 'You received a new order.', time: '10 mins ago' },

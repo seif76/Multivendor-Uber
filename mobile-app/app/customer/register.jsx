@@ -163,6 +163,7 @@
 
 
 import axios from 'axios';
+import Constants from 'expo-constants';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -177,6 +178,8 @@ export default function CustomerRegister() {
     profile_photo: '',
   });
   const router = useRouter();
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+
 
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
@@ -184,7 +187,7 @@ export default function CustomerRegister() {
 
   const handleRegister = async () => {
     try {
-      const res = await axios.post('http://192.168.1.42:5000/api/customers/register', form);
+      const res = await axios.post(`${BACKEND_URL}/api/customers/register`, form);
       alert('Success', 'Registration successful!');
       router.push('/customer/login');
     } catch (err) {

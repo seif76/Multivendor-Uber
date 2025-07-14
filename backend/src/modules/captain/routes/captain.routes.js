@@ -135,7 +135,7 @@ router.get('/deactivated', authenticate, getDeactivatedCaptainsController);
  *       200:
  *         description: Captain profile retrieved
  */
-router.get('/profile', authenticate, getCaptainProfileController);
+router.get('/profile', authenticate, getCaptainProfileController); // used in the context frontend
 
 // ---------- Admin Routes ----------
 
