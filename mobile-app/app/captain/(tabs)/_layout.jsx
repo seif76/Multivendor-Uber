@@ -5,6 +5,8 @@ import { View } from 'react-native';
 import OnlineStatusBar from '../../../components/captain/custom/OnlineStatusBar';
 import TopNavbar from '../../../components/captain/navigation/TopNavbar';
 import SideNav from '../../../components/captain/navigation/sideNav';
+import { CaptainAuthProvider } from '../../../context/CaptainAuthContext';
+
 
 export default function CaptainLayout() {
     const segments = useSegments();
@@ -18,9 +20,14 @@ export default function CaptainLayout() {
     }, [segments]);
   
     if (!showTabs) {
-      return <Slot />; // render screen without tab bar
+      return (
+        <CaptainAuthProvider>
+          <Slot />
+        </CaptainAuthProvider>
+      );
     }
   return (
+    <CaptainAuthProvider>
     <View className="flex-1 relative">
     <TopNavbar  
       onProfilePress={() => setMenuOpen(true)} 
@@ -58,5 +65,6 @@ export default function CaptainLayout() {
       />
     </Tabs>
     </View>
+    </CaptainAuthProvider>
   );
 }

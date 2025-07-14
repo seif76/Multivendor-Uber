@@ -13,6 +13,13 @@ app.use(express.json());
 // db staff
 //const syncDatabase = require('./src/app/models/seeders/seeders');
 //syncDatabase();
+
+//const syncMultivendorTables = require('./src/app/models/seeders/multivendorSeeders');
+//syncMultivendorTables();
+
+
+
+
 //
 
 // start Swagger 
@@ -83,11 +90,13 @@ io.on('connection', (socket) => {
 const captainRoutes = require('./src/modules/captain/routes/captain.routes')
 const customerRoutes = require('./src/modules/customer/routes/customer.routes');
 const rideRoutes = require('./src/modules/rides/routes/ride.routes');
+const vendorRoutes = require('./src/modules/vendor/routes/vendor.routes');
 //
 
 app.use('/api/captain', captainRoutes);
 app.use('/api/customers',customerRoutes)
 app.use('/api/rides', rideRoutes);
+app.use('/api/vendor', vendorRoutes );
 
 // Routes
 app.get('/', (req, res) => {

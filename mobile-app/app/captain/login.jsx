@@ -39,6 +39,7 @@ export default function CaptainLogin() {
         setLoading(false);
         return;
       }
+      // alert ("token is :" + data.token ) 
 
       // Save token in AsyncStorage
       await AsyncStorage.setItem('token', data.token);

@@ -107,11 +107,27 @@ const loginCaptainController = async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password' });
     }
 
+    // const token = jwt.sign(
+    //   { id: user.id, role: 'captain' },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: '7d' }
+    // );
+
+    // You can remove "expiresIn" for a token with no expiration
     const token = jwt.sign(
-      { id: user.id, role: 'captain' },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      {
+        id: user.id,
+        phone_number: user.phone_number,
+        gender: user.gender,
+        captain_status: user.captain_status,
+        customer_status: user.customer_status,
+        deliveryman_status: user.deliveryman_status,
+        vendor_status: user.vendor_status
+      },
+      process.env.JWT_SECRET
+      // , { expiresIn: '30d' } // REMOVE THIS LINE for no expiry
     );
+
 
     return res.status(200).json({
       token,
