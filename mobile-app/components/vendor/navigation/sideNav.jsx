@@ -12,7 +12,7 @@ export default function VendorSideNav({ visible, onClose }) {
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
   const menuItems = [
-    { icon: 'home', label: 'Home', type: MaterialIcons, route: '/captain/home' },
+    { icon: 'home', label: 'Home', type: MaterialIcons, route: '/vendor/home' },
     { icon: 'storefront', label: 'My Shop', type: MaterialIcons, route: '/vendor/manageShop' },
     { icon: 'inventory', label: 'Products', type: MaterialIcons, route: '/vendor/products' },
     { icon: 'receipt', label: 'Orders', type: MaterialIcons, route: '/vendor/orders' },

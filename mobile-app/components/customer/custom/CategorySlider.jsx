@@ -16,7 +16,7 @@ export default function CategorySlider() {
   return (
     <View className="px-4 py-2">
       <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
-      <Pressable onPress={() => router.push("/customer/shop")} className="bg-primary mb-3 w-full py-3 rounded-lg items-center">
+      <Pressable onPress={() => router.push("/customer/shop/shop")} className="bg-primary mb-3 w-full py-3 rounded-lg items-center">
             <Text className="text-white text-lg">see shop</Text>
         </Pressable>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">

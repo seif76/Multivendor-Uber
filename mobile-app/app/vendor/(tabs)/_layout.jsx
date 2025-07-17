@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import VendorSideNav from '../../../components/vendor/navigation/sideNav';
 import VendorTopNavbar from '../../../components/vendor/navigation/topNav';
+import { VendorAuthProvider } from '../../../context/VendorAuthContext';
 
 export default function VendorLayout() {
   const segments = useSegments();
@@ -18,8 +19,15 @@ export default function VendorLayout() {
   if (!showTabs) {
     return <Slot />; // only show login/register screen
   }
-
+  if (!showTabs) {
+    return (
+      <VendorAuthProvider>
+        <Slot />
+      </VendorAuthProvider>
+    );
+  }
   return (
+    <VendorAuthProvider>
     <View className="flex-1 relative">
       {/* Vendor Top Navbar */}
       <VendorTopNavbar onProfilePress={() => setMenuOpen(true)} />
@@ -62,13 +70,16 @@ export default function VendorLayout() {
             tabBarIcon: ({ color }) => <FontAwesome name="envelope" size={22} color={color} />,
           }}
         />
-        {/* those are routes that I do not need to display in the bottom nav  */ } 
+        {/* those are routes that I do not need to display in the bottom Tabs  */ } 
         <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: {display: 'none'}}} />
         <Tabs.Screen name="products" options={{ tabBarItemStyle: {display: 'none'}}} />
         <Tabs.Screen name="profile" options={{ tabBarItemStyle: {display: 'none'}}} />
+        <Tabs.Screen name="add-product" options={{ tabBarItemStyle: {display: 'none'}}} />
+        <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: {display: 'none'}}} />
         
         
       </Tabs>
     </View>
+    </VendorAuthProvider>
   );
 }

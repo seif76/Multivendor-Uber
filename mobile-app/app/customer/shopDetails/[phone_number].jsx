@@ -1,14 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import Constants from 'expo-constants';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-    FlatList,
-    Image,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
 } from 'react-native';
+
 
 const dummyShop = {
   logo: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80',
@@ -50,10 +53,41 @@ const dummyShop = {
   ],
 };
 
+import { CartContext } from '../../../context/customer/CartContext';
+
+
+
 export default function ShopDetails() {
   const { phone_number } = useLocalSearchParams();
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState(dummyShop.tabs[0]);
+  const [vendorInfo, setVendorInfo] = useState({});
+  const [products, setProducts] = useState({});
+  const { addToCart } = useContext(CartContext);
+
+
+
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+
+  const fetchVendorInfo = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/vendor/profile-with-products/${phone_number}`);
+      setVendorInfo(res.data.vendorInfo)
+      setProducts(res.data.products)
+     // setVendor(data.vendor_info || {});
+     // alert(JSON.stringify(vendorInfo))
+    } catch (err) {
+      console.error('Error fetching vendor info:', err);
+      Alert.alert('Error', 'Failed to load shop data.');
+    }
+  };
+
+  useEffect(() => {
+    if (phone_number) {
+      fetchVendorInfo();
+    }
+  //  alert(JSON.stringify(products))
+  }, [phone_number]);
 
   return (
     <ScrollView className="bg-white">
@@ -80,10 +114,10 @@ export default function ShopDetails() {
             className="w-14 h-14 rounded-md mr-3"
           />
           <View>
-            <Text className="text-xl text-primary font-bold">{dummyShop.store_name}</Text>
-            <Text className="text-xs text-primary ">{dummyShop.category}</Text>
+            <Text className="text-xl text-primary font-bold">{vendorInfo?.shop_name || "...loading"}</Text>
+            <Text className="text-xs text-primary ">{vendorInfo?.category || "...loading"}</Text>
             <View className="flex-row items-center mt-1">
-              <Text className="text-yellow-500">⭐ {dummyShop.rating}</Text>
+              <Text className="text-yellow-500">⭐ {vendorInfo?.rating || "...loading" }</Text>
               <Text className="text-xs text-primary  ml-1">
                 ({dummyShop.ratingCount})
               </Text>
@@ -127,43 +161,42 @@ export default function ShopDetails() {
       <View className="px-4 mt-4">
         <Text className="text-lg font-bold mb-5">{selectedTab}</Text>
 
-        <FlatList
-          data={dummyShop.products}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          scrollEnabled={false}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
-          renderItem={({ item }) => (
-            <View className="w-[48%] bg-white mb-4 rounded-xl overflow-hidden shadow">
-              <Image
-                source={{ uri: item.image }}
-                className="w-full h-28"
-                resizeMode="cover"
-              />
-              <View className="p-2">
-                <Text className="font-semibold text-sm" numberOfLines={2}>
-                  {item.name}
-                </Text>
-                <Text className="text-primary font-bold text-sm mt-1">
-                  EGP {item.price.toFixed(2)}
-                </Text>
-                {item.label && (
-                  <Text className="text-[10px] text-orange-500 mt-1 bg-orange-100 px-1 rounded">
-                    ⭐ {item.label}
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
+        {products?.length > 0 ? (
+  <FlatList
+    data={products}
+    keyExtractor={(item) => item.id.toString()} // ensure it's a string
+    numColumns={2}
+    scrollEnabled={false}
+    columnWrapperStyle={{ justifyContent: 'space-between' }}
+    renderItem={({ item }) => (
+      <View className="w-[48%] bg-white mb-4 rounded-xl overflow-hidden shadow">
+        <Image
+          //source={{ uri: item.image }}
+          
+          source={{ uri: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" }}
+          className="w-full h-28"
+          resizeMode="cover"
         />
+       <View className="p-2 flex-row justify-between items-center">
+       <Text className="font-semibold text-sm text-black" numberOfLines={2}>
+         {item.name}
+      </Text>
+      <Text className="font-semibold text-sm text-green-600" numberOfLines={1}>
+         {parseFloat(item.price).toFixed(2)}
+      </Text>
+     </View>
+     <Pressable onPress={() => addToCart(item)}>
+  <Text className="text-primary">Add to Cart</Text>
+</Pressable>
+      </View>
+    )}
+  />
+) : (
+  <Text className="text-center text-gray-500 mt-6">No products available</Text>
+)}
       </View>
 
-      {/* Bottom Note */}
-      <View className="items-center justify-center mb-10">
-        <Text className="text-sm text-gray-500">
-          Add EGP 50.00 to start your order
-        </Text>
-      </View>
+     
     </ScrollView>
   );
 }
