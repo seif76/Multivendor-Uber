@@ -1,10 +1,31 @@
-const { User, VendorInfo } = require('../../../app/models');
+const { User, VendorInfo  , Product} = require('../../../app/models');
 const { Op } = require('sequelize');
+const bcrypt = require('bcrypt');
+
+
+// const registerVendor = async (userData, infoData) => {
+//   return await User.sequelize.transaction(async (transaction) => {
+//     const newUser = await User.create(userData, { transaction });
+//     const vendorInfo = await VendorInfo.create({ ...infoData, vendor_id: newUser.id }, { transaction });
+//     return { user: newUser, info: vendorInfo };
+//   });
+// };
 
 const registerVendor = async (userData, infoData) => {
   return await User.sequelize.transaction(async (transaction) => {
+    // ✅ Hash the password before saving
+    const hashedPassword = await bcrypt.hash(userData.password, 10); // 10 salt rounds
+    userData.password = hashedPassword;
+
+    // ✅ Create user with hashed password
     const newUser = await User.create(userData, { transaction });
-    const vendorInfo = await VendorInfo.create({ ...infoData, vendor_id: newUser.id }, { transaction });
+
+    // ✅ Create vendor info and associate it
+    const vendorInfo = await VendorInfo.create(
+      { ...infoData, vendor_id: newUser.id },
+      { transaction }
+    );
+
     return { user: newUser, info: vendorInfo };
   });
 };
@@ -98,6 +119,38 @@ const getVendorProfile = async (vendorId) => {
   return user;
 };
 
+const getVendorAndProductsByPhone = async (phone_number) => {
+    // Find the user
+    const user = await User.findOne({ where: { phone_number } });
+    if (!user) throw new Error('User not found');
+  
+    // // Find vendor info
+    // const vendorInfo = await VendorInfo.findOne({ where: { vendor_id: user.id } });
+    // if (!vendorInfo) throw new Error('Vendor info not found');
+  
+    // // Get products for the vendor
+    // const products = await Product.findAll({ where: { vendor_id: user.id } });
+  
+    // Get vendor info with selected fields
+  const vendorInfo = await VendorInfo.findOne({
+    where: { vendor_id: user.id },
+    attributes: ['shop_name', 'shop_location', 'owner_name', 'shop_front_photo'],
+  });
+
+  if (!vendorInfo) throw new Error('Vendor info not found');
+
+  // Get products with only selected fields
+  const products = await Product.findAll({
+    where: { vendor_id: user.id  },
+    attributes: ['id', 'name', 'description', 'price', 'stock', 'image', 'category', 'status'],
+  });
+
+  return { vendorInfo, products };
+
+
+    //return { vendor_info: vendorInfo, products };
+  };
+
 module.exports = {
   registerVendor,
   editVendor,
@@ -108,4 +161,5 @@ module.exports = {
   getAllVendors,
   getVendorStatusCounts,
   getVendorProfile,
+  getVendorAndProductsByPhone,
 };

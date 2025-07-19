@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -56,8 +57,8 @@ export default function CaptainLogin() {
   return (
     <View className="flex-1 px-4 bg-white">
       {/* Back button */}
-      <Pressable onPress={() => router.push('/')} className="mt-12 mb-4 w-10">
-        <Text>{"< Back"}</Text>
+      <Pressable onPress={() => router.push('/')} className="mt-10 ml-4 mb-4 w-10">
+        <Ionicons name="arrow-back" size={24} color="black" />
       </Pressable>
 
       {/* Login form */}

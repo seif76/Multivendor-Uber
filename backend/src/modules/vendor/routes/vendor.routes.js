@@ -10,10 +10,26 @@ const {
   setVendorStatusController,
   getAllVendorsController,
   getAllVendorStatusCountsController,
-  getVendorProfileController
+  getVendorProfileController,
+  getVendorWithProductsByPhoneController
 } = require('../controllers/vendor.controller');
+const { authenticate } = require('../../../middlewares/auth.middleware');
+
 
 const router = express.Router();
+
+const authRoutes = require('./auth.routes');
+router.use('/auth', authRoutes);
+
+
+const productRoutes = require('./product.routes');
+router.use('/products', productRoutes);
+
+const categoryRoutes = require('./category.routes');
+router.use('/categories', categoryRoutes);
+
+const orderRoutes = require('./order.routes');
+router.use('/orders', orderRoutes);
 
 /**
  * @swagger
@@ -298,6 +314,8 @@ router.get('/get-all-status-counts', getAllVendorStatusCountsController);
  *       500:
  *         description: Server error
  */
-router.get('/profile', getVendorProfileController);
+router.get('/profile',authenticate , getVendorProfileController);
+
+router.get('/profile-with-products/:phone_number' , getVendorWithProductsByPhoneController);
 
 module.exports = router;

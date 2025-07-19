@@ -1,7 +1,21 @@
 import { FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useContext } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { VendorAuthContext } from '../../../context/VendorAuthContext';
 
 export default function VendorHome() {
+
+  const context = useContext(VendorAuthContext);
+
+  if (!context) {
+    console.warn("CaptainAuthContext is undefined —  you forget to wrap with the provider");
+    return null;
+  }
+
+  const { isVendorVerified, loading } = context;
+
+  if (loading) return <Text>Loading...</Text>;
+  if (!isVendorVerified) return <Text>Redirecting...</Text>;
   return (
     
     <ScrollView className="flex-1 bg-white p-5 pt-14">

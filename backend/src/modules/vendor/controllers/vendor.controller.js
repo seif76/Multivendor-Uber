@@ -7,7 +7,8 @@ const {
     setVendorStatus,
     getAllVendors,
     getVendorProfile,
-    getVendorStatusCounts
+    getVendorStatusCounts,
+    getVendorAndProductsByPhone
   } = require('../services/vendor.services');
   
   const registerVendorController = async (req, res) => {
@@ -113,6 +114,23 @@ const {
       res.status(500).json({ error: err.message });
     }
   };
+
+  const getVendorWithProductsByPhoneController = async (req, res) => {
+    try {
+      const { phone_number } = req.params;
+  
+      const result = await getVendorAndProductsByPhone(phone_number);
+  
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Error in getVendorWithProductsByPhone:', error);
+  
+      const status = error.message === 'User not found' || error.message === 'Vendor info not found' ? 404 : 500;
+      res.status(status).json({ message: error.message });
+    }
+  };
+
+  
   
   module.exports = {
     registerVendorController,
@@ -126,5 +144,6 @@ const {
     getAllVendorsController,
     getAllVendorStatusCountsController,
     getVendorProfileController,
+    getVendorWithProductsByPhoneController,
   };
   

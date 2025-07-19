@@ -28,6 +28,7 @@
 // module.exports = router;
 
 const express = require('express');
+const authRoutes = require('./auth.routes');
 const {
   registerCustomerController,
   getCustomerByPhoneController,
@@ -37,8 +38,12 @@ const {
   getAllCustomersController,
   getAllCustomersStatusCountsController,
 } = require('../controller/customer.controller');
+const orderRoutes = require('./order.routes');
 
 const router = express.Router();
+router.use('/auth', authRoutes);
+router.use('/orders', orderRoutes);
+
 
 /**
  * @swagger
@@ -219,5 +224,7 @@ router.get('/get-all-customers-status', getAllCustomersStatusCountsController);
  *         description: Customer deleted successfully
  */
 router.delete('/delete', deleteCustomerController);
+
+
 
 module.exports = router;

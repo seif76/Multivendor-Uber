@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,13 +10,15 @@ export default function VendorProfile() {
   const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  
 
   const fetchVendorProfile = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
+      const decoded = jwtDecode(token);
       //if (!token) return;
 
-      const res = await axios.get(`${BACKEND_URL}/api/vendor/get-by-phone?phone_number=01009887799`, {
+      const res = await axios.get(`${BACKEND_URL}/api/vendor/get-by-phone?phone_number=${decoded?.phone_number}`, {
         // headers: {
         //   Authorization: `Bearer ${token}`,
         // },

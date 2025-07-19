@@ -6,12 +6,14 @@ module.exports = async function syncMultivendorTables() {
     const sequelize = await initializeDatabase();
 
     // Import only new multivendor models
-    const VendorInfo = require('../VendorInfo')(sequelize);
+    const VendorInfo = require('../vendorInfo')(sequelize);
     const Product = require('../product')(sequelize);
     const Order = require('../order')(sequelize);
     const OrderItem = require('../orderItem')(sequelize);
+    const VendorCategory = require('../vendorCategory')(sequelize);
 
-    const models = { VendorInfo, Product, Order, OrderItem };
+
+    const models = { VendorInfo, Product, Order, OrderItem, VendorCategory };
 
     // Setup associations if needed
     Object.values(models).forEach((model) => {
