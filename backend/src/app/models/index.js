@@ -13,10 +13,11 @@ const Ride = require('./ride')(sequelize,DataTypes);
 
 // multivendor
 
-const VendorInfo = require('./VendorInfo')(sequelize,DataTypes);
+const VendorInfo = require('./vendorInfo')(sequelize, DataTypes);
 const Product = require('./product')(sequelize,DataTypes);
 const Order = require('./order')(sequelize,DataTypes);
 const OrderItem = require('./orderItem')(sequelize,DataTypes);
+const VendorCategory = require('./vendorCategory')(sequelize, DataTypes);
 
 
 // Associations
@@ -47,6 +48,12 @@ User.hasMany(Ride, { foreignKey: 'captain_id', as: 'captain_rides' });
 Ride.belongsTo(User, { foreignKey: 'customer_id', as: 'customer' });
 Ride.belongsTo(User, { foreignKey: 'captain_id', as: 'captain' });
 
+VendorInfo.hasMany(VendorCategory, { foreignKey: 'vendor_id', as: 'categories' });
+VendorCategory.belongsTo(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor' });
+
+Product.belongsTo(VendorCategory, { foreignKey: 'vendor_category_id', as: 'vendorCategory' });
+VendorCategory.hasMany(Product, { foreignKey: 'vendor_category_id', as: 'products' });
+
 module.exports = {
   sequelize,
   User,
@@ -56,4 +63,5 @@ module.exports = {
   Product,
   Order,
   OrderItem,
+  VendorCategory,
 };

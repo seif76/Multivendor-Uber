@@ -76,6 +76,8 @@ export default function VendorLayout() {
         <Tabs.Screen name="profile" options={{ tabBarItemStyle: {display: 'none'}}} />
         <Tabs.Screen name="add-product" options={{ tabBarItemStyle: {display: 'none'}}} />
         <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: {display: 'none'}}} />
+        <Tabs.Screen name="categories" options={{ tabBarItemStyle: {display: 'none'}}} />
+        
         
         
       </Tabs>

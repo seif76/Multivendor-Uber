@@ -1,62 +1,78 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
-import { Image, Pressable, Text, TextInput, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import axios from 'axios';
 
 export default function CustomerLogin() {
-    const router = useRouter();
+  const router = useRouter();
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+
+  const [phoneOrEmail, setPhoneOrEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!phoneOrEmail || !password) {
+      Alert.alert('Validation', 'Please enter phone and password');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/customers/auth/login`, {
+        phone_number: phoneOrEmail,
+        password,
+      });
+      
+      const data = response.data;
+      await AsyncStorage.setItem('token', data.token);
+      router.push('/customer/home');
+    } catch (error) {
+      const msg = error.response?.data?.error || error.message || 'Unknown error';
+      Alert.alert('Login Failed', msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-    <Pressable onPress={() => router.push('/')} className="mt-10 ml-4 mb-4 w-10">
+    <View className="flex-1 px-4 bg-white">
+      {/* Back button */}
+      <Pressable onPress={() => router.push('/')} className="mt-10 ml-4 mb-4 w-10">
         <Ionicons name="arrow-back" size={24} color="black" />
       </Pressable>
-    <View className="flex-1 bg-white px-6 justify-center">
 
-     
-      {/* Logo */}
-      <View className="items-center mb-8">
-        <Image
-          source={require('../../assets/images/Elnaizak-logo.jpeg')} 
-          className="w-28 h-28"
-          resizeMode="contain"
+      {/* Login form */}
+      <View className="flex-1 justify-center items-center w-full">
+        <Text className="text-xl font-bold mb-4">Customer Login</Text>
+        <TextInput
+          placeholder="Phone Number"
+          className="border w-full mb-3 px-4 py-2 rounded"
+          value={phoneOrEmail}
+          onChangeText={setPhoneOrEmail}
+          keyboardType="phone-pad"
+          autoCapitalize="none"
         />
-      </View>
-
-      {/* Heading */}
-      <Text className="text-2xl font-bold text-center mb-6 text-primary">Welcome Back</Text>
-
-      {/* Inputs */}
-      <TextInput
-        placeholder="Phone or Email"
-        className="border border-gray-300 rounded px-4 py-3 mb-4"
-        placeholderTextColor="#888"
-      />
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        className="border border-gray-300 rounded px-4 py-3 mb-2"
-        placeholderTextColor="#888"
-      />
-
-      {/* Forgot Password */}
-      <View className="mb-6 items-end">
-        <Link href="/forgot-password" asChild>
-          <Text className="text-blue-600">Forgot Password?</Text>
-        </Link>
-      </View>
-
-      {/* Login Button */}
-      <Pressable className="bg-primary py-3 rounded items-center mb-4">
-        <Text className="text-white font-bold text-lg">Login</Text>
-      </Pressable>
-
-      {/* Register Link */}
-      <View className="flex-row justify-center mt-2">
-        <Text className="text-gray-600">Do not have an account? </Text>
-        <Link href="/customer/register" asChild>
-          <Text className="text-blue-600 font-semibold">Register</Text>
-        </Link>
+        <TextInput
+          placeholder="Password"
+          secureTextEntry
+          className="border w-full mb-3 px-4 py-2 rounded"
+          value={password}
+          onChangeText={setPassword}
+          autoCapitalize="none"
+        />
+        <Pressable
+          className={`py-3 px-8 rounded ${loading ? 'bg-gray-400' : 'bg-primary'}`}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text className="text-white text-center">{loading ? 'Logging in...' : 'Login'}</Text>
+        </Pressable>
       </View>
     </View>
-    </>
   );
 }

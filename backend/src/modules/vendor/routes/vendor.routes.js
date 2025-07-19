@@ -25,6 +25,12 @@ router.use('/auth', authRoutes);
 const productRoutes = require('./product.routes');
 router.use('/products', productRoutes);
 
+const categoryRoutes = require('./category.routes');
+router.use('/categories', categoryRoutes);
+
+const orderRoutes = require('./order.routes');
+router.use('/orders', orderRoutes);
+
 /**
  * @swagger
  * tags:

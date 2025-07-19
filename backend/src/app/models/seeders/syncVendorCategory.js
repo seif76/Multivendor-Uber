@@ -1,19 +1,16 @@
 require('dotenv').config();
 const initializeDatabase = require('../../../config/mysql/dbconnection'); // your DB connection file
 
-module.exports = async function syncMultivendorTables() {
+module.exports = async function syncVendorCategory() {
   try {
     const sequelize = await initializeDatabase();
 
     // Import only new multivendor models
-    const VendorInfo = require('../vendorInfo')(sequelize);
-    const Product = require('../product')(sequelize);
-    const Order = require('../order')(sequelize);
-    const OrderItem = require('../orderItem')(sequelize);
+    
     const VendorCategory = require('../vendorCategory')(sequelize);
 
 
-    const models = { VendorInfo, Product, Order, OrderItem, VendorCategory };
+    const models = {  VendorCategory };
 
     // Setup associations if needed
     Object.values(models).forEach((model) => {
@@ -23,10 +20,10 @@ module.exports = async function syncMultivendorTables() {
     // Sync only these new tables
     await sequelize.sync({ alter: true }); // NEVER use force here
 
-    console.log('✅ Multivendor tables synced successfully.');
+    console.log('✅ VendorCategory table synced successfully.');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error syncing multivendor tables:', error);
+    console.error('❌ Error syncing VendorCategory table:', error);
     process.exit(1);
   }
 };

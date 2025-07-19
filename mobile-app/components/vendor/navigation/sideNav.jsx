@@ -15,6 +15,7 @@ export default function VendorSideNav({ visible, onClose }) {
     { icon: 'home', label: 'Home', type: MaterialIcons, route: '/vendor/home' },
     { icon: 'storefront', label: 'My Shop', type: MaterialIcons, route: '/vendor/manageShop' },
     { icon: 'inventory', label: 'Products', type: MaterialIcons, route: '/vendor/products' },
+    { icon: 'category', label: 'Categories', type: MaterialIcons, route: '/vendor/categories' },
     { icon: 'receipt', label: 'Orders', type: MaterialIcons, route: '/vendor/orders' },
     { icon: 'wallet', label: 'Wallet', type: MaterialCommunityIcons, route: '/vendor/wallet' },
     { icon: 'headset', label: 'Support Chat', type: MaterialCommunityIcons, route: '/vendor/chat' },

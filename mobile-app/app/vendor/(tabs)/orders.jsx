@@ -1,46 +1,112 @@
-import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Pressable, ActivityIndicator, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
+import axios from 'axios';
 
-export default function OrdersScreen() {
-  const orders = [
-    { id: '1', customer: 'John Doe', total: '250 EGP', status: 'Pending' },
-    { id: '2', customer: 'Sarah Ali', total: '400 EGP', status: 'Completed' },
-    { id: '3', customer: 'Mohamed Nabil', total: '180 EGP', status: 'Cancelled' },
-  ];
+export default function VendorOrdersPage() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [confirmingId, setConfirmingId] = useState(null);
+  const router = useRouter();
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
-  const statusColor = (status) => {
-    switch (status) {
-      case 'Pending':
-        return 'text-yellow-600';
-      case 'Completed':
-        return 'text-green-600';
-      case 'Cancelled':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Not authenticated');
+      const res = await axios.get(`${BACKEND_URL}/api/vendor/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOrders(res.data);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to fetch orders');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleConfirm = async (orderId) => {
+    setConfirmingId(orderId);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Not authenticated');
+      await axios.put(
+        `${BACKEND_URL}/api/vendor/orders/${orderId}/status`,
+        { status: 'confirmed' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Alert.alert('Order Confirmed', 'The order has been confirmed.');
+      setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o));
+    } catch (err) {
+      const msg = err.response?.data?.error || err.message || 'Failed to confirm order';
+      Alert.alert('Confirm Failed', msg);
+    } finally {
+      setConfirmingId(null);
     }
   };
 
+  const renderOrder = ({ item }) => (
+    <Pressable
+      className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100"
+      onPress={() => router.push(`/vendor/orders/${item.id}`)}
+    >
+      <View className="flex-row justify-between mb-2">
+        <Text className="text-base font-semibold text-gray-700">Order #{item.id}</Text>
+        <Text className="text-sm text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</Text>
+      </View>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{item.status}</Text></Text>
+        <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item.total_price).toFixed(2)}</Text>
+      </View>
+      <Pressable
+        className="bg-gray-200 py-2 rounded-xl mt-2"
+        onPress={() => router.push(`/vendor/orders/${item.id}`)}
+      >
+        <Text className="text-primary text-center font-bold">View Order</Text>
+      </Pressable>
+    </Pressable>
+  );
+
   return (
-    <ScrollView className="flex-1 bg-white p-4">
-      <Text className="text-xl font-bold text-gray-800 mb-4">Orders</Text>
-
-      {orders.map((order) => (
-        <View key={order.id} className="bg-gray-50 rounded-xl shadow-sm border border-gray-200 mb-4 p-4">
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="text-base font-semibold">Order #{order.id}</Text>
-              <Text className="text-sm text-gray-600">Customer: {order.customer}</Text>
-              <Text className={`text-sm mt-1 font-medium ${statusColor(order.status)}`}>Status: {order.status}</Text>
-            </View>
-            <Text className="text-lg font-bold text-primary">{order.total}</Text>
-          </View>
-
-          <Pressable className="mt-4 bg-primary py-2 px-4 rounded-full items-center">
-            <Text className="text-white font-semibold text-sm">View Details</Text>
+    <View className="flex-1 bg-gray-50 px-4 pt-8">
+      <View className="flex-row justify-between items-center mb-6">
+        <Text className="text-2xl font-bold text-primary">Orders</Text>
+        <Pressable onPress={fetchOrders} className="bg-primary px-4 py-2 rounded-xl">
+          <Text className="text-white font-bold">Refresh</Text>
+        </Pressable>
+      </View>
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0f9d58" />
+          <Text className="mt-4 text-primary font-semibold">Loading orders...</Text>
+        </View>
+      ) : error ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-red-500 font-semibold mb-2">{error}</Text>
+          <Pressable onPress={fetchOrders} className="bg-primary px-6 py-2 rounded-xl mt-2">
+            <Text className="text-white font-bold">Retry</Text>
           </Pressable>
         </View>
-      ))}
-    </ScrollView>
+      ) : orders.length === 0 ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-400 font-semibold text-lg">No orders yet.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderOrder}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </View>
   );
 }

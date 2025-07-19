@@ -14,8 +14,11 @@ app.use(express.json());
 //const syncDatabase = require('./src/app/models/seeders/seeders');
 //syncDatabase();
 
-//const syncMultivendorTables = require('./src/app/models/seeders/multivendorSeeders');
-//syncMultivendorTables();
+// const syncMultivendorTables = require('./src/app/models/seeders/multivendorSeeders');
+// syncMultivendorTables();
+
+// const syncVendorCategory = require('./src/app/models/seeders/syncVendorCategory');
+//  syncVendorCategory();
 
 
 

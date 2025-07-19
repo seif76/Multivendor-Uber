@@ -1,38 +1,42 @@
-import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
 export default function VendorCard({ vendor }) {
-  const navigation = useNavigation();
   const router = useRouter();
+  const shopName = vendor.vendor_info?.shop_name || 'Unnamed Shop';
+  const shopLocation = vendor.vendor_info?.shop_location || 'No location available';
+  const shopLogo = vendor.vendor_info?.shop_front_photo
+    ? `http://<your-local-ip>:5000/uploads/${vendor.vendor_info.shop_front_photo}`
+    : 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80';
+
+  const goToShop = () => {
+    router.push(`/customer/shopDetails/${vendor.vendor_info.phone_number}`);
+  };
 
   return (
-    <Pressable
-      className="bg-white rounded-xl shadow mb-5 overflow-hidden border border-gray-100"
-      onPress={() => navigation.navigate('VendorDetails', { vendorId: vendor.id })}
-    >
-      <Image
-        source={{
-          uri: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80',
-        }}
-        className="w-full h-40"
-        resizeMode="cover"
-      />
-      <View className="p-4">
-        <Text className="font-bold text-lg">
-          {vendor.vendor_info?.shop_name || 'Unnamed Shop'}
-        </Text>
-        <Text className="text-gray-500 text-sm mt-1">
-          {vendor.vendor_info?.shop_location || 'No location available'}
-        </Text>
+    <>
+      <View className="flex-row items-center bg-white py-4 px-2 mb-1 rounded-xl shadow-sm border-b border-gray-100">
+        {/* Shop Logo */}
+        <Image
+          source={{ uri: shopLogo }}
+          className="w-14 h-14 rounded-full border-2 border-primary mr-4"
+          resizeMode="cover"
+        />
+        {/* Shop Info */}
+        <View className="flex-1 justify-center">
+          <Text className="font-bold text-base text-gray-900 mb-1" numberOfLines={1}>{shopName}</Text>
+          <Text className="text-gray-500 text-xs" numberOfLines={1}>{shopLocation}</Text>
+        </View>
+        {/* View Shop Button */}
         <Pressable
-          onPress={() => router.push(`/customer/shopDetails/${vendor.vendor_info.phone_number}`)}
-          className="mt-3 bg-primary py-2 rounded-lg items-center"
+          onPress={goToShop}
+          className="bg-primary py-2 px-5 rounded-full items-center ml-2"
+          style={{ elevation: 1 }}
         >
-          <Text className="text-white font-semibold text-sm">View Shop</Text>
+          <Text className="text-white font-bold text-sm">View Shop</Text>
         </Pressable>
       </View>
-    </Pressable>
+    </>
   );
 }

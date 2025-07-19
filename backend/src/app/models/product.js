@@ -13,6 +13,11 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
   
+      vendor_category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+  
       name: {
         type: DataTypes.STRING,
         allowNull: false,
