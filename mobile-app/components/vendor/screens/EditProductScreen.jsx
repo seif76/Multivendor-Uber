@@ -32,18 +32,29 @@ export default function EditProductScreen({ product }) {
   const handleSubmit = async (data) => {
     try {
       const token = await AsyncStorage.getItem('token');
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'image') formData.append(key, value);
+      });
+      if (data.image && data.image.uri) {
+        formData.append('image', {
+          uri: data.image.uri,
+          name: data.image.name || 'product.jpg',
+          type: data.image.type || 'image/jpeg',
+        });
+      }
       const res = await fetch(`${BACKEND_URL}/api/vendor/products/update-product/${product.id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          // Do NOT set Content-Type here; let fetch set it automatically for FormData
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (!res.ok) throw new Error('Failed to update product');
       Alert.alert('Success', 'Product updated');
-      router.back();
+      router.push('/vendor/products');
     } catch (err) {
       console.error(err);
       Alert.alert('Error', err.message);
@@ -59,6 +70,12 @@ export default function EditProductScreen({ product }) {
     );
   }
 
+  // Pass initial image as an object for preview
+  const initialProduct = {
+    ...product,
+    image: product.image ? { uri: product.image, name: 'product.jpg', type: 'image/jpeg', isInitial: true } : null,
+  };
+
   return (
     <View className="flex-1 bg-white justify-center items-center px-4">
       <View className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl">
@@ -66,7 +83,7 @@ export default function EditProductScreen({ product }) {
         <ProductForm
           onSubmit={handleSubmit}
           submitText="Update Product"
-          initialValues={product}
+          initialValues={initialProduct}
           categories={categories}
         />
       </View>

@@ -8,6 +8,7 @@ const {
 } = require('../controllers/product.controller');
 
 const { authenticate } = require('../../../middlewares/auth.middleware');
+const upload = require('../../../middlewares/uploadLocal');
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post('/create-product', authenticate, createProductController);
+router.post('/create-product', authenticate, upload.single('image'), createProductController);
 /**
  * @swagger
  * /api/vendor/products/get-products:
@@ -140,7 +141,7 @@ router.get('/get-product-byId/:productId', authenticate, getProductByIdControlle
  *       404:
  *         description: Product not found
  */
-router.put('/update-product/:productId', authenticate, updateProductController);
+router.put('/update-product/:productId', authenticate, upload.single('image'), updateProductController);
 /**
  * @swagger
  * /api/vendor/products/delete-product/{productId}:

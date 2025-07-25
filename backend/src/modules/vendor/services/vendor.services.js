@@ -126,6 +126,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
     // const products = await Product.findAll({ where: { vendor_id: user.id } });
   
     // Get vendor info with selected fields
+    console.log(user.id);
   const vendorInfo = await VendorInfo.findOne({
     where: { vendor_id: user.id },
     attributes: ['shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],

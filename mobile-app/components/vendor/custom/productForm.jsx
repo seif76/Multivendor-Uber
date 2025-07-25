@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, TextInput, View, Modal, ScrollView, Alert } from 'react-native';
+import { Pressable, Text, TextInput, View, Modal, ScrollView, Alert, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ProductForm({ onSubmit, initialValues = {}, submitText = 'Submit', categories = [] }) {
   const [name, setName] = useState('');
@@ -7,9 +9,11 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
   const [description, setDescription] = useState('');
   const [vendorCategoryId, setVendorCategoryId] = useState('');
   const [stock, setStock] = useState('');
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState(null);
   const [categoryModal, setCategoryModal] = useState(false);
   const [error, setError] = useState('');
+  const [imageError, setImageError] = useState('');
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     setName(initialValues.name || '');
@@ -17,13 +21,21 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
     setDescription(initialValues.description || '');
     setVendorCategoryId(initialValues.vendor_category_id || '');
     setStock(String(initialValues.stock || ''));
-    setImage(initialValues.image || '');
+    if (initialValues.image) {
+      setImage({ uri: initialValues.image, name: 'product.jpg', type: 'image/jpeg', isInitial: true });
+    } else {
+      setImage(null);
+    }
     setError('');
   }, [initialValues]);
 
   const handleSubmit = () => {
     if (!name || !price) {
       setError('Name and price are required.');
+      return;
+    }
+    if (!image || !image.uri) {
+      setError('Product image is required.');
       return;
     }
     setError('');
@@ -35,6 +47,39 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
       stock,
       image,
     });
+  };
+
+  // Use the same pickImage logic as registration
+  const pickImage = async () => {
+    setImageError('');
+    setPicking(true);
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        setImageError('Permission to access media library is required!');
+        Alert.alert('Permission required', 'Please allow access to your photos to select a product image.');
+        setPicking(false);
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setImage({
+          uri: asset.uri,
+          name: asset.fileName || `product_${Date.now()}.jpg`,
+          type: asset.type || 'image/jpeg',
+        });
+      }
+    } catch (err) {
+      setImageError('Failed to pick image.');
+    } finally {
+      setPicking(false);
+    }
   };
 
   const selectedCategory = categories.find((cat) => cat.id === vendorCategoryId);
@@ -93,9 +138,26 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
         <Text className="mb-1 text-base font-semibold text-gray-700">Stock</Text>
         <TextInput placeholder="Stock" value={stock} onChangeText={setStock} keyboardType="numeric" className="border border-gray-300 p-3 rounded-lg bg-gray-50" />
       </View>
-      <View className="mb-6">
-        <Text className="mb-1 text-base font-semibold text-gray-700">Image URL</Text>
-        <TextInput placeholder="Image URL" value={image} onChangeText={setImage} className="border border-gray-300 p-3 rounded-lg bg-gray-50" />
+      {/* Product Image Picker */}
+      <View className="items-center mb-2">
+        <TouchableOpacity
+          onPress={pickImage}
+          className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-green-400 items-center justify-center mb-2"
+          activeOpacity={0.7}
+        >
+          {image && image.uri ? (
+            <Image
+              source={{ uri: image.uri }}
+              style={{ width: 96, height: 96, borderRadius: 48 }}
+            />
+          ) : picking ? (
+            <ActivityIndicator color="#22c55e" />
+          ) : (
+            <Ionicons name="camera" size={36} color="#22c55e" />
+          )}
+        </TouchableOpacity>
+        <Text className="text-primary font-semibold mt-1">Pick Product Image</Text>
+        {imageError ? <Text className="text-red-500 text-xs mt-1">{imageError}</Text> : null}
       </View>
       <Pressable onPress={handleSubmit} className="bg-primary py-4 rounded-xl mt-2">
         <Text className="text-white text-center text-lg font-bold">{submitText}</Text>

@@ -32,13 +32,24 @@ export default function AddProductScreen() {
   const handleSubmit = async (data) => {
     try {
       const token = await AsyncStorage.getItem('token');
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'image') formData.append(key, value);
+      });
+      if (data.image && data.image.uri) {
+        formData.append('image', {
+          uri: data.image.uri,
+          name: data.image.name || 'product.jpg',
+          type: data.image.type || 'image/jpeg',
+        });
+      }
       const res = await fetch(`${BACKEND_URL}/api/vendor/products/create-product`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          // Do NOT set Content-Type here; let fetch set it automatically for FormData
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (!res.ok) throw new Error('Failed to add product');

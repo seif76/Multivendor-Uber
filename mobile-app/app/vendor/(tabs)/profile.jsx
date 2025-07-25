@@ -65,7 +65,7 @@ export default function VendorProfile() {
           <Image
             source={{
               uri: vendor.info?.shop_front_photo
-                ? `${BACKEND_URL}/uploads/${vendor.info.shop_front_photo}`
+                ? vendor.info?.shop_front_photo
                 : 'https://via.placeholder.com/150',
             }}
             className="w-20 h-20 mr-4 rounded-xl border border-primary"
@@ -104,19 +104,19 @@ export default function VendorProfile() {
       <View className="flex-row flex-wrap gap-4 justify-between">
         {vendor.info?.passport_photo && (
           <Image
-            source={{ uri: `${BACKEND_URL}/uploads/${vendor.info.passport_photo}` }}
+            source={{ uri: vendor.info?.passport_photo }}
             className="w-[31%] h-28 rounded-md border"
           />
         )}
         {vendor.info?.license_photo && (
           <Image
-            source={{ uri: `${BACKEND_URL}/uploads/${vendor.info.license_photo}` }}
+            source={{ uri: vendor.info?.license_photo }}
             className="w-[31%] h-28 rounded-md border"
           />
         )}
         {vendor.info?.shop_front_photo && (
           <Image
-            source={{ uri: `${BACKEND_URL}/uploads/${vendor.info.shop_front_photo}` }}
+            source={{ uri: vendor.info?.shop_front_photo }}
             className="w-[31%] h-28 rounded-md border"
           />
         )}
