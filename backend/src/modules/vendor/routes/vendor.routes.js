@@ -11,8 +11,10 @@ const {
   getAllVendorsController,
   getAllVendorStatusCountsController,
   getVendorProfileController,
-  getVendorWithProductsByPhoneController
+  getVendorWithProductsByPhoneController,
+  
 } = require('../controllers/vendor.controller');
+const { dashboardSummaryController } = require('../controllers/dashboard.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
 
 
@@ -319,6 +321,67 @@ router.get('/get-all-status-counts', getAllVendorStatusCountsController);
  */
 router.get('/profile',authenticate , getVendorProfileController);
 
-router.get('/profile-with-products/:phone_number' , getVendorWithProductsByPhoneController);
+/**
+ * @swagger
+ * /api/vendor/profile-with-products/{phone_number}:
+ *   get:
+ *     summary: Get vendor profile and products by phone number
+ *     tags: [Vendors]
+ *     parameters:
+ *       - in: path
+ *         name: phone_number
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Vendor's phone number
+ *     responses:
+ *       200:
+ *         description: Vendor profile and products returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 vendorInfo:
+ *                   type: object
+ *                   properties:
+ *                     shop_name:
+ *                       type: string
+ *                     shop_location:
+ *                       type: string
+ *                     owner_name:
+ *                       type: string
+ *                     shop_front_photo:
+ *                       type: string
+ *                     vendor_id:
+ *                       type: integer
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       price:
+ *                         type: number
+ *                       stock:
+ *                         type: integer
+ *                       image:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *       404:
+ *         description: Vendor or user not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/profile-with-products/:phone_number', getVendorWithProductsByPhoneController);
+router.get('/dashboard/summary', authenticate, dashboardSummaryController);
 
 module.exports = router;

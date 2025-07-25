@@ -1,24 +1,3 @@
-// import { Pressable, Text, TextInput, View } from 'react-native';
-
-// export default function VendorLogin() {
-//   return (
-//     <View className="flex-1 justify-center items-center px-4 bg-white">
-//       <Text className="text-xl font-bold mb-4">Vendor Login</Text>
-//       <TextInput
-//         placeholder="Phone or Email"
-//         className="border w-full mb-3 px-4 py-2 rounded"
-//       />
-//       <TextInput
-//         placeholder="Password"
-//         secureTextEntry
-//         className="border w-full mb-3 px-4 py-2 rounded"
-//       />
-//       <Pressable className="bg-blue-600 py-3 px-8 rounded">
-//         <Text className="text-white">Login</Text>
-//       </Pressable>
-//     </View>
-//   );
-// }
 
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -116,6 +95,13 @@ export default function VendorLogin() {
           disabled={loading}
         >
           <Text className="text-white text-lg font-bold">{loading ? 'Logging in...' : 'Login'}</Text>
+        </Pressable>
+      </View>
+      {/* Register Link */}
+      <View className="flex-row justify-center mt-4">
+        <Text className="text-gray-600">Don't have an account? </Text>
+        <Pressable onPress={() => router.push('/vendor/register')}>
+          <Text className="text-primary font-semibold">Register</Text>
         </Pressable>
       </View>
     </View>

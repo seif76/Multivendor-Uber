@@ -1,5 +1,7 @@
 const express = require('express');
 const { loginVendorController } = require('../controllers/auth.controller');
+const { registerVendorController } = require('../controllers/vendor.controller');
+const upload = require('../../../middlewares/uploadLocal');
 const router = express.Router();
 
 /**
@@ -46,6 +48,15 @@ const router = express.Router();
 
 
 router.post('/login', loginVendorController);
-//router.post('/register', registerCaptainController);
+
+router.post(
+  '/register',
+  upload.fields([
+    { name: 'passport_photo', maxCount: 1 },
+    { name: 'license_photo', maxCount: 1 },
+    { name: 'shop_front_photo', maxCount: 1 }
+  ]),
+  registerVendorController
+);
 
 module.exports = router;

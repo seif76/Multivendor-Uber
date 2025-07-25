@@ -10,11 +10,33 @@ const {
     getVendorStatusCounts,
     getVendorAndProductsByPhone
   } = require('../services/vendor.services');
+  const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
   
   const registerVendorController = async (req, res) => {
     try {
-      const { user, info } = req.body;
-      const result = await registerVendor(user, info);
+      const { name, email, password, phone_number, gender, shop_name, shop_location, owner_name } = req.body;
+      // Validate required fields
+      if (!name || !email || !password || !phone_number || !shop_name || !shop_location || !owner_name) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      // Upload images to Cloudinary
+      const passportPhoto = req.files?.passport_photo?.[0];
+      const licensePhoto = req.files?.license_photo?.[0];
+      const shopFrontPhoto = req.files?.shop_front_photo?.[0];
+      let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '';
+      if (passportPhoto) passportPhotoUrl = (await uploadToCloudinary(passportPhoto.path, 'vendor_passports')).url;
+      if (licensePhoto) licensePhotoUrl = (await uploadToCloudinary(licensePhoto.path, 'vendor_licenses')).url;
+      if (shopFrontPhoto) shopFrontPhotoUrl = (await uploadToCloudinary(shopFrontPhoto.path, 'vendor_shops')).url;
+      // Call service to create user and vendor info
+      const userData = { name, email, password, phone_number, gender, vendor_status: 'pending' };
+      const infoData = {
+        shop_name, shop_location, owner_name,
+        passport_photo: passportPhotoUrl,
+        license_photo: licensePhotoUrl,
+        shop_front_photo: shopFrontPhotoUrl,
+        phone_number // for VendorInfo
+      };
+      const result = await registerVendor(userData, infoData);
       res.status(201).json({ message: 'Vendor registered successfully', result });
     } catch (err) {
       res.status(500).json({ error: err.message });

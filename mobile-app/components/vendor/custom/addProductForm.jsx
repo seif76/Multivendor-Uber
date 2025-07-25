@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View, Modal, ScrollView } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View, Modal, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AddProductForm({ onSubmit, categories = [], submitText = 'Add Product' }) {
   const [name, setName] = useState('');
@@ -7,31 +9,65 @@ export default function AddProductForm({ onSubmit, categories = [], submitText =
   const [description, setDescription] = useState('');
   const [vendorCategoryId, setVendorCategoryId] = useState('');
   const [stock, setStock] = useState('');
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState(null);
   const [categoryModal, setCategoryModal] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const [picking, setPicking] = useState(false);
 
   const handleSubmit = () => {
+    if (!name || !price) {
+      Alert.alert('Validation', 'Name and price are required');
+      return;
+    }
+    if (!image || !image.uri) {
+      Alert.alert('Validation', 'Product image is required');
+      return;
+    }
     const data = {
       name,
       price,
       description,
       vendor_category_id: vendorCategoryId || null,
       stock,
-      image,
+      image, // pass the file object
     };
-
-    if (!name || !price) {
-      Alert.alert('Validation', 'Name and price are required');
-      return;
-    }
-
     onSubmit(data);
     setName('');
     setPrice('');
     setDescription('');
     setVendorCategoryId('');
     setStock('');
-    setImage('');
+    setImage(null);
+  };
+  // Use the same pickImage logic as customer registration
+  const pickImage = async (setter) => {
+    setImageError('');
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        setImageError('Permission to access media library is required!');
+        Alert.alert('Permission required', 'Please allow access to your photos to select a profile picture.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setter({
+          uri: asset.uri,
+          name: asset.fileName || `photo_${Date.now()}.jpg`,
+          type: asset.type || 'image/jpeg',
+        });
+      } else {
+        setter(null);
+      }
+    } catch (err) {
+      setImageError('Failed to pick image.');
+    }
   };
 
   const selectedCategory = categories.find((cat) => cat.id === vendorCategoryId);
@@ -46,9 +82,7 @@ export default function AddProductForm({ onSubmit, categories = [], submitText =
         onPress={() => setCategoryModal(true)}
         className={`border rounded p-3 flex-row items-center justify-between ${vendorCategoryId ? 'border-primary' : 'border-gray-300'}`}
       >
-        <Text className={`text-base ${vendorCategoryId ? 'text-primary' : 'text-gray-400'}`}>
-          {selectedCategory ? selectedCategory.name : 'Select Category'}
-        </Text>
+        <Text className={`text-base ${vendorCategoryId ? 'text-primary' : 'text-gray-400'}`}>{selectedCategory ? selectedCategory.name : 'Select Category'}</Text>
         <Text className="text-lg text-primary">▼</Text>
       </Pressable>
       <Modal visible={categoryModal} transparent animationType="fade">
@@ -76,8 +110,25 @@ export default function AddProductForm({ onSubmit, categories = [], submitText =
         </Pressable>
       </Modal>
       <TextInput placeholder="Stock" value={stock} onChangeText={setStock} keyboardType="numeric" className="border p-2 rounded" />
-      <TextInput placeholder="Image URL" value={image} onChangeText={setImage} className="border p-2 rounded" />
-
+      {/* Product Image Picker */}
+      <View className="items-center mb-2">
+        <TouchableOpacity
+          onPress={() => pickImage(setImage)}
+          className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-green-400 items-center justify-center mb-2"
+          activeOpacity={0.7}
+        >
+          {image && image.uri ? (
+            <Image
+              source={{ uri: image.uri }}
+              style={{ width: 96, height: 96, borderRadius: 48 }}
+            />
+            ) : (
+            <Ionicons name="camera" size={36} color="#22c55e" />
+          )}
+        </TouchableOpacity>
+        <Text className="text-primary font-semibold mt-1">Pick Product Image</Text>
+        {imageError ? <Text className="text-red-500 text-xs mt-1">{imageError}</Text> : null}
+      </View>
       <Pressable onPress={handleSubmit} className="bg-primary py-3 rounded">
         <Text className="text-white text-center font-semibold">{submitText}</Text>
       </Pressable>

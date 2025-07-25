@@ -89,7 +89,7 @@ router.use('/orders', orderRoutes);
  *       201:
  *         description: Customer registered successfully
  */
-router.post('/register', registerCustomerController);
+//router.post('/register', registerCustomerController);
 
 /**
  * @swagger

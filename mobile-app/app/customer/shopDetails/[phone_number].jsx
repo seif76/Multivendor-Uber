@@ -34,7 +34,7 @@ export default function ShopDetails() {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/vendor/profile-with-products/${phone_number}`);
- 
+      
       setVendorInfo(res.data.vendorInfo);
       setProducts(res.data.products);
       // Fetch categories for this vendor by phone number (public endpoint, no auth)

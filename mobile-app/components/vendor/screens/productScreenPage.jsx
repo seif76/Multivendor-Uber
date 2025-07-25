@@ -31,6 +31,7 @@ export default function VendorProductsScreen() {
           Authorization: `Bearer ${token}`,
         },
       });
+      
       const data = await response.json();
       setProducts(data);
     } catch (error) {
