@@ -11,8 +11,10 @@ const {
   getAllVendorsController,
   getAllVendorStatusCountsController,
   getVendorProfileController,
-  getVendorWithProductsByPhoneController
+  getVendorWithProductsByPhoneController,
+  
 } = require('../controllers/vendor.controller');
+const { dashboardSummaryController } = require('../controllers/dashboard.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
 
 
@@ -320,5 +322,6 @@ router.get('/get-all-status-counts', getAllVendorStatusCountsController);
 router.get('/profile',authenticate , getVendorProfileController);
 
 router.get('/profile-with-products/:phone_number' , getVendorWithProductsByPhoneController);
+router.get('/dashboard/summary', authenticate, dashboardSummaryController);
 
 module.exports = router;
