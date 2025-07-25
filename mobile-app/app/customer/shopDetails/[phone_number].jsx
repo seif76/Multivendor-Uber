@@ -14,6 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import { CartContext } from '../../../context/customer/CartContext';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ShopDetails() {
   const { phone_number } = useLocalSearchParams();
@@ -24,6 +25,8 @@ export default function ShopDetails() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useContext(CartContext);
+  const [workingHours, setWorkingHours] = useState([]);
+  const [isOpen, setIsOpen] = useState(null);
 
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
@@ -31,11 +34,20 @@ export default function ShopDetails() {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/vendor/profile-with-products/${phone_number}`);
+ 
       setVendorInfo(res.data.vendorInfo);
       setProducts(res.data.products);
       // Fetch categories for this vendor by phone number (public endpoint, no auth)
       const catRes = await axios.get(`${BACKEND_URL}/api/vendor/categories/public-categories-by-phone/${phone_number}`);
       setCategories(catRes.data);
+      // Fetch working hours and open status if vendorId is available
+      const vendorId = res.data.vendorInfo?.vendor_id
+      if (vendorId) {
+        const whRes = await axios.get(`${BACKEND_URL}/api/vendor/vendor-working-hours/${vendorId}/working-hours`);
+        setWorkingHours(whRes.data);
+        const openRes = await axios.get(`${BACKEND_URL}/api/vendor/vendor-working-hours/${vendorId}/is-open`);
+        setIsOpen(openRes.data?.isOpen);
+      }
     } catch (err) {
       console.error('Error fetching vendor info:', err);
       Alert.alert('Error', 'Failed to load shop data.');
@@ -89,6 +101,34 @@ export default function ShopDetails() {
             </View>
           </View>
         </View>
+        {/* Open/Closed Status */}
+        <View className="flex-row items-center mt-3 mb-1">
+          <MaterialIcons name={isOpen ? 'check-circle' : 'cancel'} size={18} color={isOpen === null ? '#aaa' : isOpen ? '#22c55e' : '#ef4444'} />
+          <Text className={`ml-2 font-bold ${isOpen === null ? 'text-gray-400' : isOpen ? 'text-green-600' : 'text-red-500'}`}>{isOpen === null ? 'Checking...' : isOpen ? 'Open Now' : 'Closed'}</Text>
+        </View>
+        {/* Working Hours */}
+        {workingHours.length > 0 && (
+          <View className="mt-2 mb-1">
+            <Text className="text-xs text-gray-500 font-semibold mb-1">Working Hours:</Text>
+            {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((day, i) => {
+              const intervals = workingHours.filter(h => h.day_of_week === i);
+              return (
+                <View key={day} className="flex-row items-center mb-1 ml-1">
+                  <Text className="w-20 text-xs text-gray-700">{day}:</Text>
+                  {intervals.length === 0 ? (
+                    <Text className="text-xs text-gray-400 ml-1">Closed</Text>
+                  ) : (
+                    intervals.map((intv, idx) => (
+                      <Text key={idx} className="text-xs text-gray-700 ml-1">
+                        {intv.open_time} - {intv.close_time}{idx < intervals.length - 1 ? ',' : ''}
+                      </Text>
+                    ))
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         <View className="flex-row flex-wrap mt-4 items-center gap-2">
           <Text className="text-sm text-primary ">{vendorInfo?.deliveryTime || '20 - 30 mins'}</Text>

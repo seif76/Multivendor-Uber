@@ -31,6 +31,9 @@ router.use('/categories', categoryRoutes);
 const orderRoutes = require('./order.routes');
 router.use('/orders', orderRoutes);
 
+const workingHourRoutes = require('./workingHour.routes');
+router.use('/vendor-working-hours', workingHourRoutes);
+
 /**
  * @swagger
  * tags:

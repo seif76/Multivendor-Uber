@@ -2,12 +2,15 @@ const { Order, OrderItem, Product } = require('../../../app/models');
 
 // Create a new order (checkout)
 const createOrder = async (customerId, { items, address }) => {
-  // Calculate total price
+  // Calculate total price and validate single vendor
   let total = 0;
   const productMap = {};
+  let vendorId = null;
   for (const item of items) {
     const product = await Product.findByPk(item.product_id);
     if (!product) throw new Error('Product not found');
+    if (vendorId === null) vendorId = product.vendor_id;
+    if (product.vendor_id !== vendorId) throw new Error('All items must be from the same vendor');
     productMap[item.product_id] = product;
     total += parseFloat(product.price) * item.quantity;
   }

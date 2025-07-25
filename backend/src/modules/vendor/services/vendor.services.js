@@ -1,15 +1,6 @@
-const { User, VendorInfo  , Product} = require('../../../app/models');
+const { User, VendorInfo  , Product, VendorWorkingHour} = require('../../../app/models');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
-
-
-// const registerVendor = async (userData, infoData) => {
-//   return await User.sequelize.transaction(async (transaction) => {
-//     const newUser = await User.create(userData, { transaction });
-//     const vendorInfo = await VendorInfo.create({ ...infoData, vendor_id: newUser.id }, { transaction });
-//     return { user: newUser, info: vendorInfo };
-//   });
-// };
 
 const registerVendor = async (userData, infoData) => {
   return await User.sequelize.transaction(async (transaction) => {
@@ -46,6 +37,9 @@ const deleteVendor = async (phone_number) => {
   const user = await User.findOne({ where: { phone_number } });
   if (!user || user.vendor_status === 'none') throw new Error('Vendor not found');
 
+  // Delete all products for this vendor
+  await VendorWorkingHour.destroy({ where: { vendor_id: user.id } });
+  await Product.destroy({ where: { vendor_id: user.id } });
   await VendorInfo.destroy({ where: { vendor_id: user.id } });
   await user.destroy();
   return 'Vendor deleted successfully';
@@ -134,7 +128,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
     // Get vendor info with selected fields
   const vendorInfo = await VendorInfo.findOne({
     where: { vendor_id: user.id },
-    attributes: ['shop_name', 'shop_location', 'owner_name', 'shop_front_photo'],
+    attributes: ['shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],
   });
 
   if (!vendorInfo) throw new Error('Vendor info not found');

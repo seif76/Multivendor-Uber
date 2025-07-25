@@ -3,6 +3,7 @@ import { View, Text, FlatList, TextInput, Pressable, Alert, Modal } from 'react-
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState([]);
@@ -17,14 +18,16 @@ export default function CategoriesScreen() {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`${BACKEND_URL}/api/vendor/categories`, {
+      const res = await axios.get(`${BACKEND_URL}/api/vendor/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      if (res.ok) setCategories(data);
-      else Alert.alert('Error', data.error || 'Failed to fetch categories');
+      setCategories(res.data);
     } catch (err) {
-      Alert.alert('Error', err.message);
+      if (err.response && err.response.data && err.response.data.error) {
+        Alert.alert('Error', err.response.data.error || 'Failed to fetch categories');
+      } else {
+        Alert.alert('Error', err.message);
+      }
     }
     setLoading(false);
   };
@@ -35,42 +38,49 @@ export default function CategoriesScreen() {
     if (!newCategory.trim()) return;
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`${BACKEND_URL}/api/vendor/categories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: newCategory }),
-      });
-      if (res.ok) {
-        setNewCategory('');
-        fetchCategories();
-      } else {
-        const data = await res.json();
-        Alert.alert('Error', data.error || 'Failed to add category');
-      }
+      await axios.post(
+        `${BACKEND_URL}/api/vendor/categories`,
+        { name: newCategory },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setNewCategory('');
+      fetchCategories();
     } catch (err) {
-      Alert.alert('Error', err.message);
+      if (err.response && err.response.data && err.response.data.error) {
+        Alert.alert('Error', err.response.data.error || 'Failed to add category');
+      } else {
+        Alert.alert('Error in adding category', err.message);
+      }
     }
   };
 
   const handleDelete = async (id) => {
     Alert.alert('Delete Category', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => {
-        try {
-          const token = await AsyncStorage.getItem('token');
-          const res = await fetch(`${BACKEND_URL}/api/vendor/categories/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.ok) fetchCategories();
-          else {
-            const data = await res.json();
-            Alert.alert('Error', data.error || 'Failed to delete');
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem('token');
+            await axios.delete(`${BACKEND_URL}/api/vendor/categories/${id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchCategories();
+          } catch (err) {
+            if (err.response && err.response.data && err.response.data.error) {
+              Alert.alert('Error', err.response.data.error || 'Failed to delete');
+            } else {
+              Alert.alert('Error', err.message);
+            }
           }
-        } catch (err) {
-          Alert.alert('Error', err.message);
-        }
-      } },
+        },
+      },
     ]);
   };
 
@@ -84,20 +94,24 @@ export default function CategoriesScreen() {
     if (!editName.trim()) return;
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`${BACKEND_URL}/api/vendor/categories/${editCategory.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: editName }),
-      });
-      if (res.ok) {
-        setEditModal(false);
-        fetchCategories();
-      } else {
-        const data = await res.json();
-        Alert.alert('Error', data.error || 'Failed to update');
-      }
+      await axios.put(
+        `${BACKEND_URL}/api/vendor/categories/${editCategory.id}`,
+        { name: editName },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setEditModal(false);
+      fetchCategories();
     } catch (err) {
-      Alert.alert('Error', err.message);
+      if (err.response && err.response.data && err.response.data.error) {
+        Alert.alert('Error', err.response.data.error || 'Failed to update');
+      } else {
+        Alert.alert('Error', err.message);
+      }
     }
   };
 

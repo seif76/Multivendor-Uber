@@ -45,7 +45,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post('/', createCategoryController);
+router.post('/', authenticate ,createCategoryController);
 
 /**
  * @swagger

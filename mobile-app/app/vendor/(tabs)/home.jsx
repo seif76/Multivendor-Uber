@@ -8,7 +8,7 @@ export default function VendorHome() {
   const context = useContext(VendorAuthContext);
 
   if (!context) {
-    console.warn("CaptainAuthContext is undefined —  you forget to wrap with the provider");
+    console.warn("VendorAuthContext is undefined —  you forget to wrap with the provider");
     return null;
   }
 

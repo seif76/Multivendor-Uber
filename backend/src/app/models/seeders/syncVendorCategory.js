@@ -8,9 +8,10 @@ module.exports = async function syncVendorCategory() {
     // Import only new multivendor models
     
     const VendorCategory = require('../vendorCategory')(sequelize);
+    const VendorWorkingHour = require('../vendorWorkingHour')(sequelize);
 
 
-    const models = {  VendorCategory };
+    const models = {  VendorCategory, VendorWorkingHour };
 
     // Setup associations if needed
     Object.values(models).forEach((model) => {
