@@ -18,6 +18,7 @@ const Product = require('./product')(sequelize,DataTypes);
 const Order = require('./order')(sequelize,DataTypes);
 const OrderItem = require('./orderItem')(sequelize,DataTypes);
 const VendorCategory = require('./vendorCategory')(sequelize, DataTypes);
+const VendorWorkingHour = require('./vendorWorkingHour')(sequelize, DataTypes);
 
 
 // Associations
@@ -54,6 +55,9 @@ VendorCategory.belongsTo(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor' });
 Product.belongsTo(VendorCategory, { foreignKey: 'vendor_category_id', as: 'vendorCategory' });
 VendorCategory.hasMany(Product, { foreignKey: 'vendor_category_id', as: 'products' });
 
+VendorInfo.hasMany(VendorWorkingHour, { foreignKey: 'vendor_id', as: 'working_hours' });
+VendorWorkingHour.belongsTo(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor' });
+
 module.exports = {
   sequelize,
   User,
@@ -64,4 +68,5 @@ module.exports = {
   Order,
   OrderItem,
   VendorCategory,
+  VendorWorkingHour,
 };
