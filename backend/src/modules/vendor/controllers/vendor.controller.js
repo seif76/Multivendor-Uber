@@ -8,7 +8,8 @@ const {
     getAllVendors,
     getVendorProfile,
     getVendorStatusCounts,
-    getVendorAndProductsByPhone
+    getVendorAndProductsByPhone,
+    updateVendorProfile
   } = require('../services/vendor.services');
   const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
   
@@ -23,10 +24,15 @@ const {
       const passportPhoto = req.files?.passport_photo?.[0];
       const licensePhoto = req.files?.license_photo?.[0];
       const shopFrontPhoto = req.files?.shop_front_photo?.[0];
-      let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '';
+      const logoPhoto = req.files?.logo?.[0];
+      let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '', logoUrl = '';
       if (passportPhoto) passportPhotoUrl = (await uploadToCloudinary(passportPhoto.path, 'vendor_passports')).url;
       if (licensePhoto) licensePhotoUrl = (await uploadToCloudinary(licensePhoto.path, 'vendor_licenses')).url;
       if (shopFrontPhoto) shopFrontPhotoUrl = (await uploadToCloudinary(shopFrontPhoto.path, 'vendor_shops')).url;
+      if (logoPhoto) logoUrl = (await uploadToCloudinary(logoPhoto.path, 'vendor_logos')).url;
+      if (!logoUrl) {
+        return res.status(400).json({ error: 'Logo is required' });
+      }
       // Call service to create user and vendor info
       const userData = { name, email, password, phone_number, gender, vendor_status: 'pending' };
       const infoData = {
@@ -34,6 +40,7 @@ const {
         passport_photo: passportPhotoUrl,
         license_photo: licensePhotoUrl,
         shop_front_photo: shopFrontPhotoUrl,
+        logo: logoUrl,
         phone_number // for VendorInfo
       };
       const result = await registerVendor(userData, infoData);
@@ -49,6 +56,39 @@ const {
       const result = await editVendor(phone_number, user, info);
       res.status(200).json({ message: 'Vendor updated successfully', result });
     } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+
+  const updateVendorProfileController = async (req, res) => {
+    try {
+      const vendorId = req.user.id;
+      const { shop_name, shop_location, owner_name, phone_number } = req.body;
+
+      // Validate required fields
+      if (!shop_name || !shop_location || !owner_name || !phone_number) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      const updateData = {
+        shop_name,
+        shop_location,
+        owner_name,
+        phone_number,
+      };
+
+      const shopFrontPhotoFile = req.files?.shop_front_photo?.[0] || null;
+      const logoFile = req.files?.logo?.[0] || null;
+
+      // Pass the image and logo files to the service for Cloudinary upload
+      const result = await updateVendorProfile(vendorId, updateData, shopFrontPhotoFile, logoFile);
+      
+      res.status(200).json({ 
+        message: 'Vendor profile updated successfully', 
+        vendor_info: result.vendor_info 
+      });
+    } catch (err) {
+      console.error('Error updating vendor profile:', err);
       res.status(500).json({ error: err.message });
     }
   };
@@ -157,6 +197,7 @@ const {
   module.exports = {
     registerVendorController,
     editVendorController,
+    updateVendorProfileController,
     deleteVendorController,
     getVendorByPhoneController,
     getPendingVendorsController,

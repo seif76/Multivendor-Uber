@@ -26,62 +26,61 @@ export default function VendorLayout() {
       </VendorAuthProvider>
     );
   }
+
   return (
     <VendorAuthProvider>
-    <View className="flex-1 relative">
-      {/* Vendor Top Navbar */}
+      <View className="flex-1 bg-white">
+          {/* Vendor Top Navbar */}
       <VendorTopNavbar onProfilePress={() => setMenuOpen(true)} />
 
       {/* Sidebar */}
       <VendorSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      {/* Bottom Tabs */}
-      <Tabs
-        screenOptions={{
-          tabBarActiveTintColor: '#007233', // your primary green
-          headerShown: false,
-        }}
-      >
-        <Tabs.Screen
-          name="home"
-          options={{
-            title: 'Home',
-            tabBarIcon: ({ color }) => <FontAwesome name="home" size={22} color={color} />,
+        <Tabs
+          screenOptions={{
+            tabBarActiveTintColor: '#0f9d58',
+            headerShown: false,
           }}
-        />
-        <Tabs.Screen
-          name="wallet"
-          options={{
-            title: 'Wallet',
-            tabBarIcon: ({ color }) => <FontAwesome name="dollar" size={22} color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="orders"
-          options={{
-            title: 'Orders',
-            tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="inbox"
-          options={{
-            title: 'Inbox',
-            tabBarIcon: ({ color }) => <FontAwesome name="envelope" size={22} color={color} />,
-          }}
-        />
-        {/* those are routes that I do not need to display in the bottom Tabs  */ } 
-        <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="products" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="profile" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="add-product" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="categories" options={{ tabBarItemStyle: {display: 'none'}}} />
-        <Tabs.Screen name="working-hours" options={{ tabBarItemStyle: {display: 'none'} }} />
-        <Tabs.Screen name="dashboard" options={{ tabBarItemStyle: {display: 'none'} }} />
-        
-      </Tabs>
-    </View>
+        >
+          <Tabs.Screen
+            name="home"
+            options={{
+              title: 'Home',
+              tabBarIcon: ({ color }) => <FontAwesome name="home" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="orders"
+            options={{
+              title: 'Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="chat"
+            options={{
+              title: 'Messages',
+              tabBarIcon: ({ color }) => <FontAwesome name="comments" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="profile"
+            options={{
+              title: 'Profile',
+              tabBarIcon: ({ color }) => <FontAwesome name="user" size={22} color={color} />,
+            }}
+          />
+          
+          <Tabs.Screen name="categories" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="products" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="add-product" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="working-hours" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="dashboard" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="wallet" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+        </Tabs>
+      </View>
     </VendorAuthProvider>
   );
 }

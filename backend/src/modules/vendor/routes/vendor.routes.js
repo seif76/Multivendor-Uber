@@ -12,10 +12,11 @@ const {
   getAllVendorStatusCountsController,
   getVendorProfileController,
   getVendorWithProductsByPhoneController,
-  
+  updateVendorProfileController,
 } = require('../controllers/vendor.controller');
 const { dashboardSummaryController } = require('../controllers/dashboard.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
+const  upload  = require('../../../middlewares/uploadLocal');
 
 
 const router = express.Router();
@@ -144,6 +145,53 @@ router.put('/edit', editVendorController);
 
 /**
  * @swagger
+ * /api/vendor/update-profile:
+ *   put:
+ *     summary: Update vendor profile information
+ *     tags: [Vendors]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [shop_name, shop_location, owner_name, phone_number]
+ *             properties:
+ *               shop_name:
+ *                 type: string
+ *                 example: "My Shop"
+ *               shop_location:
+ *                 type: string
+ *                 example: "Cairo, Egypt"
+ *               owner_name:
+ *                 type: string
+ *                 example: "Ahmed Mohamed"
+ *               phone_number:
+ *                 type: string
+ *                 example: "01112345678"
+ *               shop_front_photo:
+ *                 type: string
+ *                 format: binary
+ *                 description: Shop front photo (optional)
+ *     responses:
+ *       200:
+ *         description: Vendor profile updated successfully
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.put('/update-profile', authenticate, upload.fields([
+  { name: 'shop_front_photo', maxCount: 1 },
+  { name: 'logo', maxCount: 1 }
+]), updateVendorProfileController);
+
+/**
+ * @swagger
  * /api/vendor/delete:
  *   delete:
  *     summary: Delete vendor by phone number
@@ -186,7 +234,7 @@ router.delete('/delete', deleteVendorController);
  *       500:
  *         description: Server error
  */
-router.get('/get-by-phone', getVendorByPhoneController);
+router.get('/get-by-phone', authenticate, getVendorByPhoneController);
 
 /**
  * @swagger

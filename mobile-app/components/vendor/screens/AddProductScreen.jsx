@@ -2,15 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, ActivityIndicator } from 'react-native';
+import { Alert, Text, View, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import AddProductForm from '../custom/addProductForm';
 
-const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
 export default function AddProductScreen() {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+
+
 
   useEffect(() => {
     fetchCategories();
@@ -64,11 +66,13 @@ export default function AddProductScreen() {
   if (loading) return <ActivityIndicator size="large" color="#0f9d58" className="mt-10" />;
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View className="flex-1 bg-white justify-center items-center px-4">
       <View className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl">
         <Text className="text-xl font-bold text-primary mb-4">Add New Product</Text>
         <AddProductForm onSubmit={handleSubmit} categories={categories} submitText="Add Product" />
       </View>
     </View>
+     </TouchableWithoutFeedback>
   );
 }

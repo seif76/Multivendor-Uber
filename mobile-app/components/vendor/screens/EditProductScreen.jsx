@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, ActivityIndicator } from 'react-native';
+import { Alert, Text, View, ActivityIndicator, ScrollView } from 'react-native';
 import ProductForm from '../custom/productForm';
 
 const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
@@ -11,6 +11,7 @@ export default function EditProductScreen({ product }) {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -30,6 +31,7 @@ export default function EditProductScreen({ product }) {
   }, []);
 
   const handleSubmit = async (data) => {
+    setUpdating(true);
     try {
       const token = await AsyncStorage.getItem('token');
       const formData = new FormData();
@@ -58,6 +60,8 @@ export default function EditProductScreen({ product }) {
     } catch (err) {
       console.error(err);
       Alert.alert('Error', err.message);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -77,16 +81,23 @@ export default function EditProductScreen({ product }) {
   };
 
   return (
-    <View className="flex-1 bg-white justify-center items-center px-4">
-      <View className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl">
+    <ScrollView className="flex-1  bg-white" contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View className="bg-white rounded-2xl shadow-lg p-6  px-4 w-full max-w-xl mt-20">
         <Text className="text-xl font-bold text-primary mb-4">Edit Product</Text>
+        {updating ? (
+          <View className="items-center justify-center my-8">
+            <ActivityIndicator size="large" color="#0f9d58" />
+            <Text className="mt-4 text-primary font-semibold">Updating product...</Text>
+          </View>
+        ) : null}
         <ProductForm
           onSubmit={handleSubmit}
-          submitText="Update Product"
+          submitText={updating ? 'Updating...' : 'Update Product'}
           initialValues={initialProduct}
           categories={categories}
+          disabled={updating}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }

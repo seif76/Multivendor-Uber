@@ -12,7 +12,6 @@ const CaptainVehicle = require('./captainVehicle')(sequelize, DataTypes);
 const Ride = require('./ride')(sequelize,DataTypes);
 
 // multivendor
-
 const VendorInfo = require('./vendorInfo')(sequelize, DataTypes);
 const Product = require('./product')(sequelize,DataTypes);
 const Order = require('./order')(sequelize,DataTypes);
@@ -20,11 +19,13 @@ const OrderItem = require('./orderItem')(sequelize,DataTypes);
 const VendorCategory = require('./vendorCategory')(sequelize, DataTypes);
 const VendorWorkingHour = require('./vendorWorkingHour')(sequelize, DataTypes);
 
+// chat system
+const Chat = require('./chat')(sequelize, DataTypes);
+const ChatMessage = require('./chatMessage')(sequelize, DataTypes);
 
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
 CaptainVehicle.belongsTo(User, { foreignKey: 'captain_id', as: 'captain' });
-
 
 // multivendor 
 User.hasOne(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor_info' });
@@ -42,7 +43,6 @@ OrderItem.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
 Product.hasMany(OrderItem, { foreignKey: 'product_id', as: 'order_items' });
 OrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 
-
 //ride relations
 User.hasMany(Ride, { foreignKey: 'customer_id', as: 'customer_rides' });
 User.hasMany(Ride, { foreignKey: 'captain_id', as: 'captain_rides' });
@@ -58,6 +58,18 @@ VendorCategory.hasMany(Product, { foreignKey: 'vendor_category_id', as: 'product
 VendorInfo.hasMany(VendorWorkingHour, { foreignKey: 'vendor_id', as: 'working_hours' });
 VendorWorkingHour.belongsTo(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor' });
 
+// chat relations
+User.hasMany(Chat, { foreignKey: 'participant1_id', as: 'chats_as_participant1' });
+User.hasMany(Chat, { foreignKey: 'participant2_id', as: 'chats_as_participant2' });
+Chat.belongsTo(User, { foreignKey: 'participant1_id', as: 'participant1' });
+Chat.belongsTo(User, { foreignKey: 'participant2_id', as: 'participant2' });
+
+Chat.hasMany(ChatMessage, { foreignKey: 'chat_id', as: 'messages' });
+ChatMessage.belongsTo(Chat, { foreignKey: 'chat_id', as: 'chat' });
+
+User.hasMany(ChatMessage, { foreignKey: 'sender_id', as: 'sent_messages' });
+ChatMessage.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
+
 module.exports = {
   sequelize,
   User,
@@ -69,4 +81,6 @@ module.exports = {
   OrderItem,
   VendorCategory,
   VendorWorkingHour,
+  Chat,
+  ChatMessage,
 };

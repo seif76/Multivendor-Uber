@@ -6,7 +6,7 @@ export default function VendorCard({ vendor }) {
   const router = useRouter();
   const shopName = vendor.vendor_info?.shop_name || 'Unnamed Shop';
   const shopLocation = vendor.vendor_info?.shop_location || 'No location available';
-  const shopLogo = vendor.vendor_info?.shop_front_photo ;
+  const shopLogo = vendor.vendor_info?.logo || 'https://via.placeholder.com/150';
 
   const goToShop = () => {
     router.push(`/customer/shopDetails/${vendor.vendor_info.phone_number}`);

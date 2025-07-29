@@ -16,13 +16,14 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
   const [picking, setPicking] = useState(false);
 
   useEffect(() => {
+   // alert(JSON.stringify(initialValues.image));
     setName(initialValues.name || '');
     setPrice(String(initialValues.price || ''));
     setDescription(initialValues.description || '');
     setVendorCategoryId(initialValues.vendor_category_id || '');
     setStock(String(initialValues.stock || ''));
     if (initialValues.image) {
-      setImage({ uri: initialValues.image, name: 'product.jpg', type: 'image/jpeg', isInitial: true });
+      setImage({ uri: initialValues.image.uri, name: 'product.jpg', type: 'image/jpeg', isInitial: true });
     } else {
       setImage(null);
     }
@@ -62,7 +63,7 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -85,7 +86,7 @@ export default function ProductForm({ onSubmit, initialValues = {}, submitText =
   const selectedCategory = categories.find((cat) => cat.id === vendorCategoryId);
 
   return (
-    <View className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl mx-auto">
+    <View className="bg-white rounded-2xl  shadow-lg p-6 w-full max-w-xl mx-auto">
       <Text className="text-xl font-bold text-primary mb-4">Product Details</Text>
       {error ? <Text className="text-red-500 mb-2 text-center">{error}</Text> : null}
       <View className="mb-4">
