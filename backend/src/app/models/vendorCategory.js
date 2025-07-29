@@ -15,6 +15,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+  }, {
+    indexes: [
+      { name: 'idx_vendor_category_vendor_id', fields: ['vendor_id'] }
+    ]
   });
 
   return VendorCategory;

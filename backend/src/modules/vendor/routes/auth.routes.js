@@ -54,7 +54,8 @@ router.post(
   upload.fields([
     { name: 'passport_photo', maxCount: 1 },
     { name: 'license_photo', maxCount: 1 },
-    { name: 'shop_front_photo', maxCount: 1 }
+    { name: 'shop_front_photo', maxCount: 1 },
+    { name: 'logo', maxCount: 1 } // Add logo as required
   ]),
   registerVendorController
 );

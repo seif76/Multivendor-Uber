@@ -34,7 +34,8 @@ const updateOrderStatusController = async (req, res) => {
     const vendorId = req.user.id;
     const orderId = req.params.orderId;
     const { status } = req.body;
-    const updated = await updateOrderStatus(orderId, vendorId, status);
+    const io = req.app.get('io'); // Get io instance from app
+    const updated = await updateOrderStatus(orderId, vendorId, status, io);
     res.status(200).json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });

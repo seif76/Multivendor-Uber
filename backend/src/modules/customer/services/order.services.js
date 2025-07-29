@@ -1,4 +1,5 @@
-const { Order, OrderItem, Product } = require('../../../app/models');
+const { Order, OrderItem, Product, User } = require('../../../app/models');
+const { OrderSocket } = require('../../../config/socket');
 
 // Create a new order (checkout)
 const createOrder = async (customerId, { items, address }) => {
@@ -30,7 +31,13 @@ const createOrder = async (customerId, { items, address }) => {
       price: productMap[item.product_id].price,
     })
   ));
-  return { ...order.dataValues, items: orderItems };
+
+  const orderWithItems = { ...order.dataValues, items: orderItems };
+
+  // Use OrderSocket for new order notification
+  OrderSocket.notifyNewOrder(order.id, customerId, 'pending');
+
+  return orderWithItems;
 };
 
 // Get all orders for the logged-in customer
@@ -41,7 +48,11 @@ const getMyOrders = async (customerId) => {
     include: [{
       model: OrderItem,
       as: 'items',
-      include: [{ model: Product, as: 'product' }],
+      include: [{ 
+        model: Product, 
+        as: 'product',
+        include: [{ model: User, as: 'vendor' }]
+      }],
     }],
   });
   return orders;
@@ -54,7 +65,11 @@ const getOrderDetails = async (orderId, customerId) => {
     include: [{
       model: OrderItem,
       as: 'items',
-      include: [{ model: Product, as: 'product' }],
+      include: [{ 
+        model: Product, 
+        as: 'product',
+        include: [{ model: User, as: 'vendor' }]
+      }],
     }],
   });
   return order;

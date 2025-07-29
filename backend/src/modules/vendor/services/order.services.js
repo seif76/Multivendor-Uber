@@ -1,4 +1,5 @@
 const { Order, OrderItem, Product, User } = require('../../../app/models');
+const { OrderSocket } = require('../../../config/socket');
 
 // Get all orders that include products belonging to this vendor
 const getVendorOrders = async (vendorId) => {
@@ -56,10 +57,18 @@ const getVendorOrderDetails = async (orderId, vendorId) => {
 // Update order status (for now, update the whole order)
 const updateOrderStatus = async (orderId, vendorId, status) => {
   // TODO: In future, support per-vendor status
-  const order = await Order.findByPk(orderId);
+  const order = await Order.findByPk(orderId, {
+    include: [{ model: User, as: 'customer', attributes: ['id'] }]
+  });
   if (!order) throw new Error('Order not found');
   order.status = status;
   await order.save();
+  
+  // Use OrderSocket for notifications
+  if (order.customer) {
+    OrderSocket.notifyOrderStatusChange(orderId, status, order.customer.id);
+  }
+  
   return order;
 };
 

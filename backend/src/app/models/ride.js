@@ -59,6 +59,12 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('pending', 'negotiating', 'accepted', 'in_progress', 'completed', 'cancelled'),
       defaultValue: 'pending',
     },
+  }, {
+    indexes: [
+      { name: 'idx_ride_customer_id', fields: ['customer_id'] },
+      { name: 'idx_ride_captain_id', fields: ['captain_id'] },
+      { name: 'idx_ride_status', fields: ['status'] }
+    ]
   });
 
   return Ride;

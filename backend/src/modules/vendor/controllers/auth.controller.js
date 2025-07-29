@@ -45,7 +45,8 @@ const loginVendorController = async (req, res) => {
           captain_status: user.captain_status,
           customer_status: user.customer_status,
           deliveryman_status: user.deliveryman_status,
-          vendor_status: user.vendor_status
+          vendor_status: user.vendor_status,
+          user_type: 'vendor'
         },
         process.env.JWT_SECRET
         // , { expiresIn: '30d' } // REMOVE THIS LINE for no expiry

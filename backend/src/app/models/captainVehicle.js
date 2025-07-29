@@ -43,6 +43,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING, // URL to the photo
       allowNull: false,
     },
+  }, {
+    indexes: [
+      { name: 'idx_captain_vehicle_captain_id', fields: ['captain_id'] }
+    ]
   });
 
   return Vehicle;

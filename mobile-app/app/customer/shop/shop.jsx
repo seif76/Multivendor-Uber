@@ -5,6 +5,7 @@ import CustomerShopScreen from '../../../components/customer/screens/customerSho
 
 export default function ShopPage() {
   
+  
   return (
     <View className="flex-1 bg-white p-4">
      <CustomerShopScreen/>

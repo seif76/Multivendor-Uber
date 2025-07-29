@@ -17,6 +17,7 @@ export default function VendorRegister() {
     shop_location: '',
     owner_name: '',
   });
+  const [logo, setLogo] = useState(null);
   const [passportPhoto, setPassportPhoto] = useState(null);
   const [licensePhoto, setLicensePhoto] = useState(null);
   const [shopFrontPhoto, setShopFrontPhoto] = useState(null);
@@ -61,8 +62,20 @@ export default function VendorRegister() {
   const handleRegister = async () => {
     setUploading(true);
     setImageError('');
+    if (!logo || !logo.uri) {
+      setImageError('Logo is required.');
+      setUploading(false);
+      return;
+    }
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+    if (logo && logo.uri) {
+      formData.append('logo', {
+        uri: logo.uri,
+        name: logo.name || 'logo.jpg',
+        type: logo.type || 'image/jpeg',
+      });
+    }
     if (passportPhoto && passportPhoto.uri) {
       formData.append('passport_photo', {
         uri: passportPhoto.uri,
@@ -100,6 +113,25 @@ export default function VendorRegister() {
   return (
     <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
       <Text className="text-3xl font-bold text-green-600 mb-6 text-center">Vendor Registration</Text>
+
+      {/* Logo Picker - required */}
+      <View className="items-center mb-6">
+        <TouchableOpacity
+          onPress={() => pickImage(setLogo)}
+          className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-green-600 items-center justify-center mb-2"
+          activeOpacity={0.7}
+        >
+          {logo && logo.uri ? (
+            <Image
+              source={{ uri: logo.uri }}
+              style={{ width: 112, height: 112, borderRadius: 56 }}
+            />
+          ) : (
+            <Ionicons name="image" size={44} color="#22c55e" />
+          )}
+        </TouchableOpacity>
+        <Text className="text-xs text-green-700 font-semibold mt-1 text-center">Logo (required)</Text>
+      </View>
 
       {/* Image Pickers - styled like customer registration */}
       <View className="flex-row justify-between mb-6">

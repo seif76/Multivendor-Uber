@@ -27,6 +27,11 @@ module.exports = (sequelize) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
       },
+    }, {
+      indexes: [
+        { name: 'idx_order_item_order_id', fields: ['order_id'] },
+        { name: 'idx_order_item_product_id', fields: ['product_id'] }
+      ]
     });
   
     return OrderItem;

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View, Image, ActivityIndicator } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View, Image, ActivityIndicator, TouchableWithoutFeedback, Keyboard   } from 'react-native';
 import axios from 'axios';
 
 export default function CustomerLogin() {
@@ -40,6 +40,7 @@ export default function CustomerLogin() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View className="flex-1 bg-white px-4 justify-center">
       {/* Back button */}
       <Pressable onPress={() => router.push('/')} className="absolute top-10 left-4 w-10 z-10">
@@ -60,7 +61,7 @@ export default function CustomerLogin() {
         ) : null}
         <TextInput
           placeholder="Phone Number"
-          className="border border-gray-300 w-full mb-4 px-4 py-3 rounded-xl bg-gray-50 text-base"
+          className="border border-gray-300 w-full  mb-4 px-4 py-3 pb-4 rounded-xl bg-gray-50 text-base"
           value={phoneOrEmail}
           onChangeText={setPhoneOrEmail}
           keyboardType="phone-pad"
@@ -100,5 +101,6 @@ export default function CustomerLogin() {
         </Pressable>
       </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 }

@@ -40,7 +40,7 @@ export default function ShopHeader() {
         <Text className="text-gray-700 font-medium">
           Deliver to <Text className="text-black">{address}</Text>
         </Text>
-        <Pressable onPress={() => router.push('/customer/shop/cart')} className="relative ">
+        <Pressable onPress={() => router.push('/customer/shop/cart')} className="relative -ml-8 ">
       <Ionicons name="cart-outline" size={24} color="black" />
       {itemCount > 0 && (
         <View className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 items-center justify-center">

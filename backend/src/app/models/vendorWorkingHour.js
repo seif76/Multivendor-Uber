@@ -23,6 +23,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false, // '17:00'
     },
+  }, {
+    indexes: [
+      { name: 'idx_vendor_working_hour_vendor_id', fields: ['vendor_id'] }
+    ]
   });
   return VendorWorkingHour;
 }; 

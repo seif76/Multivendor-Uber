@@ -1,6 +1,7 @@
 const { User, VendorInfo  , Product, VendorWorkingHour} = require('../../../app/models');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
+const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
 const registerVendor = async (userData, infoData) => {
   return await User.sequelize.transaction(async (transaction) => {
@@ -31,6 +32,55 @@ const editVendor = async (phone_number, userUpdates, infoUpdates) => {
   await info.update(infoUpdates);
 
   return { user, info };
+};
+
+const updateVendorProfile = async (vendorId, updateData, imageFile = null, logoFile = null) => {
+  const user = await User.findOne({
+    where: { id: vendorId, vendor_status: { [Op.ne]: 'none' } }
+  });
+  
+  if (!user) throw new Error('Vendor not found');
+
+  const vendorInfo = await VendorInfo.findOne({ where: { vendor_id: user.id } });
+  if (!vendorInfo) throw new Error('Vendor info not found');
+
+  // Prepare update fields - only include fields that are being updated
+  const updateFields = {
+    shop_name: updateData.shop_name,
+    shop_location: updateData.shop_location,
+    owner_name: updateData.owner_name,
+    phone_number: updateData.phone_number,
+  };
+
+  // Only update shop_front_photo if a new image is uploaded
+  if (imageFile && imageFile.path) {
+    try {
+      console.log('Service: Uploading image to Cloudinary:', imageFile.path);
+      const uploadResult = await uploadToCloudinary(imageFile.path, 'vendor_shops');
+      updateFields.shop_front_photo = uploadResult.url;
+      console.log('Service: Cloudinary upload successful:', updateFields.shop_front_photo);
+    } catch (uploadError) {
+      console.error('Service: Cloudinary upload failed:', uploadError);
+      throw new Error('Failed to upload image to Cloudinary');
+    }
+  }
+
+  // Only update logo if a new logo file is uploaded
+  if (logoFile && logoFile.path) {
+    try {
+      console.log('Service: Uploading logo to Cloudinary:', logoFile.path);
+      const uploadResult = await uploadToCloudinary(logoFile.path, 'vendor_logos');
+      updateFields.logo = uploadResult.url;
+      console.log('Service: Cloudinary logo upload successful:', updateFields.logo);
+    } catch (uploadError) {
+      console.error('Service: Cloudinary logo upload failed:', uploadError);
+      throw new Error('Failed to upload logo to Cloudinary');
+    }
+  }
+
+  await vendorInfo.update(updateFields);
+
+  return { user, vendor_info: vendorInfo };
 };
 
 const deleteVendor = async (phone_number) => {
@@ -129,7 +179,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
     console.log(user.id);
   const vendorInfo = await VendorInfo.findOne({
     where: { vendor_id: user.id },
-    attributes: ['shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],
+    attributes: ['logo', 'shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],
   });
 
   if (!vendorInfo) throw new Error('Vendor info not found');
@@ -137,7 +187,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
   // Get products with only selected fields
   const products = await Product.findAll({
     where: { vendor_id: user.id  },
-    attributes: ['id', 'name', 'description', 'price', 'stock', 'image', 'category', 'status'],
+    attributes: ['id', 'name', 'description', 'price', 'stock', 'image', 'vendor_category_id', 'status'],
   });
 
   return { vendorInfo, products };
@@ -149,6 +199,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
 module.exports = {
   registerVendor,
   editVendor,
+  updateVendorProfile,
   deleteVendor,
   getVendorByPhone,
   getVendorsByStatus,

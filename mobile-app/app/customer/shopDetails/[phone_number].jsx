@@ -12,6 +12,7 @@ import {
   View,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { CartContext } from '../../../context/customer/CartContext';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ export default function ShopDetails() {
   const { phone_number } = useLocalSearchParams();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [vendorInfo, setVendorInfo] = useState({});
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -27,6 +29,7 @@ export default function ShopDetails() {
   const { addToCart } = useContext(CartContext);
   const [workingHours, setWorkingHours] = useState([]);
   const [isOpen, setIsOpen] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
@@ -37,8 +40,10 @@ export default function ShopDetails() {
       
       setVendorInfo(res.data.vendorInfo);
       setProducts(res.data.products);
+      setFilteredProducts(res.data.products);
       // Fetch categories for this vendor by phone number (public endpoint, no auth)
       const catRes = await axios.get(`${BACKEND_URL}/api/vendor/categories/public-categories-by-phone/${phone_number}`);
+      
       setCategories(catRes.data);
       // Fetch working hours and open status if vendorId is available
       const vendorId = res.data.vendorInfo?.vendor_id
@@ -58,21 +63,28 @@ export default function ShopDetails() {
   useEffect(() => {
     if (phone_number) {
       fetchVendorInfo();
+      setSelectedCategoryId('all');
     }
   }, [phone_number]);
 
+  useEffect(() => {
+   
+    if (selectedCategoryId === 'all') {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(products.filter((p) => String(p.vendor_category_id) === String(selectedCategoryId)));
+    }
+  }, [selectedCategoryId]); 
+
   // Filter products by selected category
-  const filteredProducts = selectedCategory === 'all'
-    ? products
-    : products.filter((p) => p.category === selectedCategory);
 
   return (
     <ScrollView className="bg-white">
       {/* Header */}
       <View className="relative">
         <Image
-          source={{ uri: vendorInfo?.banner || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
-          className="w-full h-48"
+          source={{ uri: vendorInfo?.shop_front_photo || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
+          className="w-full h-56"
           resizeMode="cover"
         />
         <Pressable
@@ -84,7 +96,7 @@ export default function ShopDetails() {
       </View>
 
       {/* Shop Info */}
-      <View className="bg-white mx-auto w-[85%] -mt-10 px-6  pt-4 rounded-t-3xl rounded-b-3xl shadow">
+      <View className="bg-white mx-auto w-[85%] -mt-20 px-6  pt-4 rounded-t-3xl rounded-b-3xl shadow">
         <View className="flex-row items-center">
           <Image
             source={{ uri: vendorInfo?.logo || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
@@ -145,18 +157,18 @@ export default function ShopDetails() {
       >
         <Pressable
           key="all"
-          onPress={() => setSelectedCategory('all')}
-          className={`mr-4 pb-2 border-b-2 ${selectedCategory === 'all' ? 'border-primary' : 'border-transparent'}`}
+          onPress={() => setSelectedCategoryId('all')}
+          className={`mr-4 pb-2 border-b-2 ${selectedCategoryId === 'all' ? 'border-primary' : 'border-transparent'}`}
         >
-          <Text className={`text-sm font-medium ${selectedCategory === 'all' ? 'text-primary' : 'text-gray-500'}`}>All</Text>
+          <Text className={`text-sm font-medium ${selectedCategoryId === 'all' ? 'text-primary' : 'text-gray-500'}`}>All</Text>
         </Pressable>
         {categories.map((cat) => (
           <Pressable
             key={cat.id}
-            onPress={() => setSelectedCategory(cat.name)}
-            className={`mr-4 pb-2 border-b-2 ${selectedCategory === cat.name ? 'border-primary' : 'border-transparent'}`}
+            onPress={() => setSelectedCategoryId(cat.id)}
+            className={`mr-4 pb-2 border-b-2 ${String(selectedCategoryId) === String(cat.id) ? 'border-primary' : 'border-transparent'}`}
           >
-            <Text className={`text-sm font-medium ${selectedCategory === cat.name ? 'text-primary' : 'text-gray-500'}`}>{cat.name}</Text>
+            <Text className={`text-sm font-medium ${String(selectedCategoryId) === String(cat.id) ? 'text-primary' : 'text-gray-500'}`}>{cat.name}</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -164,9 +176,9 @@ export default function ShopDetails() {
       {/* Product Grid */}
       <View className="px-4 mt-4">
         <Text className="text-lg font-bold mb-5">
-          {selectedCategory === 'all'
+          {selectedCategoryId === 'all'
             ? 'All Products'
-            : selectedCategory}
+            : categories.find(cat => String(cat.id) === String(selectedCategoryId))?.name}
         </Text>
 
         {loading ? (
@@ -182,20 +194,26 @@ export default function ShopDetails() {
             scrollEnabled={false}
             columnWrapperStyle={{ justifyContent: 'space-between' }}
             renderItem={({ item }) => (
-              <View className="w-[48%] bg-white mb-4 rounded-xl overflow-hidden shadow">
-                <Image
-                  source={{ uri: item.image || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
-                  className="w-full h-28"
-                  resizeMode="cover"
-                />
+              <TouchableOpacity
+                onPress={() => addToCart(item)}
+              className="w-[48%] bg-white mb-4 rounded-xl overflow-hidden shadow"
+              >
+              <View 
+              className="w-full bg-white mb-4 rounded-xl overflow-hidden shadow">
+                <View style={{ width: '100%', height: 112, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' }}>
+                  <Image
+                    source={{ uri: item?.image || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode="contain"
+                  />
+                </View>
                 <View className="p-2 flex-row justify-between items-center">
                   <Text className="font-semibold text-sm text-black" numberOfLines={2}>{item.name}</Text>
                   <Text className="font-semibold text-sm text-green-600" numberOfLines={1}>{parseFloat(item.price).toFixed(2)}</Text>
                 </View>
-                <Pressable onPress={() => addToCart(item)}>
-                  <Text className="text-primary">Add to Cart</Text>
-                </Pressable>
+                
               </View>
+        </TouchableOpacity>              
             )}
           />
         ) : (

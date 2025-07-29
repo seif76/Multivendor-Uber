@@ -36,7 +36,8 @@ const loginCustomerController = async (req, res) => {
         captain_status: user.captain_status,
         customer_status: user.customer_status,
         deliveryman_status: user.deliveryman_status,
-        vendor_status: user.vendor_status
+        vendor_status: user.vendor_status,
+        user_type: 'customer'
       },
       process.env.JWT_SECRET
     );

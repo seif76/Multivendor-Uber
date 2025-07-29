@@ -47,6 +47,16 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
+    logo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  }, {
+    indexes: [
+      { name: 'idx_vendor_info_vendor_id', fields: ['vendor_id'] },
+      { name: 'idx_vendor_info_phone_number', fields: ['phone_number'] }
+    ]
   });
 
   return Vendor;

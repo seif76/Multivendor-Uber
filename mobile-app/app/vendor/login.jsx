@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View, Image } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View, Image, TouchableWithoutFeedback, Keyboard  } from 'react-native';
 
 
 export default function VendorLogin() {
@@ -56,6 +56,8 @@ export default function VendorLogin() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
     <View className="flex-1 bg-white px-4 justify-center">
       {/* Back button */}
       <Pressable onPress={() => router.push('/')} className="mt-10 ml-4 mb-4 w-10">
@@ -71,7 +73,7 @@ export default function VendorLogin() {
       <View className="bg-white rounded-3xl shadow-xl px-6 py-8 w-full max-w-md mx-auto">
         <TextInput
           placeholder="Phone Number"
-          className="border border-gray-300 w-full mb-4 px-4 py-3 rounded-xl bg-gray-50 text-base"
+          className="border border-gray-300 w-full mb-4 px-4 py-3 pb-4  rounded-xl bg-gray-50 text-base"
           value={phoneOrEmail}
           onChangeText={setPhoneOrEmail}
           keyboardType="phone-pad"
@@ -105,6 +107,7 @@ export default function VendorLogin() {
         </Pressable>
       </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 

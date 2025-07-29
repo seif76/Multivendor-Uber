@@ -19,9 +19,9 @@ export default function VendorProfile() {
       //if (!token) return;
 
       const res = await axios.get(`${BACKEND_URL}/api/vendor/get-by-phone?phone_number=${decoded?.phone_number}`, {
-        // headers: {
-        //   Authorization: `Bearer ${token}`,
-        // },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setVendor(res.data);
@@ -64,8 +64,8 @@ export default function VendorProfile() {
         <View className="flex-row items-center space-x-4">
           <Image
             source={{
-              uri: vendor.info?.shop_front_photo
-                ? vendor.info?.shop_front_photo
+              uri: vendor.info?.logo
+                ? vendor.info?.logo
                 : 'https://via.placeholder.com/150',
             }}
             className="w-20 h-20 mr-4 rounded-xl border border-primary"

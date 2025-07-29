@@ -7,6 +7,7 @@ import ServiceSelector from '../custom/ServiceSelector';
 import SupportAccess from '../custom/SupportAccess';
 import VendorList from '../custom/VendorList';
 import WalletCard from '../custom/WalletCard';
+import OrderTrackingManager from '../custom/OrderTrackingManager';
 import CustomerTopNav from '../navigation/CustomerTopNav';
 
 export default function CustomerHomePage() {
@@ -16,6 +17,7 @@ export default function CustomerHomePage() {
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <LocationBanner />
         <ServiceSelector />
+        <OrderTrackingManager />
         <CategorySlider />
         <VendorList />
         <DealsSection />

@@ -31,6 +31,11 @@ module.exports = (sequelize) => {
       address: {
         type: DataTypes.STRING,
       },
+    }, {
+      indexes: [
+        { name: 'idx_order_customer_id', fields: ['customer_id'] },
+        { name: 'idx_order_status', fields: ['status'] }
+      ]
     });
   
     return Order;

@@ -41,14 +41,16 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
       },
   
-      category: {
-        type: DataTypes.STRING,
-      },
-  
       status: {
         type: DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',
       },
+    }, {
+      indexes: [
+        { name: 'idx_product_vendor_id', fields: ['vendor_id'] },
+        { name: 'idx_product_vendor_category_id', fields: ['vendor_category_id'] },
+        { name: 'idx_product_status', fields: ['status'] }
+      ]
     });
   
     return Product;

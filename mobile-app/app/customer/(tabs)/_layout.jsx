@@ -46,6 +46,13 @@ export default function CustomerLayout() {
             }}
           />
           <Tabs.Screen
+            name="chat"
+            options={{
+              title: 'Messages',
+              tabBarIcon: ({ color }) => <FontAwesome name="comments" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
             name="profile"
             options={{
               title: 'Profile',

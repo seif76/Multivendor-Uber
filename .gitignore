@@ -7,7 +7,8 @@ node_modules/
 .expo-shared/
 *.apk
 *.keystore
-
+uploads/
+uploads/*
 # Logs
 *.log
 

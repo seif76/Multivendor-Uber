@@ -22,7 +22,7 @@ module.exports = async function syncDatabase(){
     });
 
     // Sync all models with the database (create tables)
-    await sequelize.sync({ force: true }); // force:true drops tables if exist
+    await sequelize.sync({ alter: true }); // sync with alter:true to add indexes
 
     console.log('All tables created successfully.');
 
