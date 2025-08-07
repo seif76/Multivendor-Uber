@@ -49,6 +49,61 @@ const router = express.Router();
 
 router.post('/login', loginVendorController);
 
+
+
+/**
+ * @swagger
+ * /api/vendor/auth/register:
+ *   post:
+ *     summary: Vendor registration
+ *     tags: [Vendor Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password, phone_number, shop_name, shop_location, owner_name]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 example: "john.doe@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *               phone_number:
+ *                 type: string
+ *                 example: "0100000000"
+ *               shop_name:
+ *                 type: string
+ *                 example: "John Doe's Shop"
+ *               shop_location:
+ *                 type: string
+ *                 example: "123 Main St, Anytown, USA"
+ *               owner_name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               passport_photo:
+ *                 type: string
+ *                 example: "passport.jpg"
+ *               license_photo:
+ *                 type: string
+ *                 example: "license.jpg"
+ *               shop_front_photo:
+ *                 type: string
+ *                 example: "shop_front.jpg"
+ *               logo:
+ *                 type: string
+ *                 example: "logo.jpg"
+ *     responses:
+ *       200:
+ *         description: Registration successful
+ *       400:
+ *         description: Missing required fields
+ */
 router.post(
   '/register',
   upload.fields([

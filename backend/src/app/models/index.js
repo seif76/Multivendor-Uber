@@ -7,6 +7,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 //shared
 const User = require('./user')(sequelize, DataTypes);
 
+// admin
+const Admin = require('./admin')(sequelize, DataTypes);
+
 // uber
 const CaptainVehicle = require('./captainVehicle')(sequelize, DataTypes);
 const Ride = require('./ride')(sequelize,DataTypes);
@@ -73,6 +76,7 @@ ChatMessage.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 module.exports = {
   sequelize,
   User,
+  Admin,
   CaptainVehicle,
   Ride,
   VendorInfo,

@@ -39,7 +39,7 @@ export default function VendorRegister() {
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -97,7 +97,9 @@ export default function VendorRegister() {
         type: shopFrontPhoto.type || 'image/jpeg',
       });
     }
+    
     try {
+      
       await axios.post(`${BACKEND_URL}/api/vendor/auth/register`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
