@@ -22,6 +22,10 @@ app.use(express.json());
 // const syncChatTables = require('./src/app/models/seeders/chatSeeders');
 // syncChatTables();
 
+// const syncAdminTables = require('./src/app/models/seeders/adminSeeders');
+// syncAdminTables();
+
+
 // start Swagger 
 if (process.env.NODE_ENV !== 'production') {
   const swaggerUi = require('swagger-ui-express');
@@ -99,6 +103,10 @@ app.use('/api/rides', rideRoutes);
 app.use('/api/vendor', vendorRoutes );
 app.use('/api/upload', uploadRoutes);
 app.use('/api/chat', chatRoutes);
+
+//admin routes
+const adminRoutes = require('./src/modules/admin/routes/admin.routes');
+app.use('/api/admin', adminRoutes);
 
 // Routes
 app.get('/', (req, res) => {
