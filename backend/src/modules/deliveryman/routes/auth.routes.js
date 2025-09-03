@@ -1,5 +1,5 @@
 const express = require('express');
-const { loginVendorController, checkCustomerStatus } = require('../controllers/auth.controller');
+const { loginDeliverymanController, checkCustomerStatus } = require('../controllers/auth.controller');
 const { registerVendorController, registerCustomerAsVendorController } = require('../controllers/vendor.controller');
 const upload = require('../../../middlewares/uploadLocal');
 const router = express.Router();
@@ -7,8 +7,8 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   name: Vendor Auth
- *   description: Authentication endpoints for vendors
+ *   name: Deliveryman Auth
+ *   description: Authentication endpoints for deliverymen
  */
 
 
@@ -16,8 +16,8 @@ const router = express.Router();
  * @swagger
  * /api/vendor/auth/login:
  *   post:
- *     summary: Vendor login
- *     tags: [Vendor Auth]
+ *     summary: Deliveryman login
+ *     tags: [Deliveryman Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -40,14 +40,14 @@ const router = express.Router();
  *       401:
  *         description: Incorrect password
  *       404:
- *         description: vendor not found
+ *         description: deliveryman not found
  *       500:
  *         description: Internal server error
  */
 
 
 
-router.post('/login', loginVendorController);
+router.post('/login', loginDeliverymanController);
 
 
 
@@ -104,27 +104,29 @@ router.post('/login', loginVendorController);
  *       400:
  *         description: Missing required fields
  */
-router.post(
-  '/register',
-  upload.fields([
-    { name: 'passport_photo', maxCount: 1 },
-    { name: 'license_photo', maxCount: 1 },
-    { name: 'shop_front_photo', maxCount: 1 },
-    { name: 'logo', maxCount: 1 } // Add logo as required
-  ]),
-  registerVendorController
-);
 
-router.post('/register-customer-as-vendor', 
-  upload.fields([
-    { name: 'passport_photo', maxCount: 1 },
-    { name: 'license_photo', maxCount: 1 },
-    { name: 'shop_front_photo', maxCount: 1 },
-    { name: 'logo', maxCount: 1 } // Add logo as required
-  ]),
-  registerCustomerAsVendorController);
 
-router.post('/check-customer-status', checkCustomerStatus);
+// router.post(
+//   '/register',
+//   upload.fields([
+//     { name: 'passport_photo', maxCount: 1 },
+//     { name: 'license_photo', maxCount: 1 },
+//     { name: 'shop_front_photo', maxCount: 1 },
+//     { name: 'logo', maxCount: 1 } // Add logo as required
+//   ]),
+//   registerVendorController
+// );
+
+// router.post('/register-customer-as-vendor', 
+//   upload.fields([
+//     { name: 'passport_photo', maxCount: 1 },
+//     { name: 'license_photo', maxCount: 1 },
+//     { name: 'shop_front_photo', maxCount: 1 },
+//     { name: 'logo', maxCount: 1 } // Add logo as required
+//   ]),
+//   registerCustomerAsVendorController);
+
+// router.post('/check-customer-status', checkCustomerStatus);
 
 
 

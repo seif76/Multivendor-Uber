@@ -150,10 +150,10 @@ export default function OrderTrackingCard({ order, onStatusUpdate, onDismiss }) 
         </View>
 
         {/* Action Buttons */}
-        <View className="flex-row space-x-3">
+        <View className="flex-row space-x-3 ">
           <Pressable 
             onPress={handleViewDetails}
-            className="flex-1 bg-primary py-3 rounded-lg"
+            className="flex-1 bg-primary mr-4 py-3 rounded-lg"
           >
             <Text className="text-white text-center font-semibold">View Details</Text>
           </Pressable>

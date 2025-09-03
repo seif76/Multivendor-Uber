@@ -3,6 +3,9 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 export default function CustomerTopNav() {
+
+  
+
   return (
     <View className="flex-row justify-between items-center px-4 py-4 bg-white shadow">
       <Pressable>

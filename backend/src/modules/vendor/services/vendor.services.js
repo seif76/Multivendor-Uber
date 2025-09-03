@@ -22,6 +22,21 @@ const registerVendor = async (userData, infoData) => {
   });
 };
 
+const registerCustomerAsVendor = async (customer_id, infoData) => {
+  return await User.sequelize.transaction(async (transaction) => {
+    
+    const updatedUser = await User.update({ vendor_status: 'pending' }, { where: { id: customer_id }, transaction });
+
+    // ✅ Create vendor info and associate it
+    const vendorInfo = await VendorInfo.create(
+      { ...infoData, vendor_id: customer_id },
+      { transaction }
+    );
+
+    return { user: updatedUser, info: vendorInfo };
+  });
+}
+
 const editVendor = async (phone_number, userUpdates, infoUpdates) => {
   const user = await User.findOne({ where: { phone_number } });
   if (!user || user.vendor_status === 'none') throw new Error('Vendor not found');
@@ -198,6 +213,7 @@ const getVendorAndProductsByPhone = async (phone_number) => {
 
 module.exports = {
   registerVendor,
+  registerCustomerAsVendor,
   editVendor,
   updateVendorProfile,
   deleteVendor,

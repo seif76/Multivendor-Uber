@@ -26,6 +26,9 @@ const VendorWorkingHour = require('./vendorWorkingHour')(sequelize, DataTypes);
 const Chat = require('./chat')(sequelize, DataTypes);
 const ChatMessage = require('./chatMessage')(sequelize, DataTypes);
 
+// settings system
+const DeliveryZone = require('./deliveryZone')(sequelize, DataTypes);
+
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
 CaptainVehicle.belongsTo(User, { foreignKey: 'captain_id', as: 'captain' });
@@ -87,4 +90,5 @@ module.exports = {
   VendorWorkingHour,
   Chat,
   ChatMessage,
+  DeliveryZone,
 };
