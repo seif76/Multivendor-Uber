@@ -1,7 +1,5 @@
 const express = require('express');
 const { loginDeliverymanController, checkCustomerStatus } = require('../controllers/auth.controller');
-const { registerVendorController, registerCustomerAsVendorController } = require('../controllers/vendor.controller');
-const upload = require('../../../middlewares/uploadLocal');
 const router = express.Router();
 
 /**
@@ -11,10 +9,9 @@ const router = express.Router();
  *   description: Authentication endpoints for deliverymen
  */
 
-
 /**
  * @swagger
- * /api/vendor/auth/login:
+ * /api/deliveryman/auth/login:
  *   post:
  *     summary: Deliveryman login
  *     tags: [Deliveryman Auth]
@@ -35,100 +32,42 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Login successful, returns JWT and user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     phone_number:
+ *                       type: string
+ *                     deliveryman_status:
+ *                       type: string
  *       400:
  *         description: Missing phone number or password
  *       401:
  *         description: Incorrect password
  *       404:
- *         description: deliveryman not found
+ *         description: Deliveryman not found
  *       500:
  *         description: Internal server error
  */
-
-
-
 router.post('/login', loginDeliverymanController);
 
-
-
-/**
- * @swagger
- * /api/vendor/auth/register:
- *   post:
- *     summary: Vendor registration
- *     tags: [Vendor Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required: [name, email, password, phone_number, shop_name, shop_location, owner_name]
- *             properties:
- *               name:
- *                 type: string
- *                 example: "John Doe"
- *               email:
- *                 type: string
- *                 example: "john.doe@example.com"
- *               password:
- *                 type: string
- *                 example: "password123"
- *               phone_number:
- *                 type: string
- *                 example: "0100000000"
- *               shop_name:
- *                 type: string
- *                 example: "John Doe's Shop"
- *               shop_location:
- *                 type: string
- *                 example: "123 Main St, Anytown, USA"
- *               owner_name:
- *                 type: string
- *                 example: "John Doe"
- *               passport_photo:
- *                 type: string
- *                 example: "passport.jpg"
- *               license_photo:
- *                 type: string
- *                 example: "license.jpg"
- *               shop_front_photo:
- *                 type: string
- *                 example: "shop_front.jpg"
- *               logo:
- *                 type: string
- *                 example: "logo.jpg"
- *     responses:
- *       200:
- *         description: Registration successful
- *       400:
- *         description: Missing required fields
- */
-
-
-// router.post(
-//   '/register',
-//   upload.fields([
-//     { name: 'passport_photo', maxCount: 1 },
-//     { name: 'license_photo', maxCount: 1 },
-//     { name: 'shop_front_photo', maxCount: 1 },
-//     { name: 'logo', maxCount: 1 } // Add logo as required
-//   ]),
-//   registerVendorController
-// );
-
-// router.post('/register-customer-as-vendor', 
-//   upload.fields([
-//     { name: 'passport_photo', maxCount: 1 },
-//     { name: 'license_photo', maxCount: 1 },
-//     { name: 'shop_front_photo', maxCount: 1 },
-//     { name: 'logo', maxCount: 1 } // Add logo as required
-//   ]),
-//   registerCustomerAsVendorController);
-
-// router.post('/check-customer-status', checkCustomerStatus);
-
-
+router.post('/check-customer-status', checkCustomerStatus);
 
 
 module.exports = router;

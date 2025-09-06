@@ -6,7 +6,7 @@ import "../global.css";
 const roles = [
   { name: 'Captain', path: '/captain/home' },
   { name: 'Vendor', path: '/vendor/home' },
-  { name: 'Delivery Man', path: '/deliveryman/login' },
+  { name: 'Delivery Man', path: '/deliveryMan/login' },
   { name: 'Customer', path: '/customer/home' },
 ];
 

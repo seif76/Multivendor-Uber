@@ -30,7 +30,7 @@ export default function DeliveryManLogin() {
       });
       const data = response.data;
       await AsyncStorage.setItem('token', data.token);
-      router.push('/deliveryman/home');
+      router.push('/deliveryMan/home');
     } catch (error) {
       const msg = error.response?.data?.error || error.message || 'Unknown error';
       setError(msg);
@@ -96,7 +96,7 @@ export default function DeliveryManLogin() {
             <Text className="text-white text-lg font-bold">Login</Text>
           )}
         </Pressable>
-        <Pressable onPress={() => router.push('/deliveryman/register')} className="mt-6 items-center">
+        <Pressable onPress={() => router.push('/deliveryMan/register')} className="mt-6 items-center">
           <Text className="text-gray-600">Don't have an account? <Text className="text-primary font-semibold">Register</Text></Text>
         </Pressable>
       </View>

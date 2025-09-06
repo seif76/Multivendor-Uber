@@ -1,257 +1,225 @@
-// const {
-//     registerVendor,
-//     editVendor,
-//     deleteVendor,
-//     getVendorByPhone,
-//     getVendorsByStatus,
-//     setVendorStatus,
-//     getAllVendors,
-//     getVendorProfile,
-//     getVendorStatusCounts,
-//     getVendorAndProductsByPhone,
-//     updateVendorProfile,
-//     registerCustomerAsVendor
-//   } = require('../services/vendor.services');
-//   const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
-  
-//   const registerVendorController = async (req, res) => {
-//     try {
-//       console.log(JSON.stringify(req.body));
-//       const { name, email, password, phone_number, gender, shop_name, shop_location, owner_name } = req.body;
-//       // Validate required fields
-//       if (!name || !email || !password || !phone_number || !shop_name || !shop_location || !owner_name) {
-//         return res.status(400).json({ error: 'Missing required fields' });
-//       }
-//       console.log("registering vendor");
-//       // Upload images to Cloudinary
-//       const passportPhoto = req.files?.passport_photo?.[0];
-//       const licensePhoto = req.files?.license_photo?.[0];
-//       const shopFrontPhoto = req.files?.shop_front_photo?.[0];
-//       const logoPhoto = req.files?.logo?.[0];
-//       let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '', logoUrl = '';
-//       if (passportPhoto) passportPhotoUrl = (await uploadToCloudinary(passportPhoto.path, 'vendor_passports')).url;
-//       if (licensePhoto) licensePhotoUrl = (await uploadToCloudinary(licensePhoto.path, 'vendor_licenses')).url;
-//       if (shopFrontPhoto) shopFrontPhotoUrl = (await uploadToCloudinary(shopFrontPhoto.path, 'vendor_shops')).url;
-//       if (logoPhoto) logoUrl = (await uploadToCloudinary(logoPhoto.path, 'vendor_logos')).url;
-//       if (!logoUrl) {
-//         return res.status(400).json({ error: 'Logo is required' });
-//       }
-//       // Call service to create user and vendor info
-//       const userData = { name, email, password, phone_number, gender, vendor_status: 'pending' };
-//       const infoData = {
-//         shop_name, shop_location, owner_name,
-//         passport_photo: passportPhotoUrl,
-//         license_photo: licensePhotoUrl,
-//         shop_front_photo: shopFrontPhotoUrl,
-//         logo: logoUrl,
-//         phone_number // for VendorInfo
-//       };
-//       const result = await registerVendor(userData, infoData);
-//       res.status(201).json({ message: 'Vendor registered successfully', result });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
+const {
+  registerDeliveryman,
+  registerCustomerAsDeliveryman,
+  getDeliverymanProfile,
+  updateDeliverymanProfile,
+  updateDeliverymanVehicle,
+  getDeliverymenByStatus,
+  setDeliverymanStatus,
+  getDeliverymanStatusCounts,
+  deleteDeliveryman,
+} = require('../services/deliveryman.services');
+const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
+// Register new deliveryman
+const registerDeliverymanController = async (req, res) => {
+  try {
+    console.log(JSON.stringify(req.body));
+    const { name, email, password, phone_number, gender , vehicleData } = req.body;
+    
+    // Parse vehicle data from FormData
+    
+    console.log(JSON.stringify(vehicleData));
+    
+    // Validate required fields
+    if (!name || !email || !password || !phone_number || !vehicleData.make || !vehicleData.model || !vehicleData.year || !vehicleData.license_plate || !vehicleData.vehicle_type || !vehicleData.color) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
-  
-//   const registerCustomerAsVendorController = async (req, res) => {
-//     try {
-      
-//       const { phone_number, shop_name, shop_location, owner_name, customer_id } = req.body;
-//       // Validate required fields
-//       if ( !phone_number || !shop_name || !shop_location || !owner_name || !customer_id) {
-//         return res.status(400).json({ error: 'Missing required fields' });
-//       }
-//       // Upload images to Cloudinary
-//       const passportPhoto = req.files?.passport_photo?.[0];
-//       const licensePhoto = req.files?.license_photo?.[0];
-//       const shopFrontPhoto = req.files?.shop_front_photo?.[0];
-//       const logoPhoto = req.files?.logo?.[0];
-//       let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '', logoUrl = '';
-//       if (passportPhoto) passportPhotoUrl = (await uploadToCloudinary(passportPhoto.path, 'vendor_passports')).url;
-//       if (licensePhoto) licensePhotoUrl = (await uploadToCloudinary(licensePhoto.path, 'vendor_licenses')).url;
-//       if (shopFrontPhoto) shopFrontPhotoUrl = (await uploadToCloudinary(shopFrontPhoto.path, 'vendor_shops')).url;
-//       if (logoPhoto) logoUrl = (await uploadToCloudinary(logoPhoto.path, 'vendor_logos')).url;
-//       if (!logoUrl) {
-//         return res.status(400).json({ error: 'Logo is required' });
-//       }
-//       // Call service to create user and vendor info
-      
-//       const infoData = {
-//         shop_name, shop_location, owner_name,
-//         passport_photo: passportPhotoUrl,
-//         license_photo: licensePhotoUrl,
-//         shop_front_photo: shopFrontPhotoUrl,
-//         logo: logoUrl,
-//         phone_number // for VendorInfo
-//       };
-//       const result = await registerCustomerAsVendor(customer_id, infoData);
-//       res.status(201).json({ message: 'Vendor registered successfully', result });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-  
-//   const editVendorController = async (req, res) => {
-//     try {
-//       const { phone_number, user, info } = req.body;
-//       const result = await editVendor(phone_number, user, info);
-//       res.status(200).json({ message: 'Vendor updated successfully', result });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
+    console.log("registering deliveryman");
+    
+    // Upload images to Cloudinary
+    const profilePhoto = req.files?.profile_photo?.[0];
+    const driverLicensePhoto = req.files?.driver_license_photo?.[0];
+    const nationalIdPhoto = req.files?.national_id_photo?.[0];
+    
+    let profilePhotoUrl = '', driverLicensePhotoUrl = '', nationalIdPhotoUrl = '';
+    
+    if (profilePhoto) profilePhotoUrl = (await uploadToCloudinary(profilePhoto.path, 'deliveryman_profiles')).url;
+    if (driverLicensePhoto) driverLicensePhotoUrl = (await uploadToCloudinary(driverLicensePhoto.path, 'deliveryman_licenses')).url;
+    if (nationalIdPhoto) nationalIdPhotoUrl = (await uploadToCloudinary(nationalIdPhoto.path, 'deliveryman_ids')).url;
 
-//   const updateVendorProfileController = async (req, res) => {
-//     try {
-//       const vendorId = req.user.id;
-//       const { shop_name, shop_location, owner_name, phone_number } = req.body;
+    const userData = { 
+      name, 
+      email, 
+      password, 
+      phone_number, 
+      gender, 
+      deliveryman_status: 'pending',
+      profile_photo: profilePhotoUrl
+    };
+    
+    const vehicleDataWithImages = {
+      ...vehicleData,
+      driver_license_photo: driverLicensePhotoUrl,
+      national_id_photo: nationalIdPhotoUrl,
+    };
+    
+    const result = await registerDeliveryman(userData, vehicleDataWithImages);
+    
+    res.status(201).json({
+      message: 'Deliveryman registered successfully',
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        phone_number: result.user.phone_number,
+        deliveryman_status: result.user.deliveryman_status,
+      },
+      vehicle: result.vehicle,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
-//       // Validate required fields
-//       if (!shop_name || !shop_location || !owner_name || !phone_number) {
-//         return res.status(400).json({ error: 'Missing required fields' });
-//       }
+// Register existing customer as deliveryman
+const registerCustomerAsDeliverymanController = async (req, res) => {
+  try {
+    const { customer_id  , vehicleData } = req.body;
+    
+    
+    if (!customer_id || !vehicleData.make || !vehicleData.model || !vehicleData.year || !vehicleData.license_plate || !vehicleData.vehicle_type || !vehicleData.color) {
+      return res.status(400).json({ error: 'Customer ID and vehicle data are required' });
+    }
 
-//       const updateData = {
-//         shop_name,
-//         shop_location,
-//         owner_name,
-//         phone_number,
-//       };
+    // Upload images to Cloudinary
+    const driverLicensePhoto = req.files?.driver_license_photo?.[0];
+    const nationalIdPhoto = req.files?.national_id_photo?.[0];
+    
+    let driverLicensePhotoUrl = '', nationalIdPhotoUrl = '';
+    
+    if (driverLicensePhoto) driverLicensePhotoUrl = (await uploadToCloudinary(driverLicensePhoto.path, 'deliveryman_licenses')).url;
+    if (nationalIdPhoto) nationalIdPhotoUrl = (await uploadToCloudinary(nationalIdPhoto.path, 'deliveryman_ids')).url;
 
-//       const shopFrontPhotoFile = req.files?.shop_front_photo?.[0] || null;
-//       const logoFile = req.files?.logo?.[0] || null;
+    const vehicleDataWithImages = {
+      ...vehicleData,
+      driver_license_photo: driverLicensePhotoUrl,
+      national_id_photo: nationalIdPhotoUrl,
+    };
 
-//       // Pass the image and logo files to the service for Cloudinary upload
-//       const result = await updateVendorProfile(vendorId, updateData, shopFrontPhotoFile, logoFile);
-      
-//       res.status(200).json({ 
-//         message: 'Vendor profile updated successfully', 
-//         vendor_info: result.vendor_info 
-//       });
-//     } catch (err) {
-//       console.error('Error updating vendor profile:', err);
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const deleteVendorController = async (req, res) => {
-//     try {
-//       const { phone_number } = req.query;
-//       const result = await deleteVendor(phone_number);
-//       res.status(200).json({ message: result });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getVendorByPhoneController = async (req, res) => {
-//     try {
-//       const { phone_number } = req.query;
-//       const result = await getVendorByPhone(phone_number.trim());
-//       res.status(200).json(result);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getPendingVendorsController = async (req, res) => {
-//     try {
-//       const vendors = await getVendorsByStatus('pending');
-//       res.status(200).json(vendors);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getActiveVendorsController = async (req, res) => {
-//     try {
-//       const vendors = await getVendorsByStatus('Active');
-//       res.status(200).json(vendors);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getDeactivatedVendorsController = async (req, res) => {
-//     try {
-//       const vendors = await getVendorsByStatus('Deactivated');
-//       res.status(200).json(vendors);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const setVendorStatusController = async (req, res) => {
-//     try {
-//       const { phone_number, status } = req.body;
-//       const updated = await setVendorStatus(phone_number, status);
-//       res.status(200).json({ message: 'Status updated', user: updated });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getAllVendorsController = async (req, res) => {
-//     try {
-//       const { vendors, total, page, totalPages } = await getAllVendors(req.query);
-//       res.status(200).json({ vendors, total, currentPage: page, totalPages });
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getAllVendorStatusCountsController = async (req, res) => {
-//     try {
-//       const counts = await getVendorStatusCounts();
-//       res.status(200).json(counts);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
-  
-//   const getVendorProfileController = async (req, res) => {
-//     try {
-//       const vendor = await getVendorProfile(req.user.id);
-//       res.status(200).json(vendor);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   };
+    const result = await registerCustomerAsDeliveryman(customer_id, vehicleDataWithImages);
+    
+    res.status(201).json({
+      message: 'Customer registered as deliveryman successfully',
+      result,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
-//   const getVendorWithProductsByPhoneController = async (req, res) => {
-//     try {
-//       const { phone_number } = req.params;
-  
-//       const result = await getVendorAndProductsByPhone(phone_number);
-  
-//       return res.status(200).json(result);
-//     } catch (error) {
-//       console.error('Error in getVendorWithProductsByPhone:', error);
-  
-//       const status = error.message === 'User not found' || error.message === 'Vendor info not found' ? 404 : 500;
-//       res.status(status).json({ message: error.message });
-//     }
-//   };
+// Get deliveryman profile
+const getDeliverymanProfileController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const profile = await getDeliverymanProfile(deliverymanId);
+    
+    res.status(200).json(profile);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
 
-  
-  
-//   module.exports = {
-//     registerVendorController,
-//     editVendorController,
-//     updateVendorProfileController,
-//     deleteVendorController,
-//     getVendorByPhoneController,
-//     getPendingVendorsController,
-//     getActiveVendorsController,
-//     getDeactivatedVendorsController,
-//     setVendorStatusController,
-//     getAllVendorsController,
-//     getAllVendorStatusCountsController,
-//     getVendorProfileController,
-//     getVendorWithProductsByPhoneController,
-//     registerCustomerAsVendorController
-//   };
+// Update deliveryman profile
+const updateDeliverymanProfileController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const updateData = req.body;
+    const imageFiles = req.files || {};
+    
+    const updatedProfile = await updateDeliverymanProfile(deliverymanId, updateData, imageFiles);
+    
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      profile: updatedProfile,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Update vehicle information
+const updateVehicleInfoController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const vehicleData = req.body;
+    const imageFiles = req.files || {};
+    
+    const updatedVehicle = await updateDeliverymanVehicle(deliverymanId, vehicleData, imageFiles);
+    
+    res.status(200).json({
+      message: 'Vehicle information updated successfully',
+      vehicle: updatedVehicle,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get deliverymen by status (admin function)
+const getDeliverymenByStatusController = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const deliverymen = await getDeliverymenByStatus(status);
+    
+    res.status(200).json(deliverymen);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Set deliveryman status (admin function)
+const setDeliverymanStatusController = async (req, res) => {
+  try {
+    const { deliveryman_id, status } = req.body;
+    
+    if (!deliveryman_id || !status) {
+      return res.status(400).json({ error: 'Deliveryman ID and status are required' });
+    }
+
+    const updatedDeliveryman = await setDeliverymanStatus(deliveryman_id, status);
+    
+    res.status(200).json({
+      message: 'Deliveryman status updated successfully',
+      deliveryman: updatedDeliveryman,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get deliveryman status counts (admin function)
+const getDeliverymanStatusCountsController = async (req, res) => {
+  try {
+    const counts = await getDeliverymanStatusCounts();
+    res.status(200).json(counts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete deliveryman (admin function)
+const deleteDeliverymanController = async (req, res) => {
+  try {
+    const { deliveryman_id } = req.params;
+    
+    const result = await deleteDeliveryman(deliveryman_id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  registerDeliverymanController,
+  registerCustomerAsDeliverymanController,
+  getDeliverymanProfileController,
+  updateDeliverymanProfileController,
+  updateVehicleInfoController,
+  getDeliverymenByStatusController,
+  setDeliverymanStatusController,
+  getDeliverymanStatusCountsController,
+  deleteDeliverymanController,
+};
   

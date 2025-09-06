@@ -55,7 +55,7 @@ export const DeliverymanAuthProvider = ({ children }) => {
 
   const redirectToLogin = async () => {
     await AsyncStorage.removeItem('token');
-    router.push('/deliveryman/login');
+    router.push('/deliveryMan/login');
   };
 
   return (
