@@ -1,6 +1,6 @@
 const express = require('express');
-const { loginVendorController } = require('../controllers/auth.controller');
-const { registerVendorController } = require('../controllers/vendor.controller');
+const { loginVendorController, checkCustomerStatus } = require('../controllers/auth.controller');
+const { registerVendorController, registerCustomerAsVendorController } = require('../controllers/vendor.controller');
 const upload = require('../../../middlewares/uploadLocal');
 const router = express.Router();
 
@@ -114,5 +114,19 @@ router.post(
   ]),
   registerVendorController
 );
+
+router.post('/register-customer-as-vendor', 
+  upload.fields([
+    { name: 'passport_photo', maxCount: 1 },
+    { name: 'license_photo', maxCount: 1 },
+    { name: 'shop_front_photo', maxCount: 1 },
+    { name: 'logo', maxCount: 1 } // Add logo as required
+  ]),
+  registerCustomerAsVendorController);
+
+router.post('/check-customer-status', checkCustomerStatus);
+
+
+
 
 module.exports = router;

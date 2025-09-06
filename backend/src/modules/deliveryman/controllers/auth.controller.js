@@ -6,7 +6,7 @@ const { Op } = require('sequelize');
 
 
 
-const loginVendorController = async (req, res) => {
+const loginDeliverymanController = async (req, res) => {
     const { phone_number, password } = req.body;
   
     if (!phone_number || !password) {
@@ -17,12 +17,12 @@ const loginVendorController = async (req, res) => {
       const user = await User.findOne({
         where: {
           phone_number,
-          vendor_status: { [Op.ne]: 'none' }, // must be a vendor
+          deliveryman_status: { [Op.ne]: 'none' }, // must be a deliveryman
         },
       });
   
       if (!user) {
-        return res.status(404).json({ error: 'vendor not found' });
+        return res.status(404).json({ error: 'deliveryman not found' });
       }
   
       const match = await bcrypt.compare(password, user.password);
@@ -46,7 +46,7 @@ const loginVendorController = async (req, res) => {
           customer_status: user.customer_status,
           deliveryman_status: user.deliveryman_status,
           vendor_status: user.vendor_status,
-          user_type: 'vendor'
+          user_type: 'deliveryman'
         },
         process.env.JWT_SECRET
         // , { expiresIn: '30d' } // REMOVE THIS LINE for no expiry
@@ -86,8 +86,8 @@ const loginVendorController = async (req, res) => {
       if (!user) {
         return res.status(404).json({ error: 'this account is not a customer' });
       }
-      if (user.vendor_status !== 'none') {
-        return res.status(400).json({ error: 'this account is already a vendor' });
+      if (user.deliveryman_status !== 'none') {
+        return res.status(400).json({ error: 'this account is already a deliveryman' });
       }
   
       const match = await bcrypt.compare(password, user.password);
@@ -106,7 +106,7 @@ const loginVendorController = async (req, res) => {
 
   
 module.exports = {
-    loginVendorController,
+    loginDeliverymanController,
     checkCustomerStatus,
     //registerCaptainController,
   };

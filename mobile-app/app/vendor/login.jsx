@@ -60,7 +60,7 @@ export default function VendorLogin() {
 
     <View className="flex-1 bg-white px-4 justify-center">
       {/* Back button */}
-      <Pressable onPress={() => router.push('/')} className="mt-10 ml-4 mb-4 w-10">
+      <Pressable onPress={() => router.push('/')} className="absolute top-10 left-4 w-10 z-10">
         <Ionicons name="arrow-back" size={24} color="black" />
       </Pressable>
       {/* Logo and Heading */}

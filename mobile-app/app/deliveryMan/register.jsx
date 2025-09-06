@@ -6,7 +6,7 @@ import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, Alert, Acti
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function VendorRegister() {
+export default function DeliverymanRegister() {
   // Registration flow states
   const [isCustomer, setIsCustomer] = useState(null); // null = not selected, true = customer, false = not customer
   const [customerVerified, setCustomerVerified] = useState(false);
@@ -18,22 +18,28 @@ export default function VendorRegister() {
     password: '',
   });
 
-  // Vendor registration form
+  // Deliveryman registration form
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
     phone_number: '',
     gender: '',
-    shop_name: '',
-    shop_location: '',
-    owner_name: '',
+  });
+
+  // Vehicle information
+  const [vehicleData, setVehicleData] = useState({
+    make: '',
+    model: '',
+    year: '',
+    license_plate: '',
+    vehicle_type: '',
+    color: '',
   });
   
-  const [logo, setLogo] = useState(null);
-  const [passportPhoto, setPassportPhoto] = useState(null);
-  const [licensePhoto, setLicensePhoto] = useState(null);
-  const [shopFrontPhoto, setShopFrontPhoto] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [driverLicensePhoto, setDriverLicensePhoto] = useState(null);
+  const [nationalIdPhoto, setNationalIdPhoto] = useState(null);
   const [imageError, setImageError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -41,9 +47,10 @@ export default function VendorRegister() {
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
   const handleChange = (key, value) => setForm({ ...form, [key]: value });
+  const handleVehicleChange = (key, value) => setVehicleData({ ...vehicleData, [key]: value });
   const handleCustomerFormChange = (key, value) => setCustomerForm({ ...customerForm, [key]: value });
 
-  // Use the same pickImage logic as customer registration
+  // Use the same pickImage logic as vendor registration
   const pickImage = async (setter) => {
     setImageError('');
     try {
@@ -86,11 +93,11 @@ export default function VendorRegister() {
     }
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/vendor/auth/check-customer-status`, customerForm);
+      const response = await axios.post(`${BACKEND_URL}/api/deliveryman/auth/check-customer-status`, customerForm);
       setCustomerData(response.data.user);
       setCustomerVerified(true);
       
-      // Pre-fill vendor form with customer data
+      // Pre-fill deliveryman form with customer data
       setForm(prev => ({
         ...prev,
         name: response.data.user.name || '',
@@ -99,7 +106,7 @@ export default function VendorRegister() {
         gender: response.data.user.gender || '',
       }));
       
-      Alert.alert('Success', 'Customer account verified! Please complete your vendor information.');
+      Alert.alert('Success', 'Customer account verified! Please complete your deliveryman information.');
     } catch (err) {
       setImageError('Customer verification failed: ' + (err.response?.data?.error || err.message));
     } finally {
@@ -111,20 +118,23 @@ export default function VendorRegister() {
     setUploading(true);
     setImageError('');
     
-    if (!logo || !logo.uri) {
-      setImageError('Logo is required.');
-      setUploading(false);
-      return;
-    }
-
     // Validate required fields based on whether user is a verified customer
     const requiredFields = customerVerified 
-      ? ['shop_name', 'shop_location', 'owner_name'] // Customer only needs vendor-specific fields
-      : ['name', 'email', 'password', 'phone_number', 'shop_name', 'shop_location', 'owner_name']; // New user needs all fields
+      ? [] // Customer only needs vehicle-specific fields
+      : ['name', 'email', 'password', 'phone_number', 'gender']; // New user needs all fields
 
     const missingFields = requiredFields.filter(field => !form[field]);
     if (missingFields.length > 0) {
       setImageError(`Missing required fields: ${missingFields.join(', ')}`);
+      setUploading(false);
+      return;
+    }
+
+    // Validate vehicle data
+    const requiredVehicleFields = ['make', 'model', 'year', 'license_plate', 'vehicle_type', 'color'];
+    const missingVehicleFields = requiredVehicleFields.filter(field => !vehicleData[field]);
+    if (missingVehicleFields.length > 0) {
+      setImageError(`Missing vehicle fields: ${missingVehicleFields.join(', ')}`);
       setUploading(false);
       return;
     }
@@ -135,53 +145,53 @@ export default function VendorRegister() {
     Object.entries(form).forEach(([key, value]) => {
       if (value) formData.append(key, value);
     });
+    
+   
+    // Add vehicle data
+    Object.entries(vehicleData).forEach(([key, value]) => {
+      if (value) formData.append(`vehicleData[${key}]`, value);
+    });
 
     // Add customer_id for verified customers
     if (customerVerified && customerData) {
+      
       formData.append('customer_id', customerData.id);
     }
 
     // Add images
-    if (logo && logo.uri) {
-      formData.append('logo', {
-        uri: logo.uri,
-        name: logo.name || 'logo.jpg',
-        type: logo.type || 'image/jpeg',
+    if (profilePhoto && profilePhoto.uri) {
+      formData.append('profile_photo', {
+        uri: profilePhoto.uri,
+        name: profilePhoto.name || 'profile.jpg',
+        type: profilePhoto.type || 'image/jpeg',
       });
     }
-    if (passportPhoto && passportPhoto.uri) {
-      formData.append('passport_photo', {
-        uri: passportPhoto.uri,
-        name: passportPhoto.name || 'passport.jpg',
-        type: passportPhoto.type || 'image/jpeg',
+    if (driverLicensePhoto && driverLicensePhoto.uri) {
+      formData.append('driver_license_photo', {
+        uri: driverLicensePhoto.uri,
+        name: driverLicensePhoto.name || 'driver_license.jpg',
+        type: driverLicensePhoto.type || 'image/jpeg',
       });
     }
-    if (licensePhoto && licensePhoto.uri) {
-      formData.append('license_photo', {
-        uri: licensePhoto.uri,
-        name: licensePhoto.name || 'license.jpg',
-        type: licensePhoto.type || 'image/jpeg',
-      });
-    }
-    if (shopFrontPhoto && shopFrontPhoto.uri) {
-      formData.append('shop_front_photo', {
-        uri: shopFrontPhoto.uri,
-        name: shopFrontPhoto.name || 'shopfront.jpg',
-        type: shopFrontPhoto.type || 'image/jpeg',
+    if (nationalIdPhoto && nationalIdPhoto.uri) {
+      formData.append('national_id_photo', {
+        uri: nationalIdPhoto.uri,
+        name: nationalIdPhoto.name || 'national_id.jpg',
+        type: nationalIdPhoto.type || 'image/jpeg',
       });
     }
     
     try {
       // Use different endpoint based on customer verification
       const endpoint = customerVerified 
-        ? `${BACKEND_URL}/api/vendor/auth/register-customer-as-vendor`
-        : `${BACKEND_URL}/api/vendor/auth/register`;
+        ? `${BACKEND_URL}/api/deliveryman/register-customer`
+        : `${BACKEND_URL}/api/deliveryman/register`;
         
       await axios.post(endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       Alert.alert('Success', 'Registration successful!');
-      router.push('/vendor/login');
+      router.push('/deliveryMan/login');
     } catch (err) {
       setImageError('Registration failed: ' + (err.response?.data?.error || err.message));
     } finally {
@@ -201,9 +211,14 @@ export default function VendorRegister() {
       password: '',
       phone_number: '',
       gender: '',
-      shop_name: '',
-      shop_location: '',
-      owner_name: '',
+    });
+    setVehicleData({
+      make: '',
+      model: '',
+      year: '',
+      license_plate: '',
+      vehicle_type: '',
+      color: '',
     });
     setImageError('');
   };
@@ -212,14 +227,14 @@ export default function VendorRegister() {
   if (isCustomer === null) {
     return (
       <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
-        <Text className="text-3xl font-bold text-green-600 mb-6 text-center">Vendor Registration</Text>
+        <Text className="text-3xl font-bold text-primary mb-6 text-center">Deliveryman Registration</Text>
         
         <View className="mb-8">
           <Text className="text-lg font-semibold text-gray-800 mb-4 text-center">
             Are you already a customer?
           </Text>
           <Text className="text-gray-600 text-center mb-6">
-            If you're already a customer, we can use your existing account information to create your vendor profile.
+            If you're already a customer, we can use your existing account information to create your deliveryman profile.
           </Text>
         </View>
 
@@ -234,7 +249,7 @@ export default function VendorRegister() {
               <View className="ml-4 flex-1">
                 <Text className="text-lg font-semibold text-green-800">Yes, I'm a customer</Text>
                 <Text className="text-sm text-green-600 mt-1">
-                  Use my existing account to create vendor profile
+                  Use my existing account to create deliveryman profile
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#22c55e" />
@@ -251,7 +266,7 @@ export default function VendorRegister() {
               <View className="ml-4 flex-1">
                 <Text className="text-lg font-semibold text-gray-800">No, I'm new</Text>
                 <Text className="text-sm text-gray-600 mt-1">
-                  Create a completely new vendor account
+                  Create a completely new deliveryman account
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#6b7280" />
@@ -261,8 +276,8 @@ export default function VendorRegister() {
 
         {/* Login Link */}
         <View className="flex-row justify-center mt-8">
-          <Text className="text-gray-600">Already have a vendor account? </Text>
-          <Link href="/vendor/login" asChild>
+          <Text className="text-gray-600">Already have a deliveryman account? </Text>
+          <Link href="/deliveryMan/login" asChild>
             <Text className="text-primary font-semibold">Login</Text>
           </Link>
         </View>
@@ -278,7 +293,7 @@ export default function VendorRegister() {
           <TouchableOpacity onPress={() => handleUserTypeSelection(null)}>
             <Ionicons name="arrow-back" size={24} color="#22c55e" />
           </TouchableOpacity>
-          <Text className="text-2xl font-bold text-green-600 ml-4">Verify Customer Account</Text>
+          <Text className="text-2xl font-bold text-primary ml-4">Verify Customer Account</Text>
         </View>
 
         <View className="mb-6">
@@ -286,7 +301,7 @@ export default function VendorRegister() {
             Enter your customer credentials
           </Text>
           <Text className="text-gray-600">
-            We'll use your existing customer account to create your vendor profile.
+            We'll use your existing customer account to create your deliveryman profile.
           </Text>
         </View>
 
@@ -312,7 +327,7 @@ export default function VendorRegister() {
 
         <TouchableOpacity
           onPress={handleCustomerCheck}
-          className="bg-green-600 py-4 rounded-xl mb-4"
+          className="bg-primary py-4 rounded-xl mb-4"
           disabled={verifying}
         >
           {verifying ? (
@@ -332,15 +347,15 @@ export default function VendorRegister() {
     );
   }
 
-  // Step 2b: Vendor Registration Form (for both verified customers and new users)
+  // Step 2b: Deliveryman Registration Form (for both verified customers and new users)
   return (
     <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
       <View className="flex-row items-center mb-6">
         <TouchableOpacity onPress={() => handleUserTypeSelection(null)}>
           <Ionicons name="arrow-back" size={24} color="#22c55e" />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold text-green-600 ml-4">
-          {customerVerified ? 'Complete Vendor Profile' : 'Vendor Registration'}
+        <Text className="text-2xl font-bold text-primary ml-4">
+          {customerVerified ? 'Complete Deliveryman Profile' : 'Deliveryman Registration'}
         </Text>
       </View>
 
@@ -356,39 +371,35 @@ export default function VendorRegister() {
         </View>
       )}
 
-      {/* Logo Picker - required */}
+      {/* Profile Photo Picker */}
       <View className="items-center mb-6">
         <TouchableOpacity
-          onPress={() => pickImage(setLogo)}
+          onPress={() => pickImage(setProfilePhoto)}
           className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-green-600 items-center justify-center mb-2"
           activeOpacity={0.7}
         >
-          {logo && logo.uri ? (
+          {profilePhoto && profilePhoto.uri ? (
             <Image
-              source={{ uri: logo.uri }}
+              source={{ uri: profilePhoto.uri }}
               style={{ width: 112, height: 112, borderRadius: 56 }}
             />
           ) : (
-            <Ionicons name="image" size={44} color="#22c55e" />
+            <Ionicons name="person" size={44} color="#22c55e" />
           )}
         </TouchableOpacity>
-        <Text className="text-xs text-green-700 font-semibold mt-1 text-center">Logo (required)</Text>
+        <Text className="text-xs text-green-700 font-semibold mt-1 text-center">Profile Photo (optional)</Text>
       </View>
 
-      {/* Image Pickers - styled like customer registration */}
+      {/* Document Pickers */}
       <View className="flex-row justify-between mb-6">
         {[{
-          label: 'Passport Photo',
-          image: passportPhoto,
-          setter: setPassportPhoto,
+          label: 'Driver License',
+          image: driverLicensePhoto,
+          setter: setDriverLicensePhoto,
         }, {
-          label: 'License Photo',
-          image: licensePhoto,
-          setter: setLicensePhoto,
-        }, {
-          label: 'Shop Front Photo',
-          image: shopFrontPhoto,
-          setter: setShopFrontPhoto,
+          label: 'National ID',
+          image: nationalIdPhoto,
+          setter: setNationalIdPhoto,
         }].map(({ label, image, setter }, idx) => (
           <View key={label} className="items-center flex-1 mx-1">
             <TouchableOpacity
@@ -402,7 +413,7 @@ export default function VendorRegister() {
                   style={{ width: 96, height: 96, borderRadius: 48 }}
                 />
               ) : (
-                <Ionicons name="camera" size={36} color="#22c55e" />
+                <Ionicons name="document" size={36} color="#22c55e" />
               )}
             </TouchableOpacity>
             <Text className="text-xs text-primary font-semibold mt-1 text-center">{label}</Text>
@@ -413,69 +424,135 @@ export default function VendorRegister() {
 
       {/* Form Fields - Show different fields based on customer verification */}
       {customerVerified ? (
-        // Customer verified - only show vendor-specific fields
-        [
-          { label: 'Shop Name', key: 'shop_name', keyboard: 'default' },
-          { label: 'Shop Location', key: 'shop_location', keyboard: 'default' },
-          { label: 'Owner Name', key: 'owner_name', keyboard: 'default' },
-        ].map(({ label, key, keyboard, secure }) => (
-          <View key={key} className="mb-5">
-            <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-4 text-base bg-gray-50 focus:border-green-500"
-              placeholder={label}
-              keyboardType={keyboard}
-              secureTextEntry={secure}
-              value={form[key]}
-              onChangeText={(val) => handleChange(key, val)}
-            />
+        // Customer verified - only show vehicle fields
+        <View>
+          <Text className="text-lg font-semibold text-gray-800 mb-4">Vehicle Information</Text>
+          {[
+            { label: 'Make', key: 'make', keyboard: 'default' },
+            { label: 'Model', key: 'model', keyboard: 'default' },
+            { label: 'Year', key: 'year', keyboard: 'numeric' },
+            { label: 'License Plate', key: 'license_plate', keyboard: 'default' },
+            { label: 'Color', key: 'color', keyboard: 'default' },
+          ].map(({ label, key, keyboard }) => (
+            <View key={key} className="mb-5">
+              <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50 focus:border-green-500"
+                placeholder={label}
+                keyboardType={keyboard}
+                value={vehicleData[key]}
+                onChangeText={(val) => handleVehicleChange(key, val)}
+              />
+            </View>
+          ))}
+          
+          {/* Vehicle Type Picker */}
+          <View className="mb-6">
+            <Text className="mb-2 text-gray-700 font-medium">Vehicle Type</Text>
+            <View className="flex-row space-x-4">
+              {['car', 'motorcycle', 'bicycle'].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  onPress={() => handleVehicleChange('vehicle_type', type)}
+                  className={`flex-1 mx-1 py-3 rounded-xl border ${
+                    vehicleData.vehicle_type === type ? 'bg-green-500 border-green-600' : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <Text className={`text-center text-base font-medium ${
+                    vehicleData.vehicle_type === type ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        ))
+        </View>
       ) : (
         // New user - show all fields
-        [
-          { label: 'Full Name', key: 'name', keyboard: 'default' },
-          { label: 'Email', key: 'email', keyboard: 'email-address' },
-          { label: 'Password', key: 'password', secure: true },
-          { label: 'Phone Number', key: 'phone_number', keyboard: 'phone-pad' },
-          { label: 'Shop Name', key: 'shop_name', keyboard: 'default' },
-          { label: 'Shop Location', key: 'shop_location', keyboard: 'default' },
-          { label: 'Owner Name', key: 'owner_name', keyboard: 'default' },
-        ].map(({ label, key, keyboard, secure }) => (
-          <View key={key} className="mb-5">
-            <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50 focus:border-green-500"
-              placeholder={label}
-              keyboardType={keyboard}
-              secureTextEntry={secure}
-              value={form[key]}
-              onChangeText={(val) => handleChange(key, val)}
-            />
-          </View>
-        ))
-      )}
+        <View>
+          <Text className="text-lg font-semibold text-gray-800 mb-4">Personal Information</Text>
+          {[
+            { label: 'Full Name', key: 'name', keyboard: 'default' },
+            { label: 'Email', key: 'email', keyboard: 'email-address' },
+            { label: 'Password', key: 'password', secure: true },
+            { label: 'Phone Number', key: 'phone_number', keyboard: 'phone-pad' },
+          ].map(({ label, key, keyboard, secure }) => (
+            <View key={key} className="mb-5">
+              <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50 focus:border-green-500"
+                placeholder={label}
+                keyboardType={keyboard}
+                secureTextEntry={secure}
+                value={form[key]}
+                onChangeText={(val) => handleChange(key, val)}
+              />
+            </View>
+          ))}
 
-      {/* Gender Picker - only show for new users */}
-      {!customerVerified && (
-        <View className="mb-6">
-          <Text className="mb-2 text-gray-700 font-medium">Gender</Text>
-          <View className="flex-row space-x-4">
-            {['male', 'female'].map((g) => (
-              <TouchableOpacity
-                key={g}
-                onPress={() => handleChange('gender', g)}
-                className={`flex-1 mx-2 py-3 rounded-xl border ${
-                  form.gender === g ? 'bg-green-500 border-green-600' : 'bg-white border-gray-300'
-                }`}
-              >
-                <Text className={`text-center text-base font-medium ${
-                  form.gender === g ? 'text-white' : 'text-gray-800'
-                }`}>
-                  {g.charAt(0).toUpperCase() + g.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          {/* Gender Picker */}
+          <View className="mb-6">
+            <Text className="mb-2 text-gray-700 font-medium">Gender</Text>
+            <View className="flex-row space-x-4">
+              {['male', 'female'].map((g) => (
+                <TouchableOpacity
+                  key={g}
+                  onPress={() => handleChange('gender', g)}
+                  className={`flex-1 mx-2 py-3 rounded-xl border ${
+                    form.gender === g ? 'bg-green-500 border-green-600' : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <Text className={`text-center text-base font-medium ${
+                    form.gender === g ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    {g.charAt(0).toUpperCase() + g.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <Text className="text-lg font-semibold text-gray-800 mb-4">Vehicle Information</Text>
+          {[
+            { label: 'Make', key: 'make', keyboard: 'default' },
+            { label: 'Model', key: 'model', keyboard: 'default' },
+            { label: 'Year', key: 'year', keyboard: 'numeric' },
+            { label: 'License Plate', key: 'license_plate', keyboard: 'default' },
+            { label: 'Color', key: 'color', keyboard: 'default' },
+          ].map(({ label, key, keyboard }) => (
+            <View key={key} className="mb-5">
+              <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50 focus:border-green-500"
+                placeholder={label}
+                keyboardType={keyboard}
+                value={vehicleData[key]}
+                onChangeText={(val) => handleVehicleChange(key, val)}
+              />
+            </View>
+          ))}
+          
+          {/* Vehicle Type Picker */}
+          <View className="mb-6">
+            <Text className="mb-2 text-gray-700 font-medium">Vehicle Type</Text>
+            <View className="flex-row space-x-4">
+              {['car', 'motorcycle', 'bicycle'].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  onPress={() => handleVehicleChange('vehicle_type', type)}
+                  className={`flex-1 mx-1 py-3 rounded-xl border ${
+                    vehicleData.vehicle_type === type ? 'bg-green-500 border-green-600' : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <Text className={`text-center text-base font-medium ${
+                    vehicleData.vehicle_type === type ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
       )}
@@ -483,7 +560,7 @@ export default function VendorRegister() {
       {/* Register Button */}
       <TouchableOpacity
         onPress={handleRegister}
-        className="bg-green-600 py-4 rounded-xl"
+        className="bg-primary py-4 rounded-xl"
         disabled={uploading}
       >
         {uploading ? (
@@ -498,10 +575,10 @@ export default function VendorRegister() {
       {/* Login Link */}
       <View className="flex-row justify-center mt-2">
         <Text className="text-gray-600">Already have an account? </Text>
-        <Link href="/vendor/login" asChild>
+        <Link href="/deliveryMan/login" asChild>
           <Text className="text-primary font-semibold">Login</Text>
         </Link>
       </View>
     </ScrollView>
   );
-} 
+}

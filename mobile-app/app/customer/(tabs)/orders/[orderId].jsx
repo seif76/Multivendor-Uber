@@ -158,14 +158,14 @@ export default function OrderDetailsPage() {
         {order.status === 'pending' && (
           <Pressable
             className={`bg-red-500 py-4 rounded-xl ${cancelLoading ? 'opacity-60' : ''}`}
-            onPress={handleCancel}
-            disabled={cancelLoading}
-          >
+          onPress={handleCancel}
+          disabled={cancelLoading}
+        >
             <Text className="text-white text-center text-lg font-bold">
               {cancelLoading ? 'Cancelling...' : 'Cancel Order'}
             </Text>
-          </Pressable>
-        )}
+        </Pressable>
+      )}
       </View>
     </View>
   );

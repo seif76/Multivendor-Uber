@@ -22,13 +22,23 @@ const OrderItem = require('./orderItem')(sequelize,DataTypes);
 const VendorCategory = require('./vendorCategory')(sequelize, DataTypes);
 const VendorWorkingHour = require('./vendorWorkingHour')(sequelize, DataTypes);
 
+// delivery system
+const DeliverymanVehicle = require('./deliverymanVehicle')(sequelize, DataTypes);
+
 // chat system
 const Chat = require('./chat')(sequelize, DataTypes);
 const ChatMessage = require('./chatMessage')(sequelize, DataTypes);
 
+// settings system
+const DeliveryZone = require('./deliveryZone')(sequelize, DataTypes);
+
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
 CaptainVehicle.belongsTo(User, { foreignKey: 'captain_id', as: 'captain' });
+
+// deliveryman relations
+User.hasOne(DeliverymanVehicle, { foreignKey: 'deliveryman_id', as: 'delivery_vehicle' });
+DeliverymanVehicle.belongsTo(User, { foreignKey: 'deliveryman_id', as: 'deliveryman' });
 
 // multivendor 
 User.hasOne(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor_info' });
@@ -85,6 +95,8 @@ module.exports = {
   OrderItem,
   VendorCategory,
   VendorWorkingHour,
+  DeliverymanVehicle,
   Chat,
   ChatMessage,
+  DeliveryZone,
 };
