@@ -9,6 +9,7 @@ import VendorList from '../custom/VendorList';
 import WalletCard from '../custom/WalletCard';
 import OrderTrackingManager from '../custom/OrderTrackingManager';
 import CustomerTopNav from '../navigation/CustomerTopNav';
+import TestNotification from '../custom/TestNotifications';
 
 export default function CustomerHomePage() {
   return (
@@ -23,6 +24,7 @@ export default function CustomerHomePage() {
         <DealsSection />
         <WalletCard />
         <SupportAccess />
+        <TestNotification />
         <View className="h-10" />
       </ScrollView>
     </View>

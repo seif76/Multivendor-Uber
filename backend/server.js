@@ -99,6 +99,7 @@ const vendorRoutes = require('./src/modules/vendor/routes/vendor.routes');
 const uploadRoutes = require('./src/config/cloudinary/routes/upload')
 const chatRoutes = require('./src/modules/chat/routes/chat.routes');
 const deliverymanRoutes = require('./src/modules/deliveryman/routes/deliveryman.routes');
+const notificationRoutes = require('./src/modules/notifications/routes/notifications.routes');
 
 
 app.use('/api/captain', captainRoutes);
@@ -108,6 +109,7 @@ app.use('/api/vendor', vendorRoutes );
 app.use('/api/upload', uploadRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/deliveryman', deliverymanRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');
