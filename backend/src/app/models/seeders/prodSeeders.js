@@ -3,7 +3,9 @@ const initializeDatabase = require('../../../config/mysql/dbconnection'); // you
 
 module.exports = async function productionSeeders() {
   try {
+    
     const sequelize = await initializeDatabase();
+    
 
     // Import only new multivendor models
     const User = require('../user')(sequelize);
@@ -38,3 +40,12 @@ module.exports = async function productionSeeders() {
     process.exit(1);
   }
 };
+
+
+
+// Run automatically if executed directly
+if (require.main === module) {
+    (async () => {
+      await module.exports();
+    })();
+  }
