@@ -183,29 +183,35 @@ const getVendorAndProductsByPhone = async (phone_number) => {
     const user = await User.findOne({ where: { phone_number } });
     if (!user) throw new Error('User not found');
   
-    // // Find vendor info
-    // const vendorInfo = await VendorInfo.findOne({ where: { vendor_id: user.id } });
-    // if (!vendorInfo) throw new Error('Vendor info not found');
-  
-    // // Get products for the vendor
-    // const products = await Product.findAll({ where: { vendor_id: user.id } });
-  
     // Get vendor info with selected fields
     console.log(user.id);
-  const vendorInfo = await VendorInfo.findOne({
-    where: { vendor_id: user.id },
-    attributes: ['logo', 'shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],
-  });
+    const vendorInfo = await VendorInfo.findOne({
+      where: { vendor_id: user.id },
+      attributes: ['logo', 'shop_name', 'shop_location', 'owner_name', 'shop_front_photo' , 'vendor_id'],
+    });
 
-  if (!vendorInfo) throw new Error('Vendor info not found');
+    if (!vendorInfo) throw new Error('Vendor info not found');
 
-  // Get products with only selected fields
-  const products = await Product.findAll({
-    where: { vendor_id: user.id  },
-    attributes: ['id', 'name', 'description', 'price', 'stock', 'image', 'vendor_category_id', 'status'],
-  });
+    // Get vendor's category
+    const { VendorCategory } = require('../../../app/models');
+    const vendorCategory = await VendorCategory.findOne({
+      where: { vendor_id: user.id },
+      attributes: ['name'],
+    });
 
-  return { vendorInfo, products };
+    // Add category to vendorInfo
+    const vendorInfoWithCategory = {
+      ...vendorInfo.toJSON(),
+      category: vendorCategory?.name || 'General'
+    };
+
+    // Get products with only selected fields
+    const products = await Product.findAll({
+      where: { vendor_id: user.id  },
+      attributes: ['id', 'name', 'description', 'price', 'stock', 'image', 'vendor_category_id', 'status'],
+    });
+
+    return { vendorInfo: vendorInfoWithCategory, products };
 
 
     //return { vendor_info: vendorInfo, products };

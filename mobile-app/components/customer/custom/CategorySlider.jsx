@@ -1,30 +1,100 @@
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { useHome } from '../../../context/customer/HomeContext';
 
 export default function CategorySlider() {
   const router = useRouter();
-  const categories = [
-    { icon: 'shopping-bag', label: 'Fashion' },
-    { icon: 'laptop', label: 'Electronics' },
-    { icon: 'cutlery', label: 'Food' },
-    { icon: 'home', label: 'Home' },
-    { icon: 'heartbeat', label: 'Health' },
+  const { categories, loading, error } = useHome();
+
+  // Default categories as fallback
+  const defaultCategories = [
+    { icon: 'shopping-bag', label: 'Fashion', iconType: 'FontAwesome' },
+    { icon: 'laptop', label: 'Electronics', iconType: 'FontAwesome' },
+    { icon: 'restaurant', label: 'Food', iconType: 'Ionicons' },
+    { icon: 'home', label: 'Home', iconType: 'FontAwesome' },
+    { icon: 'medical', label: 'Health', iconType: 'Ionicons' },
   ];
+
+  const getCategoryIcon = (category) => {
+    if (category.iconType === 'Ionicons') {
+      return <Ionicons name={category.icon} size={24} color="#10b981" />;
+    }
+    return <FontAwesome name={category.icon} size={24} color="#10b981" />;
+  };
+
+  const handleCategoryPress = (category) => {
+    // Navigate to shop with category filter
+    router.push(`/customer/shop/shop?category=${encodeURIComponent(category.name || category.label)}`);
+  };
+
+  const displayCategories = categories && categories.length > 0 ? categories : defaultCategories;
+
+  if (loading) {
+    return (
+      <View className="px-4 py-2">
+        <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
+        <View className="flex-row items-center justify-center py-4">
+          <ActivityIndicator size="small" color="#10b981" />
+          <Text className="text-gray-600 ml-2">Loading categories...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="px-4 py-2">
+        <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
+        <View className="bg-red-50 p-3 rounded-lg mb-3">
+          <Text className="text-red-800 text-sm text-center">{error}</Text>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
+          {defaultCategories.map((category, i) => (
+            <Pressable 
+              key={i} 
+              onPress={() => handleCategoryPress(category)}
+              className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
+            >
+              {getCategoryIcon(category)}
+              <Text className="mt-2 text-sm text-gray-700">{category.label}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }
 
   return (
     <View className="px-4 py-2">
-      <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
-      <Pressable onPress={() => router.push("/customer/shop/shop")} className="bg-primary mb-3 w-full py-3 rounded-lg items-center">
-            <Text className="text-white text-lg">see shop</Text>
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-lg font-bold text-gray-800">Shop by Category</Text>
+        <Pressable onPress={() => router.push("/customer/shop/shop")}>
+          <Text className="text-green-600 font-semibold">See All</Text>
         </Pressable>
+      </View>
+      
+      <Pressable 
+        onPress={() => router.push("/customer/shop/shop")} 
+        style={{ backgroundColor: '#10b981' }}
+        className="mb-3 w-full py-3 rounded-lg items-center"
+      >
+        <Text style={{ color: 'white' }} className="text-lg font-semibold">Browse All Stores</Text>
+      </Pressable>
+      
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-        {categories.map(({ icon, label }, i) => (
-          <View key={i} className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3">
-            <FontAwesome name={icon} size={24} color="#0f9d58" />
-            <Text className="mt-2 text-sm">{label}</Text>
-          </View>
+        {displayCategories.map((category, i) => (
+          <Pressable 
+            key={i} 
+            onPress={() => handleCategoryPress(category)}
+            className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
+          >
+            {getCategoryIcon(category)}
+            <Text className="mt-2 text-sm text-gray-700" numberOfLines={1}>
+              {category.name || category.label}
+            </Text>
+          </Pressable>
         ))}
       </ScrollView>
     </View>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
 import CategorySlider from '../custom/CategorySlider';
 import DealsSection from '../custom/DealsSection';
@@ -9,8 +9,23 @@ import VendorList from '../custom/VendorList';
 import WalletCard from '../custom/WalletCard';
 import OrderTrackingManager from '../custom/OrderTrackingManager';
 import CustomerTopNav from '../navigation/CustomerTopNav';
+import { useHome } from '../../../context/customer/HomeContext';
+import { useWallet } from '../../../context/customer/WalletContext';
+import { CustomerAuthContext } from '../../../context/customer/CustomerAuthContext';
 
 export default function CustomerHomePage() {
+  const { isCustomerVerified } = useContext(CustomerAuthContext);
+  const { loadDataWhenAuthenticated } = useHome();
+  const { loadWalletWhenAuthenticated } = useWallet();
+
+  // Load data when user becomes authenticated
+  useEffect(() => {
+    if (isCustomerVerified) {
+      loadDataWhenAuthenticated();
+      loadWalletWhenAuthenticated();
+    }
+  }, [isCustomerVerified]);
+
   return (
     <View className="flex-1 bg-white">
       <CustomerTopNav />
@@ -20,7 +35,6 @@ export default function CustomerHomePage() {
         <OrderTrackingManager />
         <CategorySlider />
         <VendorList />
-        <DealsSection />
         <WalletCard />
         <SupportAccess />
         <View className="h-10" />
