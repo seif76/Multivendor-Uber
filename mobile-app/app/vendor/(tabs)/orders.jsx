@@ -117,7 +117,7 @@ export default function VendorOrdersPage() {
     });
   };
 
-  const handleConfirm = async (orderId) => {
+  const handleStatusUpdate = async (orderId, newStatus) => {
     setConfirmingId(orderId);
     try {
       const token = await AsyncStorage.getItem('token');
@@ -125,20 +125,29 @@ export default function VendorOrdersPage() {
       
       const response = await axios.put(
         `${BACKEND_URL}/api/vendor/orders/${orderId}/status`,
-        { status: 'confirmed' },
+        { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
       if (response.data.success) {
+        const statusMessages = {
+          'confirmed': 'Order confirmed and customer notified',
+          'preparing': 'Order preparation started and customer notified',
+          'ready': 'Order ready for delivery and deliverymen notified'
+        };
+        
         Alert.alert(
-          'Order Confirmed', 
+          'Status Updated', 
+          statusMessages[newStatus] || 'Order status updated and customer notified',
           [{ text: 'OK' }]
         );
-        setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o));
+        
+        setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        console.log(`Order ${orderId} status updated to ${newStatus}`);
       }
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Failed to confirm order';
-      Alert.alert('Confirm Failed', msg);
+      const msg = err.response?.data?.error || err.message || 'Failed to update order status';
+      Alert.alert('Update Failed', msg);
     } finally {
       setConfirmingId(null);
     }
@@ -168,13 +177,28 @@ export default function VendorOrdersPage() {
         {order.status === 'pending' && (
           <Pressable
             className="bg-green-600 py-2 rounded-xl flex-1"
-            onPress={() => handleConfirm(order.id)}
+            onPress={() => handleStatusUpdate(order.id, 'confirmed')}
             disabled={confirmingId === order.id}
           >
-            {confirmingId === item.id ? (
+            {confirmingId === order.id ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
               <Text className="text-white text-center font-bold">Confirm</Text>
+            )}
+          </Pressable>
+        )}
+        
+        {order.status === 'confirmed' && (
+          
+          <Pressable
+            className="bg-orange-600 py-2 rounded-xl flex-1"
+            onPress={() => handleStatusUpdate(order.id, 'ready')}
+            disabled={confirmingId === order.id}
+          >
+            {confirmingId === order.id ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text className="text-white text-center font-bold">Mark Ready</Text>
             )}
           </Pressable>
         )}

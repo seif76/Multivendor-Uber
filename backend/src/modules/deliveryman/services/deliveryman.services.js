@@ -1,4 +1,5 @@
-const { User, DeliverymanVehicle } = require('../../../app/models');
+const { User, DeliverymanVehicle, Order } = require('../../../app/models');
+const { OrderSocket } = require('../../../config/socket');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
@@ -188,6 +189,45 @@ const deleteDeliveryman = async (deliveryman_id) => {
   });
 };
 
+// Accept delivery order
+const acceptDeliveryOrder = async (orderId, deliverymanId) => {
+  try {
+    // Find the order
+    const order = await Order.findByPk(orderId, {
+      include: [{ model: User, as: 'customer', attributes: ['id', 'name', 'email'] }]
+    });
+    
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    
+    if (order.status !== 'ready') {
+      throw new Error('Order is not ready for delivery');
+    }
+    
+    // Update order with deliveryman assignment and status
+    order.deliveryman_id = deliverymanId;
+    order.status = 'shipped'; // Order is now being delivered
+    await order.save();
+    
+    console.log(`Order ${orderId} accepted by deliveryman ${deliverymanId}`);
+    
+    // Notify customer that order is being delivered
+    if (order.customer) {
+      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that order ${orderId} is being delivered`);
+    }
+    
+    return {
+      ...order.dataValues,
+      customer: order.customer
+    };
+  } catch (error) {
+    console.error('Error accepting delivery order:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   registerDeliveryman,
   registerCustomerAsDeliveryman,
@@ -198,4 +238,5 @@ module.exports = {
   setDeliverymanStatus,
   getDeliverymanStatusCounts,
   deleteDeliveryman,
+  acceptDeliveryOrder,
 };

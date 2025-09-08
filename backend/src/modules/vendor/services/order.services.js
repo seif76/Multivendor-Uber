@@ -97,6 +97,22 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
     OrderSocket.notifyOrderStatusChange(orderId, status, order.customer.id);
     console.log(`Socket notification sent to customer ${order.customer.id} for order ${orderId}`);
   }
+
+  // If order is ready, notify deliverymen
+  if (status === 'ready' && order.customer) {
+    const orderDetails = {
+      id: order.id,
+      total_price: order.total_price,
+      address: order.address,
+      customer: {
+        id: order.customer.id,
+        name: order.customer.name,
+        email: order.customer.email
+      }
+    };
+    OrderSocket.notifyDeliverymenNewOrder(orderId, order.customer.id, status, orderDetails);
+    console.log(`Delivery order ${orderId} broadcasted to deliverymen`);
+  }
   
   return {
     ...order.dataValues,

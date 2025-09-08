@@ -28,6 +28,10 @@ class OrderSocket {
   static notifyVendorNewOrder(orderId, vendorId, customerId, status) {
     socketManager.notifyVendorNewOrder(orderId, vendorId, customerId, status);
   }
+
+  static notifyDeliverymenNewOrder(orderId, customerId, status, orderDetails) {
+    socketManager.notifyDeliverymenNewOrder(orderId, customerId, status, orderDetails);
+  }
 }
 
 module.exports = OrderSocket; 

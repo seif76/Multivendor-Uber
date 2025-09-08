@@ -9,6 +9,7 @@ const {
   setDeliverymanStatusController,
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
+  acceptDeliveryOrderController,
 } = require('../controllers/deliveryman.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
 const upload = require('../../../middlewares/uploadLocal');
@@ -401,5 +402,65 @@ router.get('/status-counts', getDeliverymanStatusCountsController);
  *         description: Internal server error
  */
 router.delete('/delete/:deliveryman_id', deleteDeliverymanController);
+
+/**
+ * @swagger
+ * /api/deliveryman/orders/{orderId}/accept:
+ *   put:
+ *     summary: Accept a delivery order
+ *     tags: [Deliverymen]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Order ID to accept
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [deliverymanId]
+ *             properties:
+ *               deliverymanId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: ID of the deliveryman accepting the order
+ *     responses:
+ *       200:
+ *         description: Order accepted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Delivery order accepted successfully"
+ *                 order:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "shipped"
+ *                     deliveryman_id:
+ *                       type: integer
+ *       400:
+ *         description: Deliveryman ID mismatch or order not ready
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/orders/:orderId/accept', authenticate, acceptDeliveryOrderController);
 
 module.exports = router;
