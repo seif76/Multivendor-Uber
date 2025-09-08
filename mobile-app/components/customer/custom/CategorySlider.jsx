@@ -19,9 +19,9 @@ export default function CategorySlider() {
 
   const getCategoryIcon = (category) => {
     if (category.iconType === 'Ionicons') {
-      return <Ionicons name={category.icon} size={24} color="#10b981" />;
+      return <Ionicons name={category.icon} size={24} color="#007233" />;
     }
-    return <FontAwesome name={category.icon} size={24} color="#10b981" />;
+    return <FontAwesome name={category.icon} size={24} color="#007233" />;
   };
 
   const handleCategoryPress = (category) => {
@@ -71,16 +71,15 @@ export default function CategorySlider() {
       <View className="flex-row items-center justify-between mb-3">
         <Text className="text-lg font-bold text-gray-800">Shop by Category</Text>
         <Pressable onPress={() => router.push("/customer/shop/shop")}>
-          <Text className="text-green-600 font-semibold">See All</Text>
+          <Text className="text-primary font-semibold">See All</Text>
         </Pressable>
       </View>
       
       <Pressable 
         onPress={() => router.push("/customer/shop/shop")} 
-        style={{ backgroundColor: '#10b981' }}
-        className="mb-3 w-full py-3 rounded-lg items-center"
+        className="bg-primary mb-3 w-full py-3 rounded-lg items-center"
       >
-        <Text style={{ color: 'white' }} className="text-lg font-semibold">Browse All Stores</Text>
+        <Text className="text-white text-lg font-semibold">Browse All Stores</Text>
       </Pressable>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">

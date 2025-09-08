@@ -173,7 +173,6 @@ export default function ShopDetails() {
             />
             <View className="flex-1">
               <Text className="text-xl font-bold text-gray-900 mb-1">{vendorInfo?.shop_name || "Shop Name"}</Text>
-              <Text className="text-sm text-gray-600 mb-2">{vendorInfo?.category || "General"}</Text>
               <View className="flex-row items-center mb-2">
                 <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-lg">
                   <Ionicons name="star" size={14} color="#fbbf24" />
@@ -249,20 +248,20 @@ export default function ShopDetails() {
         className="mt-6 mb-4 px-4"
         contentContainerStyle={{ paddingHorizontal: 4 }}
       >
-        <Pressable
-          key="all"
-          onPress={() => setSelectedCategoryId('all')}
-          className={`mr-3 px-4 py-2 rounded-full ${selectedCategoryId === 'all' ? 'bg-green-100' : 'bg-gray-100'}`}
-        >
-          <Text className={`text-sm font-medium ${selectedCategoryId === 'all' ? 'text-green-700' : 'text-gray-600'}`}>All</Text>
-        </Pressable>
+                <Pressable
+                  key="all"
+                  onPress={() => setSelectedCategoryId('all')}
+                  className={`mr-3 px-4 py-2 rounded-full ${selectedCategoryId === 'all' ? 'bg-primary' : 'bg-gray-100'}`}
+                >
+                  <Text className={`text-sm font-medium ${selectedCategoryId === 'all' ? 'text-white' : 'text-gray-600'}`}>All</Text>
+                </Pressable>
         {categories.map((cat) => (
           <Pressable
             key={cat.id}
             onPress={() => setSelectedCategoryId(cat.id)}
-            className={`mr-3 px-4 py-2 rounded-full ${String(selectedCategoryId) === String(cat.id) ? 'bg-green-100' : 'bg-gray-100'}`}
+            className={`mr-3 px-4 py-2 rounded-full ${String(selectedCategoryId) === String(cat.id) ? 'bg-primary' : 'bg-gray-100'}`}
           >
-            <Text className={`text-sm font-medium ${String(selectedCategoryId) === String(cat.id) ? 'text-green-700' : 'text-gray-600'}`}>{cat.name}</Text>
+            <Text className={`text-sm font-medium ${String(selectedCategoryId) === String(cat.id) ? 'text-white' : 'text-gray-600'}`}>{cat.name}</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -307,8 +306,8 @@ export default function ShopDetails() {
                       <Ionicons name="star" size={12} color="#fbbf24" />
                       <Text className="text-xs text-gray-600 ml-1">4.5</Text>
                     </View>
-                    <Pressable className="bg-green-100 p-1 rounded-full">
-                      <Ionicons name="add" size={16} color="#10b981" />
+                    <Pressable className="bg-primary p-1 rounded-full">
+                      <Ionicons name="add" size={16} color="white" />
                     </Pressable>
                   </View>
                 </View>

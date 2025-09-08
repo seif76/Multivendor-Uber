@@ -61,7 +61,7 @@ export default function VendorList() {
       <View className="flex-row items-center justify-between mb-3">
         <Text className="text-lg font-bold text-gray-800">Featured Stores</Text>
         <Pressable onPress={() => router.push('/customer/shop/shop')}>
-          <Text className="text-green-600 font-semibold">See All</Text>
+          <Text className="text-primary font-semibold">See All</Text>
         </Pressable>
       </View>
       
@@ -79,7 +79,7 @@ export default function VendorList() {
                 resizeMode="cover"
               />
               {vendor.vendor_status === 'Active' && (
-                <View className="absolute top-2 right-2 bg-green-500 px-2 py-1 rounded-full">
+                <View className="absolute top-2 right-2 bg-primary px-2 py-1 rounded-full">
                   <Text className="text-white text-xs font-bold">Open</Text>
                 </View>
               )}
