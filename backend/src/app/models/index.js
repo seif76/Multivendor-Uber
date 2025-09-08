@@ -32,6 +32,11 @@ const ChatMessage = require('./chatMessage')(sequelize, DataTypes);
 // settings system
 const DeliveryZone = require('./deliveryZone')(sequelize, DataTypes);
 
+// wallet system
+const Wallet = require('./wallet')(sequelize, DataTypes);
+const WalletTransaction = require('./walletTransaction')(sequelize, DataTypes);
+const WithdrawalRequest = require('./withdrawalRequest')(sequelize, DataTypes);
+
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
 CaptainVehicle.belongsTo(User, { foreignKey: 'captain_id', as: 'captain' });
@@ -83,6 +88,22 @@ ChatMessage.belongsTo(Chat, { foreignKey: 'chat_id', as: 'chat' });
 User.hasMany(ChatMessage, { foreignKey: 'sender_id', as: 'sent_messages' });
 ChatMessage.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 
+// wallet relations
+User.hasOne(Wallet, { foreignKey: 'user_id', as: 'wallet' });
+Wallet.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+Wallet.hasMany(WalletTransaction, { foreignKey: 'wallet_id', as: 'transactions' });
+WalletTransaction.belongsTo(Wallet, { foreignKey: 'wallet_id', as: 'wallet' });
+
+Wallet.hasMany(WithdrawalRequest, { foreignKey: 'wallet_id', as: 'withdrawal_requests' });
+WithdrawalRequest.belongsTo(Wallet, { foreignKey: 'wallet_id', as: 'wallet' });
+
+User.hasMany(WalletTransaction, { foreignKey: 'created_by', as: 'created_transactions' });
+WalletTransaction.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+
+User.hasMany(WithdrawalRequest, { foreignKey: 'processed_by', as: 'processed_withdrawals' });
+WithdrawalRequest.belongsTo(User, { foreignKey: 'processed_by', as: 'processor' });
+
 module.exports = {
   sequelize,
   User,
@@ -99,4 +120,7 @@ module.exports = {
   Chat,
   ChatMessage,
   DeliveryZone,
+  Wallet,
+  WalletTransaction,
+  WithdrawalRequest,
 };

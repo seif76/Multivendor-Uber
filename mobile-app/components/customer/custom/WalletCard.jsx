@@ -1,11 +1,78 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { useWallet } from '../../../context/customer/WalletContext';
 
 export default function WalletCard() {
+  const router = useRouter();
+  const { wallet, loading, error } = useWallet();
+
+  const handlePress = () => {
+    router.push('/customer/wallet');
+  };
+
+  const formatBalance = (balance) => {
+    if (balance === null || balance === undefined) return '$0.00';
+    return `$${parseFloat(balance).toFixed(2)}`;
+  };
+
+  if (loading && !wallet) {
+    return (
+      <View className="mx-4 mt-6 bg-gray-100 p-4 rounded-xl">
+        <View className="flex-row items-center justify-center">
+          <ActivityIndicator size="small" color="#10b981" />
+          <Text className="text-gray-600 ml-2">Loading wallet...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="mx-4 mt-6 bg-red-100 p-4 rounded-xl">
+        <Text className="text-red-800 font-bold">Wallet Error</Text>
+        <Text className="text-red-700 text-sm mt-1">{error}</Text>
+      </View>
+    );
+  }
+
   return (
-    <View className="mx-4 mt-6 bg-green-100 p-4 rounded-xl">
-      <Text className="text-green-800 font-bold">Wallet Balance: $120.50</Text>
-      <Text className="text-green-700 text-sm mt-1">Tap to view transactions</Text>
-    </View>
+    <Pressable onPress={handlePress} className="mx-4 mt-6">
+      <View style={{ backgroundColor: '#10b981' }} className="p-4 rounded-xl shadow-lg">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text style={{ color: 'white' }} className="text-sm font-medium opacity-90">Wallet Balance</Text>
+            <Text style={{ color: 'white' }} className="text-2xl font-bold mt-1">
+              {formatBalance(wallet?.balance)}
+            </Text>
+            <Text style={{ color: 'white' }} className="text-xs mt-1 opacity-80">
+              Tap to view transactions
+            </Text>
+          </View>
+          <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} className="p-3 rounded-full">
+            <Ionicons name="wallet" size={24} color="white" />
+          </View>
+        </View>
+        
+        {/* Quick Actions */}
+        <View className="flex-row mt-4 space-x-3">
+          <Pressable 
+            onPress={() => router.push('/customer/wallet?action=topup')}
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+            className="flex-1 py-2 px-3 rounded-lg"
+          >
+            <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Top Up</Text>
+          </Pressable>
+          <Pressable 
+            onPress={() => router.push('/customer/wallet?action=withdraw')}
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+            className="flex-1 py-2 px-3 rounded-lg"
+          >
+            <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Withdraw</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Pressable>
   );
 }

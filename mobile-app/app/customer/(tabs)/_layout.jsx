@@ -3,6 +3,7 @@ import { Slot, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { CustomerAuthProvider } from '../../../context/customer/CustomerAuthContext';
+import { WalletProvider } from '../../../context/customer/WalletContext';
 
 export default function CustomerLayout() {
   const segments = useSegments();
@@ -16,14 +17,17 @@ export default function CustomerLayout() {
   if (!showTabs) {
     return (
       <CustomerAuthProvider>
-        <Slot />
+        <WalletProvider>
+          <Slot />
+        </WalletProvider>
       </CustomerAuthProvider>
     );
   }
 
   return (
     <CustomerAuthProvider>
-      <View className="flex-1 bg-white">
+      <WalletProvider>
+        <View className="flex-1 bg-white">
         <Tabs
           screenOptions={{
             tabBarActiveTintColor: '#0f9d58',
@@ -69,7 +73,8 @@ export default function CustomerLayout() {
          <Tabs.Screen name="orders/[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
 
         </Tabs>
-      </View>
+        </View>
+      </WalletProvider>
     </CustomerAuthProvider>
   );
 } 
