@@ -40,7 +40,7 @@ export const VendorAuthProvider = ({ children }) => {
           redirectToLogin();
         }
       } catch (err) {
-        console.error('Captain verification error:', err);
+        console.error('Vendor verification error:', err);
         redirectToLogin();
       } finally {
         if (isMounted) setLoading(false);

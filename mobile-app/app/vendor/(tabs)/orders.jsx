@@ -233,7 +233,7 @@ export default function VendorOrdersPage() {
       ) : (
         <FlatList
           data={orders}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={order => order.id.toString()}
           renderItem={renderOrder}
           showsVerticalScrollIndicator={false}
         />
