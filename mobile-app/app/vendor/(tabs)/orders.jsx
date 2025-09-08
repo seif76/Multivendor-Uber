@@ -26,6 +26,7 @@ export default function VendorOrdersPage() {
       const res = await axios.get(`${BACKEND_URL}/api/vendor/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      alert("orders are :" + JSON.stringify(res.data)); 
       setOrders(res.data);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to fetch orders');
@@ -153,34 +154,34 @@ export default function VendorOrdersPage() {
     }
   };
 
-  const renderOrder = ({ order }) => (
+  const renderOrder = ({ item }) => (
     <View className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100">
-      <Pressable onPress={() => router.push(`/vendor/orders/${order.id}`)}>
+      <Pressable onPress={() => router.push(`/vendor/orders/${item?.id}`)}>
         <View className="flex-row justify-between mb-2">
-          <Text className="text-base font-semibold text-gray-700">Order #{order.id}</Text>
-          <Text className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</Text>
+          <Text className="text-base font-semibold text-gray-700">Order #{item?.id}</Text>
+          <Text className="text-sm text-gray-500">{new Date(item?.createdAt).toLocaleDateString()}</Text>
         </View>
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{order.status}</Text></Text>
-          <Text className="text-lg font-bold text-green-600">EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+          <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{item?.status}</Text></Text>
+          <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item?.total_price).toFixed(2)}</Text>
         </View>
       </Pressable>
       
       <View className="flex-row gap-2 mt-2">
         <Pressable
           className="bg-gray-200 py-2 rounded-xl flex-1"
-          onPress={() => router.push(`/vendor/orders/${order.id}`)}
+            onPress={() => router.push(`/vendor/orders/${item?.id}`)}
         >
           <Text className="text-primary text-center font-bold">View Order</Text>
         </Pressable>
         
-        {order.status === 'pending' && (
+        {item?.status === 'pending' && (
           <Pressable
             className="bg-green-600 py-2 rounded-xl flex-1"
-            onPress={() => handleStatusUpdate(order.id, 'confirmed')}
-            disabled={confirmingId === order.id}
+            onPress={() => handleStatusUpdate(item?.id, 'confirmed')}
+            disabled={confirmingId === item?.id}
           >
-            {confirmingId === order.id ? (
+            {confirmingId === item?.id ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
               <Text className="text-white text-center font-bold">Confirm</Text>
@@ -188,14 +189,14 @@ export default function VendorOrdersPage() {
           </Pressable>
         )}
         
-        {order.status === 'confirmed' && (
+        {item?.status === 'confirmed' && (
           
           <Pressable
             className="bg-orange-600 py-2 rounded-xl flex-1"
-            onPress={() => handleStatusUpdate(order.id, 'ready')}
-            disabled={confirmingId === order.id}
+            onPress={() => handleStatusUpdate(item?.id, 'ready')}
+            disabled={confirmingId === item?.id}
           >
-            {confirmingId === order.id ? (
+            {confirmingId === item?.id ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
               <Text className="text-white text-center font-bold">Mark Ready</Text>
@@ -233,7 +234,7 @@ export default function VendorOrdersPage() {
       ) : (
         <FlatList
           data={orders}
-          keyExtractor={order => order.id.toString()}
+          keyExtractor={item => item?.id.toString()}
           renderItem={renderOrder}
           showsVerticalScrollIndicator={false}
         />
