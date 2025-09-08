@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, FlatList, Pressable, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 export default function VendorOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
+  const [vendorId, setVendorId] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const socketRef = useRef(null);
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
@@ -30,21 +34,108 @@ export default function VendorOrdersPage() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    initializeVendorSocket();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
+
+  const initializeVendorSocket = async () => {
+    try {
+      // Get vendor token and ID
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
+      // Get vendor profile to get ID
+      const profileResponse = await axios.get(`${BACKEND_URL}/api/vendor/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const vendorId = profileResponse.data.id;
+      setVendorId(vendorId);
+
+      // Initialize socket connection
+      initializeSocket(vendorId, token);
+
+      // Fetch initial orders
+      await fetchOrders();
+
+    } catch (error) {
+      console.error('Error initializing vendor socket:', error);
+      // Still fetch orders even if socket fails
+      await fetchOrders();
+    }
+  };
+
+  const initializeSocket = (vendorId, token) => {
+    socketRef.current = io(BACKEND_URL, {
+      auth: {
+        token: token
+      }
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Vendor connected to socket for orders');
+      setSocketConnected(true);
+      // Join vendor room for order updates
+      socketRef.current.emit('vendorJoin', { vendorId });
+    });
+
+    socketRef.current.on('newOrderForVendor', ({ orderId, vendorId: orderVendorId, customerId, status }) => {
+      console.log('New order for vendor:', orderId, status);
+      
+      // Only handle orders for this vendor
+      if (orderVendorId === vendorId) {
+        // Show alert for new order
+        Alert.alert(
+          'New Order!',
+          `Order #${orderId} has been placed. Status: ${status}`,
+          [
+            { text: 'View Orders', onPress: () => fetchOrders() },
+            { text: 'OK', style: 'default' }
+          ]
+        );
+        
+        // Refresh orders to show the new one
+        fetchOrders();
+      }
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Vendor disconnected from socket');
+      setSocketConnected(false);
+    });
+
+    socketRef.current.on('error', (error) => {
+      console.error('Vendor socket error:', error);
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Vendor socket connection error:', error);
+    });
+  };
 
   const handleConfirm = async (orderId) => {
     setConfirmingId(orderId);
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
-      await axios.put(
+      
+      const response = await axios.put(
         `${BACKEND_URL}/api/vendor/orders/${orderId}/status`,
         { status: 'confirmed' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      Alert.alert('Order Confirmed', 'The order has been confirmed.');
-      setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o));
+      
+      if (response.data.success) {
+        Alert.alert(
+          'Order Confirmed', 
+          [{ text: 'OK' }]
+        );
+        setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o));
+      }
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Failed to confirm order';
       Alert.alert('Confirm Failed', msg);
@@ -53,32 +144,48 @@ export default function VendorOrdersPage() {
     }
   };
 
-  const renderOrder = ({ item }) => (
-    <Pressable
-      className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100"
-      onPress={() => router.push(`/vendor/orders/${item.id}`)}
-    >
-      <View className="flex-row justify-between mb-2">
-        <Text className="text-base font-semibold text-gray-700">Order #{item.id}</Text>
-        <Text className="text-sm text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</Text>
-      </View>
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{item.status}</Text></Text>
-        <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item.total_price).toFixed(2)}</Text>
-      </View>
-      <Pressable
-        className="bg-gray-200 py-2 rounded-xl mt-2"
-        onPress={() => router.push(`/vendor/orders/${item.id}`)}
-      >
-        <Text className="text-primary text-center font-bold">View Order</Text>
+  const renderOrder = ({ order }) => (
+    <View className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100">
+      <Pressable onPress={() => router.push(`/vendor/orders/${order.id}`)}>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-base font-semibold text-gray-700">Order #{order.id}</Text>
+          <Text className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</Text>
+        </View>
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{order.status}</Text></Text>
+          <Text className="text-lg font-bold text-green-600">EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+        </View>
       </Pressable>
-    </Pressable>
+      
+      <View className="flex-row gap-2 mt-2">
+        <Pressable
+          className="bg-gray-200 py-2 rounded-xl flex-1"
+          onPress={() => router.push(`/vendor/orders/${order.id}`)}
+        >
+          <Text className="text-primary text-center font-bold">View Order</Text>
+        </Pressable>
+        
+        {order.status === 'pending' && (
+          <Pressable
+            className="bg-green-600 py-2 rounded-xl flex-1"
+            onPress={() => handleConfirm(order.id)}
+            disabled={confirmingId === order.id}
+          >
+            {confirmingId === item.id ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text className="text-white text-center font-bold">Confirm</Text>
+            )}
+          </Pressable>
+        )}
+      </View>
+    </View>
   );
 
   return (
     <View className="flex-1 bg-gray-50 px-4 pt-8">
       <View className="flex-row justify-between items-center mb-6">
-        <Text className="text-2xl font-bold text-primary">Orders</Text>
+          <Text className="text-2xl font-bold text-primary">Orders</Text>
         <Pressable onPress={fetchOrders} className="bg-primary px-4 py-2 rounded-xl">
           <Text className="text-white font-bold">Refresh</Text>
         </Pressable>

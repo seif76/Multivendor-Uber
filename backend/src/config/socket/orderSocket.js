@@ -24,6 +24,10 @@ class OrderSocket {
   static notifyOrderConfirmed(orderId, customerId) {
     socketManager.notifyOrderStatusChange(orderId, 'confirmed', customerId);
   }
+
+  static notifyVendorNewOrder(orderId, vendorId, customerId, status) {
+    socketManager.notifyVendorNewOrder(orderId, vendorId, customerId, status);
+  }
 }
 
 module.exports = OrderSocket; 

@@ -6,6 +6,7 @@ class SocketManager {
     this.io = null;
     this.captains = {};
     this.customers = {};
+    this.vendors = {};
   }
 
   initialize(server) {
@@ -35,6 +36,17 @@ class SocketManager {
         }
         this.customers[customerId] = { socketId: socket.id };
         console.log('Customer joined for order updates:', customerId);
+      });
+
+      // Vendor joins with their ID for order updates
+      socket.on('vendorJoin', ({ vendorId }) => {
+        // Verify the vendor ID matches the authenticated user
+        if (socket.user.id !== vendorId) {
+          console.error('Vendor ID mismatch');
+          return;
+        }
+        this.vendors[vendorId] = { socketId: socket.id };
+        console.log('Vendor joined for order updates:', vendorId);
       });
 
       // Captain sends their live location
@@ -88,6 +100,13 @@ class SocketManager {
     }
   }
 
+  notifyVendorNewOrder(orderId, vendorId, customerId, status) {
+    const vendorSocket = this.vendors[vendorId]?.socketId;
+    if (vendorSocket) {
+      this.io.to(vendorSocket).emit('newOrderForVendor', { orderId, vendorId, customerId, status });
+    }
+  }
+
   // Ride tracking methods
   notifyCaptainLocation(captainId, coords) {
     this.captains[captainId] = { ...coords, socketId: this.captains[captainId]?.socketId };
@@ -116,6 +135,13 @@ class SocketManager {
       }
     }
     
+    // Remove disconnected vendor
+    for (let id in this.vendors) {
+      if (this.vendors[id].socketId === socketId) {
+        delete this.vendors[id];
+      }
+    }
+    
     this.io.emit('captainsUpdate', this.captains);
     console.log('Client disconnected:', socketId);
   }
@@ -130,6 +156,10 @@ class SocketManager {
 
   getCustomers() {
     return this.customers;
+  }
+
+  getVendors() {
+    return this.vendors;
   }
 }
 
