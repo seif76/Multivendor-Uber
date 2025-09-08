@@ -8,6 +8,7 @@ const {
   setDeliverymanStatus,
   getDeliverymanStatusCounts,
   deleteDeliveryman,
+  acceptDeliveryOrder,
 } = require('../services/deliveryman.services');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
@@ -211,6 +212,35 @@ const deleteDeliverymanController = async (req, res) => {
   }
 };
 
+// Accept delivery order
+const acceptDeliveryOrderController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const { orderId } = req.params;
+    const { deliverymanId: requestDeliverymanId } = req.body;
+    
+    // Verify the deliveryman ID matches the authenticated user
+    if (deliverymanId !== requestDeliverymanId) {
+      return res.status(400).json({ error: 'Deliveryman ID mismatch' });
+    }
+    
+    const result = await acceptDeliveryOrder(orderId, deliverymanId);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Delivery order accepted successfully',
+      order: result,
+    });
+  } catch (error) {
+    console.error('Error accepting delivery order:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   registerDeliverymanController,
   registerCustomerAsDeliverymanController,
@@ -221,5 +251,6 @@ module.exports = {
   setDeliverymanStatusController,
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
+  acceptDeliveryOrderController,
 };
   

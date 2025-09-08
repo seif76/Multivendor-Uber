@@ -36,6 +36,11 @@ const createOrder = async (customerId, { items, address }) => {
 
   // Use OrderSocket for new order notification
   OrderSocket.notifyNewOrder(order.id, customerId, 'pending');
+  
+  // Notify vendor about new order
+  OrderSocket.notifyVendorNewOrder(order.id, vendorId, customerId, 'pending');
+
+  console.log(`New order ${order.id} created for vendor ${vendorId} by customer ${customerId}`);
 
   return orderWithItems;
 };

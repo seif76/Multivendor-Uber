@@ -34,11 +34,29 @@ const updateOrderStatusController = async (req, res) => {
     const vendorId = req.user.id;
     const orderId = req.params.orderId;
     const { status } = req.body;
-    const io = req.app.get('io'); // Get io instance from app
-    const updated = await updateOrderStatus(orderId, vendorId, status, io);
-    res.status(200).json(updated);
+
+    if (!status) {
+      return res.status(400).json({ 
+        error: 'Status is required',
+        validStatuses: ['pending', 'confirmed', 'preparing', 'ready', 'shipped', 'delivered', 'cancelled']
+      });
+    }
+
+    const updated = await updateOrderStatus(orderId, vendorId, status);
+    
+    res.status(200).json({
+      success: true,
+      message: `Order status updated to ${status}`,
+      order: updated,
+      socketNotificationSent: !!updated.customer
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error updating order status:', err);
+    res.status(500).json({ 
+      error: err.message,
+      orderId: req.params.orderId,
+      vendorId: req.user.id
+    });
   }
 };
 

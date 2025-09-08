@@ -28,6 +28,12 @@ app.use(express.json());
 // const syncDeliverymanVehicleTables = require('./src/app/models/seeders/deliverymanVehicleSeeders');
 // syncDeliverymanVehicleTables();
 
+// const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
+// syncWalletTables();
+
+// const syncProdTables = require('./src/app/models/seeders/prodSeeders');
+// syncProdTables();
+
 // start Swagger 
 if (process.env.NODE_ENV !== 'production') {
   const swaggerUi = require('swagger-ui-express');
@@ -99,6 +105,8 @@ const vendorRoutes = require('./src/modules/vendor/routes/vendor.routes');
 const uploadRoutes = require('./src/config/cloudinary/routes/upload')
 const chatRoutes = require('./src/modules/chat/routes/chat.routes');
 const deliverymanRoutes = require('./src/modules/deliveryman/routes/deliveryman.routes');
+const walletRoutes = require('./src/modules/wallet/routes/wallet.routes');
+const adminWalletRoutes = require('./src/modules/wallet/routes/admin.wallet.routes');
 
 
 app.use('/api/captain', captainRoutes);
@@ -108,10 +116,12 @@ app.use('/api/vendor', vendorRoutes );
 app.use('/api/upload', uploadRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/deliveryman', deliverymanRoutes);
+app.use('/api/wallet', walletRoutes);
 
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/wallet', adminWalletRoutes);
 
 // Routes
 app.get('/', (req, res) => {
