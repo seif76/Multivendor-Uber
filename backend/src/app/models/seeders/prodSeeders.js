@@ -11,6 +11,9 @@ module.exports = async function productionSeeders() {
     const User = require('../user')(sequelize);
     const Admin = require('../admin')(sequelize);
     const CaptainVehicle = require('../captainVehicle')(sequelize);
+    const VendorWorkingHour = require('../vendorWorkingHour')(sequelize);
+    const Chat = require('../chat')(sequelize);
+    const ChatMessage = require('../chatMessage')(sequelize);
     const Ride = require('../ride')(sequelize);
     const RideOffer = require('../ride_offer')(sequelize);
     const RidePayment = require('../ridesPayment')(sequelize);
@@ -23,7 +26,7 @@ module.exports = async function productionSeeders() {
     const VendorCategory = require('../vendorCategory')(sequelize);
 
 
-    const models = { User, Admin, CaptainVehicle, Ride, RideOffer, RidePayment, Wallet, Rating, VendorInfo, Product, Order, OrderItem, VendorCategory };
+    const models = { User, Admin, CaptainVehicle, VendorWorkingHour, Chat, ChatMessage, Ride, RideOffer, RidePayment, Wallet, Rating, VendorInfo, Product, Order, OrderItem, VendorCategory };
 
     // Setup associations if needed
     Object.values(models).forEach((model) => {
