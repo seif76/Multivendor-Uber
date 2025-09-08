@@ -58,7 +58,7 @@ module.exports = async function productionSeeders() {
     });
 
     // Sync only these new tables
-    await sequelize.sync({ force: true }); // NEVER use force here
+    await sequelize.sync({ alter:true }); // NEVER use force here
 
     console.log('✅ Production tables synced successfully.');
     process.exit(0);
