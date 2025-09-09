@@ -9,6 +9,7 @@ const {
   getDeliverymanStatusCounts,
   deleteDeliveryman,
   acceptDeliveryOrder,
+  updateDeliveryStatus,
 } = require('../services/deliveryman.services');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
@@ -241,6 +242,34 @@ const acceptDeliveryOrderController = async (req, res) => {
   }
 };
 
+// Update delivery status
+const updateDeliveryStatusController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    const result = await updateDeliveryStatus(orderId, deliverymanId, status);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Delivery status updated successfully',
+      order: result,
+    });
+  } catch (error) {
+    console.error('Error updating delivery status:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   registerDeliverymanController,
   registerCustomerAsDeliverymanController,
@@ -252,5 +281,6 @@ module.exports = {
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
   acceptDeliveryOrderController,
+  updateDeliveryStatusController,
 };
   

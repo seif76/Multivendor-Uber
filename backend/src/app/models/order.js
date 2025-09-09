@@ -28,9 +28,16 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM('pending', 'confirmed', 'ready', 'shipped', 'delivered', 'cancelled'),
         defaultValue: 'pending',
       },
+
+      delivery_status: {
+        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'payment_received', 'payment_confirmed'),
+        defaultValue: 'none',
+      },
   
       payment_method: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('cash', 'card', 'wallet'),
+        defaultValue: 'cash',
+        allowNull: true,
       },
   
       address: {

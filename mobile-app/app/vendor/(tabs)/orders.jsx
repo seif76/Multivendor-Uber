@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import VendorDeliveryConfirmation from '../../../components/vendor/custom/VendorDeliveryConfirmation';
 
 export default function VendorOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -124,6 +125,30 @@ export default function VendorOrdersPage() {
       }
     });
 
+    // Listen for delivery status updates
+    socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+      console.log('Delivery status update received:', orderId, status);
+      
+      // Update the order in the local state
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, delivery_status: status }
+          : order
+      ));
+      
+      // Show notification for important status changes
+      const statusMessages = {
+        'deliveryman_arrived': `Deliveryman has arrived for order #${orderId}`,
+        'order_handed_over': `Order #${orderId} has been handed over to deliveryman`,
+        'payment_received': `Payment received for order #${orderId}`,
+        'payment_confirmed': `Order #${orderId} delivery completed successfully!`
+      };
+      
+      if (statusMessages[status]) {
+        Alert.alert('Delivery Update', statusMessages[status]);
+      }
+    });
+
     socketRef.current.on('disconnect', () => {
       console.log('Vendor disconnected from socket');
       setSocketConnected(false);
@@ -196,6 +221,18 @@ export default function VendorOrdersPage() {
               <Text className="text-xs text-blue-700">Vehicle: {item.deliveryman.delivery_vehicle.make} {item.deliveryman.delivery_vehicle.model} ({item.deliveryman.delivery_vehicle.license_plate})</Text>
             )}
           </View>
+        )}
+
+        {/* Delivery Confirmation */}
+        {item?.deliveryman && item?.status === 'shipped' && (
+          <VendorDeliveryConfirmation 
+            order={item} 
+            onStatusUpdate={(newStatus) => {
+              setOrders(prev => prev.map(o => 
+                o.id === item.id ? { ...o, delivery_status: newStatus } : o
+              ));
+            }}
+          />
         )}
       </Pressable>
       
