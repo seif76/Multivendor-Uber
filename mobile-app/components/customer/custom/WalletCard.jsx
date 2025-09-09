@@ -21,7 +21,7 @@ export default function WalletCard() {
     return (
       <View className="mx-4 mt-6 bg-gray-100 p-4 rounded-xl">
         <View className="flex-row items-center justify-center">
-          <ActivityIndicator size="small" color="#10b981" />
+          <ActivityIndicator size="small" color="#007233" />
           <Text className="text-gray-600 ml-2">Loading wallet...</Text>
         </View>
       </View>
@@ -39,35 +39,35 @@ export default function WalletCard() {
 
   return (
     <Pressable onPress={handlePress} className="mx-4 mt-6">
-      <View style={{ backgroundColor: '#10b981' }} className="p-4 rounded-xl shadow-lg">
+      <View className="bg-primary p-4 rounded-xl shadow-lg">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text style={{ color: 'white' }} className="text-sm font-medium opacity-90">Wallet Balance</Text>
-            <Text style={{ color: 'white' }} className="text-2xl font-bold mt-1">
+            <Text className="text-white text-sm font-medium opacity-90">Wallet Balance</Text>
+            <Text className="text-white text-2xl font-bold mt-1">
               {formatBalance(wallet?.balance)}
             </Text>
-            <Text style={{ color: 'white' }} className="text-xs mt-1 opacity-80">
+            <Text className="text-white text-xs mt-1 opacity-80">
               Tap to view transactions
             </Text>
           </View>
-          <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} className="p-3 rounded-full">
+          <View className="bg-white/20 p-3 rounded-full">
             <Ionicons name="wallet" size={24} color="white" />
           </View>
         </View>
         
         {/* Quick Actions */}
-        <View className="flex-row mt-4 space-x-3">
+        <View className="flex-row mt-4 mx-4 space-between space-x-3">
           <Pressable 
             onPress={() => router.push('/customer/wallet?action=topup')}
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-            className="flex-1 py-2 px-3 rounded-lg"
+            className="flex-1 py-2 px-3 rounded-lg mr-2"
           >
             <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Top Up</Text>
           </Pressable>
           <Pressable 
             onPress={() => router.push('/customer/wallet?action=withdraw')}
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-            className="flex-1 py-2 px-3 rounded-lg"
+            className="flex-1 py-2 px-3 rounded-lg mr-2"
           >
             <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Withdraw</Text>
           </Pressable>

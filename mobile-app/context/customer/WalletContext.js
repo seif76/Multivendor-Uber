@@ -18,6 +18,8 @@ export const WalletProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [lastRefreshTime, setLastRefreshTime] = useState(0);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
   // Get auth token
@@ -48,6 +50,10 @@ export const WalletProvider = ({ children }) => {
       if (response.data.success) {
         setWallet(response.data.data.wallet);
         setTransactions(response.data.data.transactions);
+        // Store the current user ID to detect user changes
+        setCurrentUserId(response.data.data.wallet?.user_id || response.data.data.wallet?.id);
+        // Update last refresh time
+        setLastRefreshTime(Date.now());
       }
     } catch (error) {
       console.error('Error fetching wallet info:', error);
@@ -183,9 +189,57 @@ export const WalletProvider = ({ children }) => {
     setError(null);
   };
 
-  // Load wallet info on mount
+  // Clear wallet data (useful when user logs out)
+  const clearWalletData = () => {
+    setWallet(null);
+    setTransactions([]);
+    setError(null);
+  };
+
+  // Refresh wallet data (useful when user logs in or switches)
+  const refreshWalletData = async (forceRefresh = false) => {
+    const token = await getAuthToken();
+    if (token) {
+      // Only refresh if it's been more than 30 seconds since last refresh, or if forced
+      const now = Date.now();
+      const timeSinceLastRefresh = now - lastRefreshTime;
+      
+      if (forceRefresh || timeSinceLastRefresh > 30000) { // 30 seconds
+        console.log('Refreshing wallet data...');
+        await getWalletInfo();
+      } else {
+        console.log('Wallet data is fresh, skipping refresh');
+      }
+    } else {
+      clearWalletData();
+    }
+  };
+
+  // Load wallet data when user becomes authenticated
+  const loadWalletWhenAuthenticated = async () => {
+    const token = await getAuthToken();
+    if (token) {
+      await getWalletInfo();
+    }
+  };
+
+  // Load wallet info on mount only if user is authenticated
   useEffect(() => {
-    getWalletInfo();
+    const loadWalletData = async () => {
+      const token = await getAuthToken();
+      if (token) {
+        getWalletInfo();
+      }
+    };
+    loadWalletData();
+  }, []);
+
+  // Clear wallet data when component unmounts (user logs out)
+  useEffect(() => {
+    return () => {
+      // Clear wallet data on unmount
+      clearWalletData();
+    };
   }, []);
 
   const value = {
@@ -199,6 +253,9 @@ export const WalletProvider = ({ children }) => {
     payWithWallet,
     createWithdrawalRequest,
     clearError,
+    clearWalletData,
+    refreshWalletData,
+    loadWalletWhenAuthenticated,
   };
 
   return (

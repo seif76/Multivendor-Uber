@@ -161,7 +161,7 @@ export default function WalletPage() {
   if (loading && !wallet) {
     return (
       <View className="flex-1 bg-gray-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#10b981" />
+        <ActivityIndicator size="large" color="#007233" />
         <Text className="text-gray-600 mt-4">Loading wallet...</Text>
       </View>
     );
@@ -188,18 +188,18 @@ export default function WalletPage() {
       >
         {/* Balance Card */}
         <View className="mx-4 mt-6">
-          <View style={{ backgroundColor: '#10b981' }} className="p-6 rounded-xl shadow-lg">
+          <View className="bg-primary p-6 rounded-xl shadow-lg">
             <View className="flex-row items-center justify-between">
               <View className="flex-1">
-                <Text style={{ color: 'white' }} className="text-sm font-medium opacity-90">Total Balance</Text>
-                <Text style={{ color: 'white' }} className="text-3xl font-bold mt-1">
+                <Text className="text-white text-sm font-medium opacity-90">Total Balance</Text>
+                <Text className="text-white text-3xl font-bold mt-1">
                   {formatBalance(wallet?.balance)}
                 </Text>
-                <Text style={{ color: 'white' }} className="text-xs mt-1 opacity-80">
+                <Text className="text-white text-xs mt-1 opacity-80">
                   Last updated: {wallet?.last_updated ? formatDate(wallet.last_updated) : 'Never'}
                 </Text>
               </View>
-              <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} className="p-4 rounded-full">
+              <View className="bg-white/20 p-4 rounded-full">
                 <Ionicons name="wallet" size={32} color="white" />
               </View>
             </View>

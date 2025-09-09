@@ -146,17 +146,12 @@ export default function WalletPaymentModal({
           <Pressable 
             onPress={handlePayment}
             disabled={loading || !amount || parseFloat(amount) <= 0}
-            style={{ 
-              backgroundColor: loading || !amount || parseFloat(amount) <= 0 
-                ? '#9ca3af' 
-                : '#10b981'
-            }}
-            className="py-4 rounded-lg"
+            className={`py-4 rounded-lg ${loading || !amount || parseFloat(amount) <= 0 ? 'bg-gray-400' : 'bg-primary'}`}
           >
             {loading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text style={{ color: 'white' }} className="font-semibold text-center text-lg">
+              <Text className="text-white font-semibold text-center text-lg">
                 Pay ${parseFloat(amount || 0).toFixed(2)}
               </Text>
             )}

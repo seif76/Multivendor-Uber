@@ -197,10 +197,10 @@ export default function OrderTrackingManager() {
   }
 
   return (
-    <View className="mb-4">
+    <View className="mt-4">
       <View className="px-4 mb-3">
         <Text className="text-lg font-bold text-gray-800">Active Orders</Text>
-        <Text className="text-sm text-gray-600">Track your orders in real-time</Text>
+        <Text className="text-sm text-gray-600">Track your orders </Text>
       </View>
       
       <ScrollView 
