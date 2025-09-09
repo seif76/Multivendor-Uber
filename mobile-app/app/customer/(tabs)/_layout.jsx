@@ -5,6 +5,8 @@ import { View } from 'react-native';
 import { CustomerAuthProvider } from '../../../context/customer/CustomerAuthContext';
 import { WalletProvider } from '../../../context/customer/WalletContext';
 import { HomeProvider } from '../../../context/customer/HomeContext';
+import { CartProvider } from '../../../context/customer/CartContext';
+
 
 export default function CustomerLayout() {
   const segments = useSegments();
@@ -29,8 +31,9 @@ export default function CustomerLayout() {
 
   return (
     <CustomerAuthProvider>
-      <WalletProvider>
-        <HomeProvider>
+      <CartProvider>
+        <WalletProvider>
+          <HomeProvider>
           <View className="flex-1 bg-white">
         <Tabs
           screenOptions={{
@@ -78,8 +81,9 @@ export default function CustomerLayout() {
 
         </Tabs>
           </View>
-        </HomeProvider>
-      </WalletProvider>
+          </HomeProvider>
+        </WalletProvider>
+      </CartProvider>
     </CustomerAuthProvider>
   );
 } 

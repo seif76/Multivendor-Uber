@@ -70,10 +70,11 @@ export default function OrdersPage() {
           <ActivityIndicator size="large" color="#0f9d58" />
           <Text className="mt-4 text-primary font-semibold">Loading orders...</Text>
         </View>
+
       ) : error ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-red-500 font-semibold mb-2">{error}</Text>
-          <Pressable onPress={() => router.replace('/customer/orders')} className="bg-primary px-6 py-2 rounded-xl mt-2">
+          <Pressable onPress={() => onRefresh()} className="bg-primary px-6 py-2 rounded-xl mt-2">
             <Text className="text-white font-bold">Retry</Text>
           </Pressable>
         </View>

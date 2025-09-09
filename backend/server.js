@@ -31,6 +31,9 @@ app.use(express.json());
 // const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
 // syncWalletTables();
 
+// const prodSeeders = require('./src/app/models/seeders/prodSeeders');
+// prodSeeders();
+
 // start Swagger 
 if (process.env.NODE_ENV !== 'production') {
   const swaggerUi = require('swagger-ui-express');
