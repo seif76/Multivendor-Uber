@@ -239,17 +239,17 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
       throw new Error('Deliveryman not found');
     }
     
-    // Update order with deliveryman assignment and status
+    // Update order with deliveryman assignment (keep status as 'ready' for delivery confirmation)
     order.deliveryman_id = deliverymanId;
-    order.status = 'shipped'; // Order is now being delivered
+    // Order status remains 'ready' until delivery confirmation is complete
     await order.save();
     
     console.log(`Order ${orderId} accepted by deliveryman ${deliverymanId}`);
     
-    // Notify customer that order is being delivered with deliveryman details
+    // Notify customer that deliveryman has been assigned
     if (order.customer) {
-      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
-      console.log(`Customer ${order.customer.id} notified that order ${orderId} is being delivered`);
+      OrderSocket.notifyOrderStatusChange(orderId, 'ready', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that deliveryman has been assigned to order ${orderId}`);
     }
     
     // Notify vendor that order has been accepted with deliveryman details
@@ -289,12 +289,12 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     throw new Error('Unauthorized: This order is not assigned to you');
   }
 
-  if (order.status !== 'shipped') {
-    throw new Error('Order must be in shipped status to update delivery status');
+  if (order.status !== 'ready') {
+    throw new Error('Order must be in ready status to update delivery status');
   }
 
   // Validate status progression
-  const validStatuses = ['deliveryman_arrived', 'order_handed_over', 'payment_received', 'payment_confirmed'];
+  const validStatuses = ['deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_received', 'payment_confirmed'];
   const currentIndex = validStatuses.indexOf(order.delivery_status);
   const newIndex = validStatuses.indexOf(newStatus);
 

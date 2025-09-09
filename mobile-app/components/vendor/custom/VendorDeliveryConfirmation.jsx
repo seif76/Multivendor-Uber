@@ -1,8 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { BACKEND_URL } from '../../../config/socket';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
   const [currentStatus, setCurrentStatus] = useState(order.delivery_status || 'none');
+  const [updating, setUpdating] = useState(false);
+
+  const handleVendorAction = async (newStatus) => {
+    if (updating) return;
+    
+    setUpdating(true);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await axios.put(
+        `${BACKEND_URL}/api/vendor/orders/${order.id}/delivery-status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        setCurrentStatus(newStatus);
+        onStatusUpdate && onStatusUpdate(newStatus);
+        
+        const statusMessages = {
+          'order_handed_over': 'Order has been handed over to deliveryman',
+          'payment_confirmed': 'Payment confirmed and order is on the way'
+        };
+        
+        Alert.alert('Status Updated', statusMessages[newStatus] || 'Status updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating delivery status:', error);
+      Alert.alert('Error', error.response?.data?.error || 'Failed to update status');
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const statusConfig = {
     none: { 
@@ -13,17 +50,26 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
     deliveryman_arrived: { 
       title: 'Deliveryman Arrived', 
       color: 'bg-blue-500', 
-      description: 'Deliveryman has arrived at your location'
+      description: 'Deliveryman has arrived at your location',
+      vendorAction: 'order_handed_over',
+      vendorButtonText: 'Hand Over Order'
     },
     order_handed_over: { 
       title: 'Order Handed Over', 
       color: 'bg-yellow-500', 
       description: 'Order has been handed over to deliveryman'
     },
+    order_received: { 
+      title: 'Order Received', 
+      color: 'bg-yellow-500', 
+      description: 'Deliveryman has confirmed receiving the order'
+    },
     payment_received: { 
       title: 'Payment Received', 
       color: 'bg-green-500', 
-      description: 'Deliveryman has received payment from customer'
+      description: 'Deliveryman has received payment from customer',
+      vendorAction: 'payment_confirmed',
+      vendorButtonText: 'Confirm Payment'
     },
     payment_confirmed: { 
       title: 'Delivery Complete', 
@@ -121,6 +167,19 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
         <Text className="text-white font-semibold text-center">{currentConfig.title}</Text>
         <Text className="text-white text-sm text-center mt-1">{currentConfig.description}</Text>
       </View>
+
+      {/* Vendor Action Button */}
+      {currentConfig.vendorAction && (
+        <TouchableOpacity
+          onPress={() => handleVendorAction(currentConfig.vendorAction)}
+          disabled={updating}
+          className={`${updating ? 'bg-gray-400' : 'bg-green-600'} py-3 px-4 rounded-lg mt-3`}
+        >
+          <Text className="text-white font-semibold text-center">
+            {updating ? 'Updating...' : currentConfig.vendorButtonText}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {currentStatus === 'payment_confirmed' && (
         <View className="bg-green-100 p-3 rounded-lg mt-2">

@@ -2,6 +2,7 @@ const {
   getVendorOrders,
   getVendorOrderDetails,
   updateOrderStatus,
+  updateDeliveryStatus,
 } = require('../services/order.services');
 
 // Get all orders for the authenticated vendor
@@ -60,8 +61,37 @@ const updateOrderStatusController = async (req, res) => {
   }
 };
 
+// Update delivery status (vendor actions)
+const updateDeliveryStatusController = async (req, res) => {
+  try {
+    const vendorId = req.user.id;
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    const result = await updateDeliveryStatus(orderId, vendorId, status);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Delivery status updated successfully',
+      order: result,
+    });
+  } catch (error) {
+    console.error('Error updating delivery status:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      vendorId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   getVendorOrdersController,
   getVendorOrderDetailsController,
   updateOrderStatusController,
+  updateDeliveryStatusController,
 }; 

@@ -224,7 +224,7 @@ export default function VendorOrdersPage() {
         )}
 
         {/* Delivery Confirmation */}
-        {item?.deliveryman && item?.status === 'shipped' && (
+        {item?.deliveryman && item?.status === 'ready' && (
           <VendorDeliveryConfirmation 
             order={item} 
             onStatusUpdate={(newStatus) => {
