@@ -225,7 +225,7 @@ export default function DeliveryOrderManager() {
                       <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
                       <Text className="text-xs text-blue-700">Name: {order.customer.name}</Text>
                       <Text className="text-xs text-blue-700">Phone: {order.customer.phone_number}</Text>
-                      <Text className="text-xs text-blue-700">Address: {order.customer.address}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order?.address}</Text>
                     </View>
                     
                     {/* Vendor Details */}
