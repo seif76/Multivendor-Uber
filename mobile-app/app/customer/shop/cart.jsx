@@ -1,43 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useContext, useState } from 'react';
-import { FlatList, Pressable, Text, View, Image, Alert, ActivityIndicator } from 'react-native';
+import React, { useContext } from 'react';
+import { FlatList, Pressable, Text, View, Image } from 'react-native';
 import { CartContext } from '../../../context/customer/CartContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
-import axios from 'axios';
 
 export default function CartScreen() {
-  const { cartItems, removeFromCart, updateQuantity, total, clearCart } = useContext(CartContext);
-  const [loading, setLoading] = useState(false);
-  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const { cartItems, removeFromCart, updateQuantity, total } = useContext(CartContext);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Not logged in', 'Please log in to place an order.');
-        setLoading(false);
-        return;
-      }
-      const items = cartItems.map(item => ({ product_id: item.id, quantity: item.quantity }));
-      // You can add address or other fields as needed
-      const response = await axios.post(
-        `${BACKEND_URL}/api/customers/orders`,
-        { items },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      clearCart();
-      Alert.alert('Order Placed', 'Your order has been placed successfully!');
-      router.push('/customer/orders');
-    } catch (error) {
-      const msg = error.response?.data?.error || error.message || 'Unknown error';
-      Alert.alert('Checkout Failed', msg);
-    } finally {
-      setLoading(false);
-    }
+    // Force reload of checkout page by adding timestamp
+    const timestamp = Date.now();
+    router.replace(`/customer/checkout?t=${timestamp}`);
   };
 
   const renderCartItem = ({ item }) => (
@@ -109,15 +83,10 @@ export default function CartScreen() {
               <Text className="text-lg font-bold text-green-600">EGP {total.toFixed(2)}</Text>
             </View>
             <Pressable
-              className={`bg-primary py-4 rounded-xl mt-4 ${loading ? 'opacity-60' : ''}`}
+              className="bg-primary py-4 rounded-xl mt-4"
               onPress={handleCheckout}
-              disabled={loading}
             >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text className="text-center text-white font-bold text-lg">Checkout</Text>
-              )}
+              <Text className="text-center text-white font-bold text-lg">Place Order</Text>
             </Pressable>
           </View>
         </>

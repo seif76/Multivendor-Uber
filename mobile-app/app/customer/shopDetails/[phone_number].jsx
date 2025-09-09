@@ -53,8 +53,15 @@ export default function ShopDetails() {
       
       console.log('Vendor API response:', res.data);
       setVendorInfo(res.data.vendorInfo || {});
-      setProducts(res.data.products || []);
-      setFilteredProducts(res.data.products || []);
+      
+      // Add vendor_id to each product
+      const productsWithVendorId = (res.data.products || []).map(product => ({
+        ...product,
+        vendor_id: res.data.vendorInfo?.vendor_id || res.data.vendorInfo?.id
+      }));
+      
+      setProducts(productsWithVendorId);
+      setFilteredProducts(productsWithVendorId);
       
       // Clear the fallback timeout since we got a response
       clearTimeout(fallbackTimeout);
