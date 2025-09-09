@@ -284,32 +284,51 @@ export default function ShopDetails() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => addToCart(item)}
-                className="w-[48%] bg-white mb-4 rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                className="w-[48%] bg-white mb-4 rounded-2xl overflow-hidden shadow-lg border border-gray-100"
               >
                 <View className="relative">
-                  <View className="w-full h-32 bg-gray-50 justify-center items-center">
+                  <View className="w-full h-40 bg-gray-50 justify-center items-center">
                     <Image
                       source={{ uri: item?.image || 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80' }}
                       className="w-full h-full"
                       resizeMode="cover"
                     />
                   </View>
-                  <View className="absolute top-2 right-2 bg-white/90 px-2 py-1 rounded-full">
-                    <Text className="text-xs font-semibold text-gray-700">EGP {parseFloat(item.price).toFixed(2)}</Text>
+                  <View className="absolute top-3 right-3 bg-white/95 px-3 py-1.5 rounded-full shadow-sm">
+                    <Text className="text-xs font-bold text-primary">EGP {parseFloat(item.price).toFixed(2)}</Text>
                   </View>
-                </View>
-                <View className="p-3">
-                  <Text className="font-semibold text-sm text-gray-900 mb-1" numberOfLines={2}>{item.name}</Text>
-                  <Text className="text-xs text-gray-500" numberOfLines={1}>{item.description || 'Product description'}</Text>
-                  <View className="flex-row items-center justify-between mt-2">
-                    <View className="flex-row items-center">
-                      <Ionicons name="star" size={12} color="#fbbf24" />
-                      <Text className="text-xs text-gray-600 ml-1">4.5</Text>
+                  {item.stock > 0 && (
+                    <View className="absolute top-3 left-3 bg-primary px-2 py-1 rounded-full">
+                      <Text className="text-white text-xs font-bold">In Stock</Text>
                     </View>
-                    <Pressable className="bg-primary p-1 rounded-full">
-                      <Ionicons name="add" size={16} color="white" />
-                    </Pressable>
+                  )}
+                  {item.stock === 0 && (
+                    <View className="absolute top-3 left-3 bg-red-500 px-2 py-1 rounded-full">
+                      <Text className="text-white text-xs font-bold">Out of Stock</Text>
+                    </View>
+                  )}
+                </View>
+                <View className="p-4">
+                  <Text className="font-bold text-base text-gray-900 mb-2" numberOfLines={2}>{item.name}</Text>
+                  <Text className="text-sm text-gray-500 mb-3" numberOfLines={2}>{item.description || 'Fresh and delicious'}</Text>
+                  
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center">
+                      <Ionicons name="star" size={14} color="#fbbf24" />
+                      <Text className="text-sm text-gray-600 ml-1">4.5</Text>
+                      <Text className="text-xs text-gray-400 ml-1">•</Text>
+                      <Text className="text-xs text-gray-500 ml-1">{item.stock || 0} left</Text>
+                    </View>
                   </View>
+                  
+                  <Pressable 
+                    className={`w-full py-3 rounded-xl ${item.stock > 0 ? 'bg-primary' : 'bg-gray-300'}`}
+                    disabled={item.stock === 0}
+                  >
+                    <Text className={`text-center font-semibold ${item.stock > 0 ? 'text-white' : 'text-gray-500'}`}>
+                      {item.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                    </Text>
+                  </Pressable>
                 </View>
               </TouchableOpacity>
             )}

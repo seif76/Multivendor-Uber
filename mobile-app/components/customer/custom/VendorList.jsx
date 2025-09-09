@@ -66,42 +66,57 @@ export default function VendorList() {
       </View>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-        {vendors.slice(0, 5).map((vendor) => (
-          <Pressable 
-            key={vendor.id} 
-            onPress={() => handleVendorPress(vendor)}
-            className="w-40 bg-white rounded-lg shadow-sm border border-gray-100 p-3 mr-3"
-          >
-            <View className="relative">
-              <Image
-                source={getVendorImage(vendor)}
-                className="w-full h-24 rounded-lg"
-                resizeMode="cover"
-              />
-              {vendor.vendor_status === 'Active' && (
-                <View className="absolute top-2 right-2 bg-primary px-2 py-1 rounded-full">
-                  <Text className="text-white text-xs font-bold">Open</Text>
-                </View>
-              )}
-            </View>
-            
-            <View className="mt-2">
-              <Text className="font-semibold text-gray-800" numberOfLines={1}>
-                {vendor.shop_name || vendor.name || 'Store'}
-              </Text>
-              <Text className="text-xs text-gray-500 mt-1" numberOfLines={1}>
-                {vendor.shop_location || 'Location'}
-              </Text>
-              
-              <View className="flex-row items-center mt-2">
-                <Ionicons name="star" size={12} color="#fbbf24" />
-                <Text className="text-xs text-gray-600 ml-1">4.5</Text>
-                <Text className="text-xs text-gray-400 ml-1">•</Text>
-                <Text className="text-xs text-gray-500 ml-1">Active</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
+         {vendors.slice(0, 5).map((vendor) => (
+           <Pressable 
+             key={vendor.id} 
+             onPress={() => handleVendorPress(vendor)}
+             className="w-48 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mr-4"
+           >
+             <View className="relative">
+               <Image
+                 source={getVendorImage(vendor)}
+                 className="w-full h-32"
+                 resizeMode="cover"
+               />
+               {vendor.vendor_status === 'Active' && (
+                 <View className="absolute top-3 right-3 bg-primary px-2 py-1 rounded-full">
+                   <Text className="text-white text-xs font-bold">Open</Text>
+                 </View>
+               )}
+               <View className="absolute bottom-3 left-3 bg-white/95 px-2 py-1 rounded-full">
+                 <View className="flex-row items-center">
+                   <Ionicons name="star" size={12} color="#fbbf24" />
+                   <Text className="text-xs font-semibold text-gray-800 ml-1">4.5</Text>
+                 </View>
+               </View>
+             </View>
+             
+             <View className="p-4">
+               <Text className="font-bold text-base text-gray-900 mb-1" numberOfLines={1}>
+                 {vendor.shop_name || vendor.name || 'Store'}
+               </Text>
+               <Text className="text-sm text-gray-500 mb-2" numberOfLines={1}>
+                 {vendor.shop_location || vendor.category || 'Location'}
+               </Text>
+               
+               <View className="flex-row items-center justify-between">
+                 <View className="flex-row items-center">
+                   <Ionicons 
+                     name={vendor.vendor_status === 'Active' ? "checkmark-circle" : "close-circle"} 
+                     size={16} 
+                     color={vendor.vendor_status === 'Active' ? "#22c55e" : "#ef4444"} 
+                   />
+                   <Text className={`text-xs font-medium ml-1 ${vendor.vendor_status === 'Active' ? 'text-green-600' : 'text-red-500'}`}>
+                     {vendor.vendor_status === 'Active' ? 'Open Now' : 'Closed'}
+                   </Text>
+                 </View>
+                 <Pressable className="bg-primary p-2 rounded-full">
+                   <Ionicons name="arrow-forward" size={14} color="white" />
+                 </Pressable>
+               </View>
+             </View>
+           </Pressable>
+         ))}
       </ScrollView>
     </View>
   );
