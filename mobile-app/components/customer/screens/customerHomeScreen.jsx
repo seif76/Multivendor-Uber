@@ -30,12 +30,15 @@ export default function CustomerHomePage() {
     <View className="flex-1 bg-white">
       <CustomerTopNav />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        
         <LocationBanner />
-        <ServiceSelector />
+        <WalletCard />
         <OrderTrackingManager />
+        <ServiceSelector />
+        
         <CategorySlider />
         <VendorList />
-        <WalletCard />
+        
         <SupportAccess />
         <View className="h-10" />
       </ScrollView>

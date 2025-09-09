@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import DeliverymanSideNav from '../../../components/deliveryman/navigation/sideNav';
 import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/topNav';
-import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContex';
+import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
+import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
   const [showTabs, setShowTabs] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [isOnline, setIsOnline] = useState(false);
   useEffect(() => {
     const current = segments[segments.length - 1];
     setShowTabs(current !== 'login' && current !== 'register'); // hide tabs on login/register
@@ -24,10 +25,11 @@ export default function DeliverymanLayout() {
     <DeliverymanAuthProvider>
       <View className="flex-1 bg-white">
           {/* Deliveryman Top Navbar */}
-      <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} />
+      <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
 
       {/* Sidebar */}
       <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+      <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
         <Tabs
           screenOptions={{
             tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
@@ -48,13 +50,7 @@ export default function DeliverymanLayout() {
               tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
             }}
           />
-          <Tabs.Screen
-            name="chat"
-            options={{
-              title: 'Messages',
-              tabBarIcon: ({ color }) => <FontAwesome name="comments" size={22} color={color} />,
-            }}
-          />
+         
           <Tabs.Screen
             name="wallet"
             options={{

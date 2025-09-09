@@ -21,6 +21,20 @@ const statusConfig = {
     title: 'Order Confirmed',
     description: 'Your order has been confirmed'
   },
+  preparing: {
+    color: 'bg-orange-100',
+    textColor: 'text-orange-800',
+    icon: 'restaurant-outline',
+    title: 'Preparing',
+    description: 'Your order is being prepared'
+  },
+  ready: {
+    color: 'bg-indigo-100',
+    textColor: 'text-indigo-800',
+    icon: 'checkmark-done-outline',
+    title: 'Ready for Delivery',
+    description: 'Your order is ready and waiting for delivery'
+  },
   shipped: {
     color: 'bg-purple-100',
     textColor: 'text-purple-800',

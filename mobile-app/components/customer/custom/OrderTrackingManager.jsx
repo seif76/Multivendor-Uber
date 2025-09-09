@@ -59,6 +59,7 @@ export default function OrderTrackingManager() {
       const activeOrders = response.data.filter(order => 
         !['delivered', 'cancelled'].includes(order.status)
       );
+    //  alert("active orders are :" + JSON.stringify(activeOrders));
 
       setActiveOrders(activeOrders);
     } catch (error) {
@@ -102,16 +103,24 @@ export default function OrderTrackingManager() {
         
         setActiveOrders(prevOrders => {
           const updatedOrders = prevOrders.map(order => {
-            if (order.id === orderId) {
+       //     console.log(`Checking order ${order.id} (type: ${typeof order.id}) against ${orderId} (type: ${typeof orderId}), current status: ${order.status}`);
+            // Handle both string and number comparison
+            if (order.id == orderId || order.id === parseInt(orderId) || order.id === orderId.toString()) {
+              console.log(`Updating order ${orderId} status from ${order.status} to ${status}`);
               return { ...order, status };
             }
             return order;
           });
 
+//          console.log('Updated orders:', updatedOrders);
+
           // Remove delivered/cancelled orders from active list
-          return updatedOrders.filter(order => 
+          const filteredOrders = updatedOrders.filter(order => 
             !['delivered', 'cancelled'].includes(order.status)
           );
+          
+          console.log('Filtered orders:', filteredOrders);
+          return filteredOrders;
         });
       });
 
@@ -188,10 +197,10 @@ export default function OrderTrackingManager() {
   }
 
   return (
-    <View className="mb-4">
+    <View className="mt-4">
       <View className="px-4 mb-3">
         <Text className="text-lg font-bold text-gray-800">Active Orders</Text>
-        <Text className="text-sm text-gray-600">Track your orders in real-time</Text>
+        <Text className="text-sm text-gray-600">Track your orders </Text>
       </View>
       
       <ScrollView 
@@ -200,6 +209,7 @@ export default function OrderTrackingManager() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16 }}
       >
+        
         {activeOrders.map((order) => (
           <View key={order.id} className="w-80 my-4 mr-4">
             <OrderTrackingCard

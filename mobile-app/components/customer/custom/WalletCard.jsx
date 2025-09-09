@@ -56,18 +56,18 @@ export default function WalletCard() {
         </View>
         
         {/* Quick Actions */}
-        <View className="flex-row mt-4 space-x-3">
+        <View className="flex-row mt-4 mx-4 space-between space-x-3">
           <Pressable 
             onPress={() => router.push('/customer/wallet?action=topup')}
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-            className="flex-1 py-2 px-3 rounded-lg"
+            className="flex-1 py-2 px-3 rounded-lg mr-2"
           >
             <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Top Up</Text>
           </Pressable>
           <Pressable 
             onPress={() => router.push('/customer/wallet?action=withdraw')}
             style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-            className="flex-1 py-2 px-3 rounded-lg"
+            className="flex-1 py-2 px-3 rounded-lg mr-2"
           >
             <Text style={{ color: 'white' }} className="text-xs font-medium text-center">Withdraw</Text>
           </Pressable>
