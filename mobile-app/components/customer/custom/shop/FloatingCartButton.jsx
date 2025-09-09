@@ -45,8 +45,17 @@ export default function FloatingCartButton() {
 
   if (!context) return null;
 
-  const cartItems = context.getCartItems();
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartItems = context.cartItems || [];
+  let totalQuantity = 0;
+  
+  if (Array.isArray(cartItems)) {
+    for (let i = 0; i < cartItems.length; i++) {
+      const item = cartItems[i];
+      if (item && typeof item === 'object') {
+        totalQuantity += (item.quantity || 0);
+      }
+    }
+  }
 
   // Animate when quantity increases
   useEffect(() => {

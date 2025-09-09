@@ -16,7 +16,17 @@ export default function ShopHeader() {
   
     useEffect(() => {
       const items = getCartItems();
-      const count = items.reduce((total, item) => total + item.quantity, 0);
+      let count = 0;
+      
+      if (Array.isArray(items)) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          if (item && typeof item === 'object') {
+            count += (item.quantity || 0);
+          }
+        }
+      }
+      
       setItemCount(count);
     }, [getCartItems]);
 
