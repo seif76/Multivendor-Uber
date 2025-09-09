@@ -1,4 +1,4 @@
-const { User, DeliverymanVehicle, Order } = require('../../../app/models');
+const { User, DeliverymanVehicle, Order, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
@@ -192,9 +192,11 @@ const deleteDeliveryman = async (deliveryman_id) => {
 // Accept delivery order
 const acceptDeliveryOrder = async (orderId, deliverymanId) => {
   try {
-    // Find the order
+    // Find the order with customer details
     const order = await Order.findByPk(orderId, {
-      include: [{ model: User, as: 'customer', attributes: ['id', 'name', 'email'] }]
+      include: [
+        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] }
+      ]
     });
     
     if (!order) {
@@ -205,6 +207,38 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
       throw new Error('Order is not ready for delivery');
     }
     
+    // Get vendor information through order items
+    const { OrderItem, Product } = require('../../../app/models');
+    const orderItems = await OrderItem.findAll({
+      where: { order_id: orderId },
+        include: [{
+          model: Product,
+          as: 'product',
+          include: [{
+            model: VendorInfo,
+            as: 'vendor_info',
+            attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+          }]
+        }]
+    });
+    
+    // Get the vendor from the first order item (assuming single vendor orders)
+    const vendor = orderItems.length > 0 ? orderItems[0].product.vendor_info : null;
+    
+    // Get deliveryman details
+    const deliveryman = await User.findByPk(deliverymanId, {
+      attributes: ['id', 'name', 'phone_number'],
+      include: [{
+        model: DeliverymanVehicle,
+        as: 'delivery_vehicle',
+        attributes: ['make', 'model', 'license_plate', 'vehicle_type']
+      }]
+    });
+    
+    if (!deliveryman) {
+      throw new Error('Deliveryman not found');
+    }
+    
     // Update order with deliveryman assignment and status
     order.deliveryman_id = deliverymanId;
     order.status = 'shipped'; // Order is now being delivered
@@ -212,15 +246,23 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
     
     console.log(`Order ${orderId} accepted by deliveryman ${deliverymanId}`);
     
-    // Notify customer that order is being delivered
+    // Notify customer that order is being delivered with deliveryman details
     if (order.customer) {
       OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
       console.log(`Customer ${order.customer.id} notified that order ${orderId} is being delivered`);
     }
     
+    // Notify vendor that order has been accepted with deliveryman details
+    if (vendor) {
+      OrderSocket.notifyVendorOrderAccepted(orderId, vendor.vendor_id, deliveryman);
+      console.log(`Vendor ${vendor.vendor_id} notified that order ${orderId} has been accepted by deliveryman`);
+    }
+    
     return {
       ...order.dataValues,
-      customer: order.customer
+      customer: order.customer,
+      vendor: vendor,
+      deliveryman: deliveryman
     };
   } catch (error) {
     console.error('Error accepting delivery order:', error);

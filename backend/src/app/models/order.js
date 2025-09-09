@@ -13,6 +13,11 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+
+      deliveryman_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
   
       total_price: {
         type: DataTypes.DECIMAL(10, 2),
@@ -34,6 +39,7 @@ module.exports = (sequelize) => {
     }, {
       indexes: [
         { name: 'idx_order_customer_id', fields: ['customer_id'] },
+        { name: 'idx_order_deliveryman_id', fields: ['deliveryman_id'] },
         { name: 'idx_order_status', fields: ['status'] }
       ]
     });

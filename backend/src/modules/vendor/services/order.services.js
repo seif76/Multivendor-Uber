@@ -1,4 +1,4 @@
-const { Order, OrderItem, Product, User } = require('../../../app/models');
+const { Order, OrderItem, Product, User, DeliverymanVehicle, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
 
 // Get all orders that include products belonging to this vendor
@@ -12,6 +12,19 @@ const getVendorOrders = async (vendorId) => {
     }, {
       model: Order,
       as: 'order',
+      include: [
+        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+        { 
+          model: User, 
+          as: 'deliveryman', 
+          attributes: ['id', 'name', 'phone_number'],
+          include: [{
+            model: DeliverymanVehicle,
+            as: 'delivery_vehicle',
+            attributes: ['make', 'model', 'license_plate', 'vehicle_type']
+          }]
+        }
+      ]
     }],
   });
 
@@ -27,7 +40,20 @@ const getVendorOrders = async (vendorId) => {
     }
     ordersMap[orderId].items.push(item);
   });
-  return Object.values(ordersMap);
+  
+  // Get vendor info for each order
+  const orders = Object.values(ordersMap);
+  const vendor = await VendorInfo.findOne({ 
+    where: { vendor_id: vendorId },
+    attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+  });
+  
+  // Add vendor info to each order
+  orders.forEach(order => {
+    order.vendor = vendor;
+  });
+  
+  return orders;
 };
 
 // Get order details for this vendor (only their products/items)
@@ -100,6 +126,21 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
 
   // If order is ready, notify deliverymen
   if (status === 'ready' && order.customer) {
+    // Get vendor details from VendorInfo table
+    const vendor = await VendorInfo.findOne({ 
+      where: { vendor_id: vendorId },
+      attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+    });
+
+    if (!vendor) {
+      console.error(`Vendor info not found for vendor_id: ${vendorId}`);
+      return {
+        ...order.dataValues,
+        previousStatus,
+        vendorItems: vendorItems.length
+      };
+    }
+
     const orderDetails = {
       id: order.id,
       total_price: order.total_price,
@@ -107,11 +148,20 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
       customer: {
         id: order.customer.id,
         name: order.customer.name,
-        email: order.customer.email
+        email: order.customer.email,
+        phone_number: order.customer.phone_number,
+        address: order.customer.address
+      },
+      vendor: {
+        id: vendor.id,
+        vendor_id: vendor.vendor_id,
+        name: vendor.shop_name,
+        phone_number: vendor.phone_number,
+        address: vendor.shop_location
       }
     };
     OrderSocket.notifyDeliverymenNewOrder(orderId, order.customer.id, status, orderDetails);
-    console.log(`Delivery order ${orderId} broadcasted to deliverymen`);
+    console.log(`Delivery order ${orderId} broadcasted to deliverymen with complete details`);
   }
   
   return {

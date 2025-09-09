@@ -136,6 +136,17 @@ class SocketManager {
     console.log(`Delivery order ${orderId} broadcasted to ${Object.keys(this.deliverymen).length} deliverymen`);
   }
 
+  notifyVendorOrderAccepted(orderId, vendorId, deliveryman) {
+    const vendorSocket = this.vendors[vendorId]?.socketId;
+    if (vendorSocket) {
+      this.io.to(vendorSocket).emit('orderAcceptedByDeliveryman', { 
+        orderId, 
+        vendorId, 
+        deliveryman 
+      });
+    }
+  }
+
   // Ride tracking methods
   notifyCaptainLocation(captainId, coords) {
     this.captains[captainId] = { ...coords, socketId: this.captains[captainId]?.socketId };

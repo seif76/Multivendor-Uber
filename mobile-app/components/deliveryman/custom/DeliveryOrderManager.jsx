@@ -191,11 +191,25 @@ export default function DeliveryOrderManager() {
             {availableOrders.map((order) => (
               <View key={order.id} className="w-80 my-4 mr-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <View className="flex-row justify-between items-start mb-3">
-                  <View>
+                  <View className="flex-1">
                     <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
-                    <Text className="text-sm text-gray-600">Customer: {order.customer.name}</Text>
                     <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
-                    <Text className="text-sm text-gray-600">Address: {order.address}</Text>
+                    
+                    {/* Customer Details */}
+                    <View className="mt-2 p-2 bg-blue-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
+                      <Text className="text-xs text-blue-700">Name: {order.customer.name}</Text>
+                      <Text className="text-xs text-blue-700">Phone: {order.customer.phone_number}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order.customer.address}</Text>
+                    </View>
+                    
+                    {/* Vendor Details */}
+                    <View className="mt-2 p-2 bg-green-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor.name}</Text>
+                      <Text className="text-xs text-green-700">Phone: {order.vendor.phone_number}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor.address}</Text>
+                    </View>
                   </View>
                 </View>
 
@@ -239,17 +253,32 @@ export default function DeliveryOrderManager() {
             {acceptedOrders.map((order) => (
               <View key={order.id} className="w-80 my-4 mr-4 bg-green-50 rounded-xl shadow-sm border border-green-200 p-4">
                 <View className="flex-row justify-between items-start mb-3">
-                  <View>
+                  <View className="flex-1">
                     <View className="flex-row items-center mb-1">
                       <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
                       <View className="bg-green-600 px-2 py-1 rounded-full ml-2">
                         <Text className="text-white text-xs font-bold">ACCEPTED</Text>
                       </View>
                     </View>
-                    <Text className="text-sm text-gray-600">Customer: {order.customer.name}</Text>
                     <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
-                    <Text className="text-sm text-gray-600">Address: {order.address}</Text>
-                    <Text className="text-xs text-green-600 mt-1">
+                    
+                    {/* Customer Details */}
+                    <View className="mt-2 p-2 bg-blue-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
+                      <Text className="text-xs text-blue-700">Name: {order.customer.name}</Text>
+                      <Text className="text-xs text-blue-700">Phone: {order.customer.phone_number}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order.customer.address}</Text>
+                    </View>
+                    
+                    {/* Vendor Details */}
+                    <View className="mt-2 p-2 bg-green-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor.name}</Text>
+                      <Text className="text-xs text-green-700">Phone: {order.vendor.phone_number}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor.address}</Text>
+                    </View>
+                    
+                    <Text className="text-xs text-green-600 mt-2">
                       Accepted: {new Date(order.acceptedAt).toLocaleString()}
                     </Text>
                   </View>
