@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { CustomerAuthProvider } from '../../../context/customer/CustomerAuthContext';
 import { WalletProvider } from '../../../context/customer/WalletContext';
+import { HomeProvider } from '../../../context/customer/HomeContext';
 
 export default function CustomerLayout() {
   const segments = useSegments();
@@ -18,7 +19,9 @@ export default function CustomerLayout() {
     return (
       <CustomerAuthProvider>
         <WalletProvider>
-          <Slot />
+          <HomeProvider>
+            <Slot />
+          </HomeProvider>
         </WalletProvider>
       </CustomerAuthProvider>
     );
@@ -27,7 +30,8 @@ export default function CustomerLayout() {
   return (
     <CustomerAuthProvider>
       <WalletProvider>
-        <View className="flex-1 bg-white">
+        <HomeProvider>
+          <View className="flex-1 bg-white">
         <Tabs
           screenOptions={{
             tabBarActiveTintColor: '#0f9d58',
@@ -73,7 +77,8 @@ export default function CustomerLayout() {
          <Tabs.Screen name="orders/[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
 
         </Tabs>
-        </View>
+          </View>
+        </HomeProvider>
       </WalletProvider>
     </CustomerAuthProvider>
   );

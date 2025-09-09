@@ -183,9 +183,23 @@ export const WalletProvider = ({ children }) => {
     setError(null);
   };
 
-  // Load wallet info on mount
+  // Load wallet data when user becomes authenticated
+  const loadWalletWhenAuthenticated = async () => {
+    const token = await getAuthToken();
+    if (token) {
+      await getWalletInfo();
+    }
+  };
+
+  // Load wallet info on mount only if user is authenticated
   useEffect(() => {
-    getWalletInfo();
+    const loadWalletData = async () => {
+      const token = await getAuthToken();
+      if (token) {
+        getWalletInfo();
+      }
+    };
+    loadWalletData();
   }, []);
 
   const value = {
@@ -199,6 +213,7 @@ export const WalletProvider = ({ children }) => {
     payWithWallet,
     createWithdrawalRequest,
     clearError,
+    loadWalletWhenAuthenticated,
   };
 
   return (
