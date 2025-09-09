@@ -104,6 +104,26 @@ export default function VendorOrdersPage() {
       }
     });
 
+    socketRef.current.on('orderAcceptedByDeliveryman', ({ orderId, vendorId: orderVendorId, deliveryman }) => {
+      console.log('Order accepted by deliveryman:', orderId, deliveryman);
+      
+      // Only handle orders for this vendor
+      if (orderVendorId === vendorId) {
+        // Show alert for order acceptance
+        Alert.alert(
+          'Order Accepted!',
+          `Order #${orderId} has been accepted by deliveryman ${deliveryman.name} (${deliveryman.phone_number})`,
+          [
+            { text: 'View Orders', onPress: () => fetchOrders() },
+            { text: 'OK', style: 'default' }
+          ]
+        );
+        
+        // Refresh orders to show the updated status
+        fetchOrders();
+      }
+    });
+
     socketRef.current.on('disconnect', () => {
       console.log('Vendor disconnected from socket');
       setSocketConnected(false);
@@ -165,6 +185,18 @@ export default function VendorOrdersPage() {
           <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{item?.status}</Text></Text>
           <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item?.total_price).toFixed(2)}</Text>
         </View>
+        
+        {/* Deliveryman Information */}
+        {item?.deliveryman && (
+          <View className="mt-2 p-2 bg-blue-50 rounded-lg">
+            <Text className="text-sm font-semibold text-blue-800">Deliveryman Assigned</Text>
+            <Text className="text-xs text-blue-700">Name: {item.deliveryman.name}</Text>
+            <Text className="text-xs text-blue-700">Phone: {item.deliveryman.phone_number}</Text>
+            {item.deliveryman.delivery_vehicle && (
+              <Text className="text-xs text-blue-700">Vehicle: {item.deliveryman.delivery_vehicle.make} {item.deliveryman.delivery_vehicle.model} ({item.deliveryman.delivery_vehicle.license_plate})</Text>
+            )}
+          </View>
+        )}
       </Pressable>
       
       <View className="flex-row gap-2 mt-2">

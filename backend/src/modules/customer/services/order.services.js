@@ -1,4 +1,4 @@
-const { Order, OrderItem, Product, User } = require('../../../app/models');
+const { Order, OrderItem, Product, User, DeliverymanVehicle, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
 
 // Create a new order (checkout)
@@ -50,15 +50,31 @@ const getMyOrders = async (customerId) => {
   const orders = await Order.findAll({
     where: { customer_id: customerId },
     order: [['createdAt', 'DESC']],
-    include: [{
-      model: OrderItem,
-      as: 'items',
-      include: [{ 
-        model: Product, 
-        as: 'product',
-        include: [{ model: User, as: 'vendor' }]
-      }],
-    }],
+    include: [
+      {
+        model: OrderItem,
+        as: 'items',
+        include: [{ 
+          model: Product, 
+          as: 'product',
+          include: [{ 
+            model: VendorInfo, 
+            as: 'vendor_info',
+            attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+          }]
+        }],
+      },
+      {
+        model: User,
+        as: 'deliveryman',
+        attributes: ['id', 'name', 'phone_number'],
+        include: [{
+          model: DeliverymanVehicle,
+          as: 'delivery_vehicle',
+          attributes: ['make', 'model', 'license_plate', 'vehicle_type']
+        }]
+      }
+    ],
   });
   return orders;
 };
