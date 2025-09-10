@@ -18,6 +18,7 @@ const createOrder = async (customerId, { items, address, payment_method }) => {
   // Create order
   const order = await Order.create({
     customer_id: customerId,
+    vendor_id: vendorId, // ✅ Add vendor_id to the order
     total_price: total,
     address,
     payment_method,

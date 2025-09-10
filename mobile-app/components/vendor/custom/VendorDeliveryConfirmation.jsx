@@ -113,29 +113,29 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
         
         {/* Step 1: Arrived */}
         <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">1</Text>
           </View>
-          <Text className={`text-sm ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+          <Text className={`text-sm ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
             Deliveryman Arrived
           </Text>
         </View>
 
         {/* Step 2: Order Handed Over */}
         <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">2</Text>
           </View>
-          <Text className={`text-sm ${currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+          <Text className={`text-sm ${currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
             Order Handed Over
           </Text>
         </View>
          {/* Step 3: Order Received */}
          <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_received' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">3</Text>
           </View>
-          <Text className={`text-sm ${currentStatus === 'order_received' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+          <Text className={`text-sm ${currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
             Order Received to deliveryman
           </Text>
         </View>

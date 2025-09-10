@@ -216,8 +216,10 @@ class SocketManager {
   // Delivery confirmation methods
   notifyDeliveryStatusUpdate(orderId, vendorId, deliverymanId, status, orderDetails) {
     // Notify vendor about delivery status update
-    const vendorSocket = this.vendors[vendorId]?.socketId;
-    if (vendorSocket) {
+  //  const vendorSocket = this.vendors[vendorId]?.socketId;
+  //  console.log('Vendor socket found:', vendorSocket);
+  //  console.log(' vendor socket isssss:'  + vendorSocket);
+    if (vendorSocket) {   
       this.io.to(vendorSocket).emit('deliveryStatusUpdate', {
         orderId,
         status,

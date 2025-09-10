@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      vendor_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
 
       deliveryman_id: {
         type: DataTypes.INTEGER,

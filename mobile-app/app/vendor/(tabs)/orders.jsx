@@ -127,7 +127,8 @@ export default function VendorOrdersPage() {
 
     // Listen for delivery status updates
     socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
-      console.log('Delivery status update received:', orderId, status);
+      console.log('Delivery status update received: vendor', orderId, status);
+    //  alert('Delivery status update received: vendor' + orderId + ' ' + status);
       
       // Update the order in the local state
       setOrders(prev => prev.map(order => 
@@ -144,9 +145,12 @@ export default function VendorOrdersPage() {
         'payment_confirmed': `Order #${orderId} delivery completed successfully!`
       };
       
+
       if (statusMessages[status]) {
         Alert.alert('Delivery Update', statusMessages[status]);
       }
+      fetchOrders();
+      
     });
 
     socketRef.current.on('disconnect', () => {

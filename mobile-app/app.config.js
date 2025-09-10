@@ -17,12 +17,19 @@ export default   {
       "supportsTablet": true
     },
     "android": {
+
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+            "googleMaps": {
+              "apiKey": process.env.GOOGLE_MAPS_API_KEY
+            }
+          }
     },
+    
     "web": {
       "bundler": "metro",
       "output": "static",

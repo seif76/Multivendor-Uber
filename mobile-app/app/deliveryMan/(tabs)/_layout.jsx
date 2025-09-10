@@ -1,11 +1,12 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { Slot, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import DeliverymanSideNav from '../../../components/deliveryman/navigation/sideNav';
 import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/topNav';
 import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
@@ -15,6 +16,7 @@ export default function DeliverymanLayout() {
   useEffect(() => {
     const current = segments[segments.length - 1];
     setShowTabs(current !== 'login' && current !== 'register'); // hide tabs on login/register
+  //  alert(platform?.OS);
   }, [segments]);
 
   if (!showTabs) {
@@ -23,7 +25,13 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
-      <View className="flex-1 bg-white">
+          
+
+      <View className={`flex-1 bg-white  `}>      
+        <SafeAreaView 
+        edges={Platform.OS === 'android' ? ['top'] : []}
+        className={`flex-1 bg-white `}>
+
           {/* Deliveryman Top Navbar */}
       <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
 
@@ -55,7 +63,7 @@ export default function DeliverymanLayout() {
             name="wallet"
             options={{
               title: 'Wallet',
-              tabBarIcon: ({ color }) => <FontAwesome name="wallet" size={22} color={color} />,
+              tabBarIcon: ({ color }) => <FontAwesome name="dollar" size={22} color={color} />,
             }}
           />
           <Tabs.Screen
@@ -69,7 +77,10 @@ export default function DeliverymanLayout() {
           {/* Hidden screens */}
           <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tabs>
+        </SafeAreaView>
+      
       </View>
+
     </DeliverymanAuthProvider>
   );
 }

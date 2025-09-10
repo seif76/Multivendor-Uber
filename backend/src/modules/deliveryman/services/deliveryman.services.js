@@ -192,10 +192,10 @@ const deleteDeliveryman = async (deliveryman_id) => {
 // Accept delivery order
 const acceptDeliveryOrder = async (orderId, deliverymanId) => {
   try {
-    // Find the order with customer details
+    // Find the order with customer and vendor details
     const order = await Order.findByPk(orderId, {
       include: [
-        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] }
+        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
       ]
     });
     
@@ -207,23 +207,10 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
       throw new Error('Order is not ready for delivery');
     }
     
-    // Get vendor information through order items
-    const { OrderItem, Product } = require('../../../app/models');
-    const orderItems = await OrderItem.findAll({
-      where: { order_id: orderId },
-        include: [{
-          model: Product,
-          as: 'product',
-          include: [{
-            model: VendorInfo,
-            as: 'vendor_info',
-            attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
-          }]
-        }]
+    const vendor = await VendorInfo.findOne({ 
+      where: { vendor_id: order.vendor_id },
+      attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
     });
-    
-    // Get the vendor from the first order item (assuming single vendor orders)
-    const vendor = orderItems.length > 0 ? orderItems[0].product.vendor_info : null;
     
     // Get deliveryman details
     const deliveryman = await User.findByPk(deliverymanId, {
@@ -331,21 +318,10 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
   }
 
   // Get vendor information for socket notification
-  const { OrderItem, Product } = require('../../../app/models');
-  const orderItems = await OrderItem.findAll({
-    where: { order_id: orderId },
-    include: [{
-      model: Product,
-      as: 'product',
-      include: [{
-        model: VendorInfo,
-        as: 'vendor_info',
-        attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
-      }]
-    }]
-  });
+  const {VendorInfo } = require('../../../app/models');
+ 
   
-  const vendor = orderItems.length > 0 ? orderItems[0].product.vendor_info : null;
+  const vendor = await VendorInfo.findOne({ where: { vendor_id: order.vendor_id }, attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] });
 
   // Notify via socket
   const socketManager = require('../../../config/socket/socketManager');
@@ -360,7 +336,7 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     vendor: vendor,
     deliveryman: order.deliveryman
   };
-
+console.log('vendorrr ifffffffffffff    :'  + vendor);
   if (vendor) {
     socketManager.notifyDeliveryStatusUpdate(orderId, vendor.vendor_id, deliverymanId, newStatus, orderDetails);
   }

@@ -32,11 +32,12 @@
 
 
 import { useContext } from 'react';
-import { Text, View, ScrollView } from 'react-native';
+import { Text, View, ScrollView, Platform } from 'react-native';
 import RideRequestPopup from '../../../components/deliveryman/custom/RideRequestPopup';
 import DeliverymanMap from '../../../components/deliveryman/custom/maps';
 import DeliveryOrderManager from '../../../components/deliveryman/custom/DeliveryOrderManager';
 import { DeliverymanAuthContext } from '../../../context/DeliverymanAuthContext';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CaptainHome() {
   // const checkToken = async () => {
@@ -67,14 +68,11 @@ export default function CaptainHome() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      
-        
+     
       <DeliverymanMap />
         {/* Real-time Delivery Orders */}
         <DeliveryOrderManager />
-          
-         
-      
+
       
     </View>
   );

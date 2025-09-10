@@ -61,6 +61,7 @@ export default function DeliveryOrderManager() {
 
     socketRef.current.on('newDeliveryOrder', ({ orderId, deliverymanId: orderDeliverymanId, customerId, status, orderDetails }) => {
       console.log('New delivery order:', orderId, status);
+   //   alert('Order details:' + JSON.stringify(orderDetails));
       
       // Add to available orders
       setAvailableOrders(prevOrders => {
@@ -88,9 +89,11 @@ export default function DeliveryOrderManager() {
       console.log('Delivery status update received:', orderId, status);
       console.log('Current accepted orders before update:', acceptedOrders);
       // Update accepted orders with new delivery status
+      //alert('Order details:' + JSON.stringify(orderDetails));
       setAcceptedOrders(prev => {
         const updated = prev.map(order => {
           // Handle both string and number comparison
+
           if (order.id == orderId || order.id === parseInt(orderId)) {
             console.log('Updating order:', order.id, 'with status:', status);
             return { ...order, delivery_status: status };
@@ -143,6 +146,7 @@ export default function DeliveryOrderManager() {
       if (response.data.success) {
         // Use the order data from the API response (includes payment_method)
         const acceptedOrderData = response.data.order;
+        console.log('Accepted order data from API:', JSON.stringify(acceptedOrderData, null, 2));
         
         // Remove from available orders and add to accepted orders
         setAvailableOrders(prevOrders => 
@@ -244,9 +248,9 @@ export default function DeliveryOrderManager() {
                     {/* Vendor Details */}
                     <View className="mt-2 p-2 bg-green-50 rounded-lg">
                       <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
-                      <Text className="text-xs text-green-700">Name: {order.vendor?.name}</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor?.shop_name || order.vendor?.name}</Text>
                       <Text className="text-xs text-green-700">Phone: {order.vendor?.phone_number}</Text>
-                      <Text className="text-xs text-green-700">Address: {order.vendor?.address}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor?.shop_location || order.vendor?.address}</Text>
                     </View>
                   </View>
                 </View>
@@ -267,6 +271,7 @@ export default function DeliveryOrderManager() {
                 </View>
               </View>
             ))}
+            
             </ScrollView>
           </View>
         )}
@@ -290,7 +295,9 @@ export default function DeliveryOrderManager() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 16 }}
           >
-            {acceptedOrders.map((order) => (
+            {acceptedOrders.map((order) => {
+              console.log('Rendering accepted order:', order.id, 'vendor:', order.vendor, 'customer:', order.customer);
+              return (
               <View key={order.id} className="w-80 my-4 mr-4 bg-green-50 rounded-xl shadow-sm border border-green-200 p-4">
                 <View className="flex-row justify-between items-start mb-3">
                   <View className="flex-1">
@@ -307,16 +314,16 @@ export default function DeliveryOrderManager() {
                       <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
                       <Text className="text-xs text-blue-700">Name: {order.customer?.name}</Text>
                       <Text className="text-xs text-blue-700">Phone: {order.customer?.phone_number}</Text>
-                      <Text className="text-xs text-blue-700">Address: {order.customer?.address}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order?.address || order.customer?.address}</Text>
                     </View>
                    
                     
                     {/* Vendor Details */}
                     <View className="mt-2 p-2 bg-green-50 rounded-lg">
                       <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
-                      <Text className="text-xs text-green-700">Name: {order.vendor?.name}</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor?.shop_name || order.vendor?.name}</Text>
                       <Text className="text-xs text-green-700">Phone: {order.vendor?.phone_number}</Text>
-                      <Text className="text-xs text-green-700">Address: {order.vendor?.address}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor?.shop_location || order.vendor?.address}</Text>
                     </View>
 
 
@@ -339,7 +346,8 @@ export default function DeliveryOrderManager() {
 
                 
               </View>
-            ))}
+              );
+            })}
           </ScrollView>
         </View>
       )}
