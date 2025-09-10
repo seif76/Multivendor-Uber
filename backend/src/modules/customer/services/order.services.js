@@ -2,7 +2,7 @@ const { Order, OrderItem, Product, User, DeliverymanVehicle, VendorInfo } = requ
 const { OrderSocket } = require('../../../config/socket');
 
 // Create a new order (checkout)
-const createOrder = async (customerId, { items, address }) => {
+const createOrder = async (customerId, { items, address, payment_method }) => {
   // Calculate total price and validate single vendor
   let total = 0;
   const productMap = {};
@@ -20,6 +20,7 @@ const createOrder = async (customerId, { items, address }) => {
     customer_id: customerId,
     total_price: total,
     address,
+    payment_method,
     status: 'pending',
   });
   // Create order items

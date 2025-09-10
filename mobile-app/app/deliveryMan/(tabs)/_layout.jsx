@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import DeliverymanSideNav from '../../../components/deliveryman/navigation/sideNav';
 import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/topNav';
 import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
+import { WalletProvider } from '../../../context/customer/WalletContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 
 export default function DeliverymanLayout() {
@@ -23,19 +24,20 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
-      <View className="flex-1 bg-white">
-          {/* Deliveryman Top Navbar */}
-      <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
+      <WalletProvider>
+        <View className="flex-1 bg-white">
+            {/* Deliveryman Top Navbar */}
+        <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
 
-      {/* Sidebar */}
-      <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
-      <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
-        <Tabs
-          screenOptions={{
-            tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
-            headerShown: false,
-          }}
-        >
+        {/* Sidebar */}
+        <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+        <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
+          <Tabs
+            screenOptions={{
+              tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
+              headerShown: false,
+            }}
+          >
           <Tabs.Screen
             name="home"
             options={{
@@ -66,10 +68,11 @@ export default function DeliverymanLayout() {
             }}
           />
           
-          {/* Hidden screens */}
-          <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
-        </Tabs>
-      </View>
+            {/* Hidden screens */}
+            <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+          </Tabs>
+        </View>
+      </WalletProvider>
     </DeliverymanAuthProvider>
   );
 }

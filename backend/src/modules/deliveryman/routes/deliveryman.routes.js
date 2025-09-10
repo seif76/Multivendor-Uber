@@ -10,6 +10,7 @@ const {
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
   acceptDeliveryOrderController,
+  updateDeliveryStatusController
 } = require('../controllers/deliveryman.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
 const upload = require('../../../middlewares/uploadLocal');
@@ -462,5 +463,67 @@ router.delete('/delete/:deliveryman_id', deleteDeliverymanController);
  *         description: Internal server error
  */
 router.put('/orders/:orderId/accept', authenticate, acceptDeliveryOrderController);
+
+/**
+ * @swagger
+ * /api/deliveryman/orders/{orderId}/delivery-status:
+ *   put:
+ *     summary: Update delivery status
+ *     tags: [Deliverymen]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Order ID to update delivery status
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [deliveryman_arrived, order_handed_over, payment_received, payment_confirmed]
+ *                 example: "deliveryman_arrived"
+ *                 description: New delivery status
+ *     responses:
+ *       200:
+ *         description: Delivery status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Delivery status updated successfully"
+ *                 order:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *                       example: "shipped"
+ *                     delivery_status:
+ *                       type: string
+ *                       example: "deliveryman_arrived"
+ *       400:
+ *         description: Invalid status or unauthorized
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/orders/:orderId/delivery-status', authenticate, updateDeliveryStatusController);
 
 module.exports = router;

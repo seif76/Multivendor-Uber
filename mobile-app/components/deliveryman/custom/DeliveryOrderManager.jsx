@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import DeliveryConfirmation from './DeliveryConfirmation';
 
 export default function DeliveryOrderManager() {
   const [availableOrders, setAvailableOrders] = useState([]);
@@ -80,6 +81,30 @@ export default function DeliveryOrderManager() {
           { text: 'OK', style: 'default' }
         ]
       );
+    });
+
+    // Listen for delivery status updates
+    socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+      console.log('Delivery status update received:', orderId, status);
+      
+      // Update accepted orders with new delivery status
+      setAcceptedOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, delivery_status: status }
+          : order
+      ));
+      
+      // Show notification for important status changes
+      const statusMessages = {
+        'deliveryman_arrived': `You have arrived for order #${orderId}`,
+        'order_handed_over': `Order #${orderId} has been handed over to you`,
+        'payment_received': `Payment received for order #${orderId}`,
+        'payment_confirmed': `Order #${orderId} delivery completed successfully!`
+      };
+      
+      if (statusMessages[status]) {
+        Alert.alert('Status Update', statusMessages[status]);
+      }
     });
 
     socketRef.current.on('disconnect', () => {
@@ -200,7 +225,7 @@ export default function DeliveryOrderManager() {
                       <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
                       <Text className="text-xs text-blue-700">Name: {order.customer.name}</Text>
                       <Text className="text-xs text-blue-700">Phone: {order.customer.phone_number}</Text>
-                      <Text className="text-xs text-blue-700">Address: {order.customer.address}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order?.address}</Text>
                     </View>
                     
                     {/* Vendor Details */}
@@ -284,11 +309,14 @@ export default function DeliveryOrderManager() {
                   </View>
                 </View>
 
-                <View className="bg-green-100 p-3 rounded-lg">
-                  <Text className="text-green-800 text-center font-semibold">
-                    Order is being delivered
-                  </Text>
-                </View>
+                <DeliveryConfirmation 
+                  order={order} 
+                  onStatusUpdate={(newStatus) => {
+                    setAcceptedOrders(prev => prev.map(o => 
+                      o.id === order.id ? { ...o, delivery_status: newStatus } : o
+                    ));
+                  }}
+                />
               </View>
             ))}
           </ScrollView>

@@ -239,17 +239,17 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
       throw new Error('Deliveryman not found');
     }
     
-    // Update order with deliveryman assignment and status
+    // Update order with deliveryman assignment (keep status as 'ready' for delivery confirmation)
     order.deliveryman_id = deliverymanId;
-    order.status = 'shipped'; // Order is now being delivered
+    // Order status remains 'ready' until delivery confirmation is complete
     await order.save();
     
     console.log(`Order ${orderId} accepted by deliveryman ${deliverymanId}`);
     
-    // Notify customer that order is being delivered with deliveryman details
+    // Notify customer that deliveryman has been assigned
     if (order.customer) {
-      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
-      console.log(`Customer ${order.customer.id} notified that order ${orderId} is being delivered`);
+      OrderSocket.notifyOrderStatusChange(orderId, 'ready', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that deliveryman has been assigned to order ${orderId}`);
     }
     
     // Notify vendor that order has been accepted with deliveryman details
@@ -270,6 +270,84 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
   }
 };
 
+// Update delivery status
+const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
+  const { Order } = require('../../../app/models');
+  
+  const order = await Order.findByPk(orderId, {
+    include: [
+      { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+      { model: User, as: 'deliveryman', attributes: ['id', 'name', 'phone_number'] }
+    ]
+  });
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  if (order.deliveryman_id !== deliverymanId) {
+    throw new Error('Unauthorized: This order is not assigned to you');
+  }
+
+  if (order.status !== 'ready') {
+    throw new Error('Order must be in ready status to update delivery status');
+  }
+
+  // Validate status progression
+  const validStatuses = ['deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_received', 'payment_confirmed'];
+  const currentIndex = validStatuses.indexOf(order.delivery_status);
+  const newIndex = validStatuses.indexOf(newStatus);
+
+  if (newIndex <= currentIndex) {
+    throw new Error('Invalid status progression');
+  }
+
+  // Update delivery status
+  await order.update({ delivery_status: newStatus });
+
+  // If payment is confirmed, mark order as delivered
+  if (newStatus === 'payment_confirmed') {
+    await order.update({ status: 'delivered' });
+  }
+
+  // Get vendor information for socket notification
+  const { OrderItem, Product } = require('../../../app/models');
+  const orderItems = await OrderItem.findAll({
+    where: { order_id: orderId },
+    include: [{
+      model: Product,
+      as: 'product',
+      include: [{
+        model: VendorInfo,
+        as: 'vendor_info',
+        attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+      }]
+    }]
+  });
+  
+  const vendor = orderItems.length > 0 ? orderItems[0].product.vendor_info : null;
+
+  // Notify via socket
+  const socketManager = require('../../../config/socket/socketManager');
+  const orderDetails = {
+    id: order.id,
+    total_price: order.total_price,
+    address: order.address,
+    payment_method: order.payment_method,
+    status: order.status,
+    delivery_status: order.delivery_status,
+    customer: order.customer,
+    vendor: vendor,
+    deliveryman: order.deliveryman
+  };
+
+  if (vendor) {
+    socketManager.notifyDeliveryStatusUpdate(orderId, vendor.vendor_id, deliverymanId, newStatus, orderDetails);
+  }
+
+  return order;
+};
+
 module.exports = {
   registerDeliveryman,
   registerCustomerAsDeliveryman,
@@ -281,4 +359,5 @@ module.exports = {
   getDeliverymanStatusCounts,
   deleteDeliveryman,
   acceptDeliveryOrder,
+  updateDeliveryStatus,
 };

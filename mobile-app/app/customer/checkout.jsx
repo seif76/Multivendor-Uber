@@ -293,7 +293,8 @@ export default function CheckoutScreen() {
             product_id: item?.id,
             quantity: item?.quantity || 1
           })),
-          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`
+          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`,
+          payment_method: selectedPaymentMethod
         };
 
         const orderResponse = await axios.post(

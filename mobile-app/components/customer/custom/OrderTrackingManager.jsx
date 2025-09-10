@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
@@ -131,6 +131,30 @@ export default function OrderTrackingManager() {
         if (newOrderCustomerId === customerId) {
           // Fetch the new order details
           fetchNewOrderDetails(orderId);
+        }
+      });
+
+      // Listen for delivery status updates
+      socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+        console.log('Delivery status update received:', orderId, status);
+        
+        // Update the order in the local state
+        setActiveOrders(prev => prev.map(order => 
+          order.id === orderId 
+            ? { ...order, delivery_status: status }
+            : order
+        ));
+        
+        // Show notification for important delivery status changes
+        const statusMessages = {
+          'deliveryman_arrived': `Deliveryman has arrived at the vendor for order #${orderId}`,
+          'order_handed_over': `Order #${orderId} has been picked up and is on the way`,
+          'payment_received': `Payment received for order #${orderId}`,
+          'payment_confirmed': `Order #${orderId} has been delivered successfully!`
+        };
+        
+        if (statusMessages[status]) {
+          Alert.alert('Delivery Update', statusMessages[status]);
         }
       });
 

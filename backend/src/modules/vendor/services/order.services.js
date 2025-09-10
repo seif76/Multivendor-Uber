@@ -171,8 +171,95 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
   };
 };
 
+// Update delivery status (vendor actions)
+const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
+  const { Order, User, OrderItem, Product, VendorInfo } = require('../../../app/models');
+  
+  const order = await Order.findByPk(orderId, {
+    include: [
+      { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+      { model: User, as: 'deliveryman', attributes: ['id', 'name', 'phone_number'] }
+    ]
+  });
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  if (order.deliveryman_id === null) {
+    throw new Error('No deliveryman assigned to this order');
+  }
+
+  // Validate status progression for vendor actions
+  const validVendorStatuses = ['order_handed_over', 'payment_confirmed'];
+  if (!validVendorStatuses.includes(newStatus)) {
+    throw new Error('Invalid status for vendor action');
+  }
+
+  // Validate current status allows this action
+  if (newStatus === 'order_handed_over' && order.delivery_status !== 'deliveryman_arrived') {
+    throw new Error('Deliveryman must arrive first before handing over order');
+  }
+
+  if (newStatus === 'payment_confirmed' && order.delivery_status !== 'payment_received') {
+    throw new Error('Payment must be received first before confirming');
+  }
+
+  // Ensure order is in ready status
+  if (order.status !== 'ready') {
+    throw new Error('Order must be in ready status for delivery confirmation');
+  }
+
+  // Update delivery status
+  await order.update({ delivery_status: newStatus });
+
+  // If payment is confirmed, mark order as shipped and notify customer
+  if (newStatus === 'payment_confirmed') {
+    await order.update({ status: 'shipped' });
+    
+    // Notify customer that order is on the way
+    const OrderSocket = require('../../../config/socket/orderSocket');
+    if (order.customer) {
+      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that order ${orderId} is on the way`);
+    }
+  }
+
+  // Get vendor information
+  const vendor = await VendorInfo.findOne({ 
+    where: { vendor_id: vendorId },
+    attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+  });
+
+  if (!vendor) {
+    throw new Error('Vendor not found');
+  }
+
+  // Notify via socket
+  const socketManager = require('../../../config/socket/socketManager');
+  const orderDetails = {
+    id: order.id,
+    total_price: order.total_price,
+    address: order.address,
+    payment_method: order.payment_method,
+    status: order.status,
+    delivery_status: order.delivery_status,
+    customer: order.customer,
+    vendor: vendor,
+    deliveryman: order.deliveryman
+  };
+
+  // Notify all parties about status update
+  if (order.deliveryman) {
+    socketManager.notifyDeliveryStatusUpdate(orderId, vendorId, order.deliveryman.id, newStatus, orderDetails);
+  }
+
+  return order;
+};
+
 module.exports = {
   getVendorOrders,
   getVendorOrderDetails,
   updateOrderStatus,
+  updateDeliveryStatus,
 }; 
