@@ -10,6 +10,9 @@ const {
   deleteDeliveryman,
   acceptDeliveryOrder,
   updateDeliveryStatus,
+  getDeliverymanOrders,
+  getDeliverymanOrderDetails,
+
 } = require('../services/deliveryman.services');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
@@ -270,6 +273,48 @@ const updateDeliveryStatusController = async (req, res) => {
   }
 };
 
+// Get all orders assigned to deliveryman
+const getDeliverymanOrdersController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const orders = await getDeliverymanOrders(deliverymanId);
+    
+    res.status(200).json({
+      success: true,
+      orders: orders,
+    });
+  } catch (error) {
+    console.error('Error fetching deliveryman orders:', error);
+    res.status(500).json({ 
+      error: error.message,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
+// Get single order details for deliveryman
+const getDeliverymanOrderDetailsController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const orderId = req.params.orderId;
+
+    const {order, vendor} = await getDeliverymanOrderDetails(orderId, deliverymanId);
+    
+    res.status(200).json({
+      success: true,
+      order: order,
+      vendor: vendor
+    });
+  } catch (error) {
+    console.error('Error fetching deliveryman order details:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   registerDeliverymanController,
   registerCustomerAsDeliverymanController,
@@ -282,5 +327,7 @@ module.exports = {
   deleteDeliverymanController,
   acceptDeliveryOrderController,
   updateDeliveryStatusController,
+  getDeliverymanOrdersController,
+  getDeliverymanOrderDetailsController,
 };
   

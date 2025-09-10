@@ -10,7 +10,9 @@ const {
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
   acceptDeliveryOrderController,
-  updateDeliveryStatusController
+  updateDeliveryStatusController,
+  getDeliverymanOrdersController,
+  getDeliverymanOrderDetailsController
 } = require('../controllers/deliveryman.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
 const upload = require('../../../middlewares/uploadLocal');
@@ -525,5 +527,66 @@ router.put('/orders/:orderId/accept', authenticate, acceptDeliveryOrderControlle
  *         description: Internal server error
  */
 router.put('/orders/:orderId/delivery-status', authenticate, updateDeliveryStatusController);
+
+/**
+ * @swagger
+ * /api/deliveryman/orders:
+ *   get:
+ *     summary: Get all orders assigned to deliveryman
+ *     tags: [Deliverymen]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Orders retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 orders:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/orders', authenticate, getDeliverymanOrdersController);
+
+/**
+ * @swagger
+ * /api/deliveryman/orders/{orderId}:
+ *   get:
+ *     summary: Get single order details for deliveryman
+ *     tags: [Deliverymen]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Order ID
+ *     responses:
+ *       200:
+ *         description: Order details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 order:
+ *                   $ref: '#/components/schemas/Order'
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/orders/:orderId', authenticate, getDeliverymanOrderDetailsController);
 
 module.exports = router;

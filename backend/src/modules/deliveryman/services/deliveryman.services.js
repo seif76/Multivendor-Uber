@@ -1,4 +1,4 @@
-const { User, DeliverymanVehicle, Order, VendorInfo } = require('../../../app/models');
+const { User, DeliverymanVehicle, Order, OrderItem, Product, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
@@ -336,12 +336,97 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     vendor: vendor,
     deliveryman: order.deliveryman
   };
-console.log('vendorrr ifffffffffffff    :'  + vendor);
+//console.log('vendorrr ifffffffffffff    :'  + vendor);
   if (vendor) {
     socketManager.notifyDeliveryStatusUpdate(orderId, vendor.vendor_id, deliverymanId, newStatus, orderDetails);
   }
 
   return order;
+};
+
+// Get all orders assigned to a deliveryman
+const getDeliverymanOrders = async (deliverymanId) => {
+  try {
+    // const orders = await Order.findAll({
+    //   where: { 
+    //     deliveryman_id: deliverymanId,
+    //    },
+    //   include: [
+    //     { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+    //     { model: VendorInfo, as: 'vendor', attributes: [ 'id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] }
+    //   ],
+    //   order: [['createdAt', 'DESC']]
+    // });
+    // for (const order of orders) {
+    //   const vendor = await VendorInfo.findOne({ where: { vendor_id: order.vendor_id }, attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] });
+    //   console.log('vendorrrrr found in deliveryman orders   :'  + JSON.stringify(vendor));
+    //   order.vendor = vendor;
+    //   console.log('orderrrrr found in deliveryman orders   :'  + JSON.stringify(order));
+    // }
+
+    const orders = await Order.findAll({
+      where: { deliveryman_id: deliverymanId },
+      include: [
+        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+        { model: VendorInfo, as: 'vendor', attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    
+    const plainOrders = [];
+    
+    for (const order of orders) {
+      const o = order.toJSON(); // convert to plain object
+      const vendor = await VendorInfo.findOne({
+        where: { vendor_id: order.vendor_id },
+        attributes: [ 'shop_name', 'phone_number', 'shop_location']
+      });
+      o.vendor = vendor; // now it sticks
+      plainOrders.push(o);
+    }
+    
+    return plainOrders;
+
+  
+    return orders;
+  } catch (error) {
+    console.error('Error fetching deliveryman orders:', error);
+    throw error;
+  }
+};
+
+// Get single order details for deliveryman
+const getDeliverymanOrderDetails = async (orderId, deliverymanId) => {
+  try {
+    const order = await Order.findOne({
+      where: { 
+        id: orderId,
+        deliveryman_id: deliverymanId,
+      },
+      include: [
+        { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+        {
+          model: OrderItem,
+          as: 'items',
+          include: [{
+            model: Product,
+            as: 'product',
+            attributes: ['id', 'name', 'price', 'image']
+          }]
+        }
+      ]
+    });
+    const vendor = await VendorInfo.findOne({ where: { vendor_id: order.vendor_id }, attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] });
+    console.log('orderrrrr ifffffffffffff    :'  + JSON.stringify(order));
+    if (!order) {
+      throw new Error('Order not found or not assigned to this deliveryman');
+    }
+    
+    return {order, vendor};
+  } catch (error) {
+    console.error('Error fetching deliveryman order details:', error);
+    throw error;
+  }
 };
 
 module.exports = {
@@ -356,4 +441,6 @@ module.exports = {
   deleteDeliveryman,
   acceptDeliveryOrder,
   updateDeliveryStatus,
+  getDeliverymanOrders,
+  getDeliverymanOrderDetails,
 };

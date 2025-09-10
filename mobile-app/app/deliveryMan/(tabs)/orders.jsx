@@ -1,209 +1,272 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Pressable, ActivityIndicator, Alert } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
-import { FontAwesome } from '@expo/vector-icons';
+import { io } from 'socket.io-client';
+import { DeliverymanAuthContext } from '../../../context/DeliverymanAuthContext';
 
 export default function DeliverymanOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [acceptingId, setAcceptingId] = useState(null);
+  const [deliverymanId, setDeliverymanId] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const socketRef = useRef(null);
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
-
+ // const [vendor, setVendor] = useState(null);
   const fetchOrders = async () => {
     setLoading(true);
-    setError(null);
+    
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
       
-      // This would be the actual endpoint for deliveryman orders
-      // const res = await axios.get(`${BACKEND_URL}/api/deliveryman/orders`, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
+      const res = await axios.get(`${BACKEND_URL}/api/deliveryman/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    //  alert('Orders fetched: ' + JSON.stringify(res.data));
       
-      // Mock data for now
-      const mockOrders = [
-        {
-          id: 1,
-          order_number: 'ORD-001',
-          customer_name: 'Ahmed Mohamed',
-          customer_phone: '01012345678',
-          pickup_address: '123 Main St, Cairo',
-          delivery_address: '456 Oak Ave, Giza',
-          total_amount: 45.50,
-          delivery_fee: 15.00,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          items: [
-            { name: 'Pizza Margherita', quantity: 2, price: 15.00 },
-            { name: 'Coca Cola', quantity: 1, price: 3.50 }
-          ]
-        },
-        {
-          id: 2,
-          order_number: 'ORD-002',
-          customer_name: 'Sara Ali',
-          customer_phone: '01087654321',
-          pickup_address: '789 Pine St, Alexandria',
-          delivery_address: '321 Elm St, Alexandria',
-          total_amount: 32.00,
-          delivery_fee: 12.00,
-          status: 'accepted',
-          created_at: new Date(Date.now() - 3600000).toISOString(),
-          items: [
-            { name: 'Burger Deluxe', quantity: 1, price: 20.00 }
-          ]
-        }
-      ];
-      
-      setOrders(mockOrders);
+      setOrders(res.data.orders || []);
+     // setVendor(res.data.vendor || null);
+      setLoading(false);
+      setError(null);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to fetch orders');
+      console.error('Error fetching orders:', err);
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchOrders();
+    setRefreshing(false);
   };
 
   useEffect(() => {
-    fetchOrders();
+    initializeDeliverymanSocket();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
 
-  const handleAcceptOrder = async (orderId) => {
-    setAcceptingId(orderId);
+  const initializeDeliverymanSocket = async () => {
     try {
+      // Get deliveryman token and ID
       const token = await AsyncStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
+      if (!token) return;
+
+      // Get deliveryman profile to get ID
+      const profileResponse = await axios.get(`${BACKEND_URL}/api/deliveryman/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      // This would be the actual endpoint for accepting orders
-      // await axios.put(
-      //   `${BACKEND_URL}/api/deliveryman/orders/${orderId}/accept`,
-      //   {},
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-      
-      Alert.alert('Order Accepted', 'You have successfully accepted the delivery order.');
-      setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'accepted' } : o));
-    } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Failed to accept order';
-      Alert.alert('Accept Failed', msg);
-    } finally {
-      setAcceptingId(null);
+      const deliverymanId = profileResponse.data.id;
+      setDeliverymanId(deliverymanId);
+
+      // Initialize socket connection
+      initializeSocket(deliverymanId, token);
+
+      // Fetch initial orders
+      await fetchOrders();
+
+    } catch (error) {
+      console.error('Error initializing deliveryman socket:', error);
+      // Still fetch orders even if socket fails
+      await fetchOrders();
     }
+  };
+
+  const initializeSocket = (deliverymanId, token) => {
+    socketRef.current = io(BACKEND_URL, {
+      auth: {
+        token: token
+      }
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Deliveryman connected to socket for orders');
+      setSocketConnected(true);
+      // Join deliveryman room for order updates
+      socketRef.current.emit('deliverymanJoin', { deliverymanId });
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Deliveryman disconnected from socket');
+      setSocketConnected(false);
+    });
+
+    // Listen for new delivery orders
+    socketRef.current.on('newDeliveryOrder', ({ orderId, deliverymanId: orderDeliverymanId, customerId, status, orderDetails }) => {
+      console.log('New delivery order:', orderId, status);
+      
+      // Add to orders list
+      setOrders(prevOrders => {
+        // Check if order already exists
+        const exists = prevOrders.some(order => order.id === orderId);
+        if (!exists) {
+          return [orderDetails, ...prevOrders];
+        }
+        return prevOrders;
+      });
+    });
+
+    // Listen for delivery status updates
+    socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+      console.log('Delivery status update received:', orderId, status);
+      
+      // Update the order in the local state
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, delivery_status: status }
+          : order
+      ));
+    });
+
+    socketRef.current.on('error', (error) => {
+      console.error('Deliveryman socket error:', error);
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Deliveryman socket connection error:', error);
+    });
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'accepted': return 'text-blue-600 bg-blue-100';
-      case 'picked_up': return 'text-purple-600 bg-purple-100';
-      case 'delivered': return 'text-green-600 bg-green-100';
-      case 'cancelled': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'pending': return 'bg-yellow-500';
+      case 'confirmed': return 'bg-blue-500';
+      case 'preparing': return 'bg-orange-500';
+      case 'ready': return 'bg-green-500';
+      case 'shipped': return 'bg-purple-500';
+      case 'delivered': return 'bg-green-600';
+      case 'cancelled': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const renderOrder = ({ item }) => (
-    <Pressable
-      className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100"
-      onPress={() => router.push(`/deliveryMan/orders/${item.id}`)}
-    >
-      <View className="flex-row justify-between mb-3">
-        <Text className="text-lg font-semibold text-gray-800">{item.order_number}</Text>
-        <View className={`px-3 py-1 rounded-full ${getStatusColor(item.status)}`}>
-          <Text className="text-xs font-semibold capitalize">{item.status.replace('_', ' ')}</Text>
-        </View>
-      </View>
-      
-      <View className="mb-3">
-        <Text className="text-sm text-gray-600 mb-1">Customer: {item.customer_name}</Text>
-        <Text className="text-sm text-gray-600 mb-1">Phone: {item.customer_phone}</Text>
-        <Text className="text-sm text-gray-600 mb-1">Pickup: {item.pickup_address}</Text>
-        <Text className="text-sm text-gray-600">Delivery: {item.delivery_address}</Text>
-      </View>
+  const getDeliveryStatusColor = (status) => {
+    switch (status) {
+      case 'none': return 'bg-gray-500';
+      case 'deliveryman_arrived': return 'bg-blue-500';
+      case 'order_handed_over': return 'bg-orange-500';
+      case 'order_received': return 'bg-green-500';
+      case 'payment_made': return 'bg-purple-500';
+      case 'payment_confirmed': return 'bg-green-600';
+      default: return 'bg-gray-500';
+    }
+  };
 
-      <View className="flex-row justify-between items-center mb-3">
-        <View>
-          <Text className="text-sm text-gray-600">Total Amount</Text>
-          <Text className="text-lg font-bold text-green-600">${item.total_amount.toFixed(2)}</Text>
-        </View>
-        <View>
-          <Text className="text-sm text-gray-600">Delivery Fee</Text>
-          <Text className="text-lg font-bold text-blue-600">${item.delivery_fee.toFixed(2)}</Text>
-        </View>
-      </View>
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
-      <View className="flex-row justify-between items-center">
-        <Text className="text-xs text-gray-500">
-          {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString()}
-        </Text>
-        
-        {item.status === 'pending' && (
-          <Pressable
-            className="bg-blue-600 px-4 py-2 rounded-xl"
-            onPress={() => handleAcceptOrder(item.id)}
-            disabled={acceptingId === item.id}
-          >
-            {acceptingId === item.id ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Text className="text-white font-bold text-sm">Accept</Text>
-            )}
-          </Pressable>
-        )}
-        
-        {item.status !== 'pending' && (
-          <Pressable
-            className="bg-gray-200 px-4 py-2 rounded-xl"
-            onPress={() => router.push(`/deliveryMan/orders/${item.id}`)}
-          >
-            <Text className="text-gray-700 font-bold text-sm">View Details</Text>
-          </Pressable>
-        )}
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0f9d58" />
+        <Text className="text-gray-600 mt-2">Loading orders...</Text>
       </View>
-    </Pressable>
-  );
+    );
+  }
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 pt-8">
-      <View className="flex-row justify-between items-center mb-6">
-        <Text className="text-2xl font-bold text-blue-600">Delivery Orders</Text>
-        <Pressable onPress={fetchOrders} className="bg-blue-600 px-4 py-2 rounded-xl">
-          <FontAwesome name="refresh" size={16} color="white" />
-        </Pressable>
+    <View className="flex-1 bg-gray-50">
+      {/* Header */}
+      <View className="px-4 py-3 bg-white border-b border-gray-200">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-lg font-bold text-gray-800">My Orders</Text>
+          <View className="flex-row items-center">
+            <View className={`w-2 h-2 rounded-full mr-2 ${socketConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <Text className="text-xs text-gray-600">
+              {socketConnected ? 'Online' : 'Offline'}
+            </Text>
+          </View>
+        </View>
+        <Text className="text-sm text-gray-600">Real-time order updates</Text>
       </View>
-      
-      {loading ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text className="mt-4 text-blue-600 font-semibold">Loading orders...</Text>
+
+      {error && (
+        <View className="mx-4 mt-4 p-3 bg-red-100 border border-red-300 rounded-lg">
+          <Text className="text-red-700 text-sm">{error}</Text>
         </View>
-      ) : error ? (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-red-500 font-semibold mb-2">{error}</Text>
-          <Pressable onPress={fetchOrders} className="bg-blue-600 px-6 py-2 rounded-xl mt-2">
-            <Text className="text-white font-bold">Retry</Text>
-          </Pressable>
-        </View>
-      ) : orders.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <FontAwesome name="truck" size={48} color="#d1d5db" />
-          <Text className="text-gray-400 font-semibold text-lg mt-4">No orders available</Text>
-          <Text className="text-gray-400 text-center mt-2">
-            New delivery orders will appear here when available
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={orders}
-          keyExtractor={item => item.id.toString()}
-          renderItem={renderOrder}
-          showsVerticalScrollIndicator={false}
-        />
       )}
+
+      {/* Orders List */}
+      <ScrollView 
+        className="flex-1"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        contentContainerStyle={{ padding: 16 }}
+      >
+        {orders.length === 0 ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <Text className="text-gray-500 text-lg">No orders assigned</Text>
+            <Text className="text-gray-400 text-sm mt-2">Orders will appear here when assigned to you</Text>
+          </View>
+        ) : (
+          orders?.map((order) => (
+            <TouchableOpacity
+              key={order.id}
+              onPress={() => router.push(`/deliveryMan/orders/${order.id}`)}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4"
+            >
+              <View className="flex-row justify-between items-start mb-3">
+                <View className="flex-1">
+                  <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
+                  <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+                  <Text className="text-xs text-gray-500 mt-1">Created: {formatDate(order.createdAt)}</Text>
+                </View>
+                <View className="flex-row space-x-2">
+                  <View className={`px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                    <Text className="text-white text-xs font-semibold">{order.status?.toUpperCase()}</Text>
+                  </View>
+                  <View className={`px-2 py-1 rounded-full ${getDeliveryStatusColor(order.delivery_status)}`}>
+                    <Text className="text-white text-xs font-semibold">{order.delivery_status?.replace('_', ' ').toUpperCase()}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Customer Details */}
+              <View className="mb-3 p-2 bg-blue-50 rounded-lg">
+                <Text className="text-sm font-semibold text-blue-800">Customer</Text>
+                <Text className="text-xs text-blue-700">Name: {order.customer?.name || 'N/A'}</Text>
+                <Text className="text-xs text-blue-700">Phone: {order.customer?.phone_number || 'N/A'}</Text>
+                <Text className="text-xs text-blue-700">Address: {order?.address || 'N/A'}</Text>
+              </View>
+
+              {/* Vendor Details */}
+              <View className="mb-3 p-2 bg-green-50 rounded-lg">
+                <Text className="text-sm font-semibold text-green-800">Vendor</Text>
+                <Text className="text-xs text-green-700">Name: {order.vendor?.shop_name || 'N/A'}</Text>
+                <Text className="text-xs text-green-700">Phone: {order.vendor?.phone_number || 'N/A'}</Text>
+                <Text className="text-xs text-green-700">Address: {order.vendor?.shop_location || 'N/A'}</Text>
+              </View>
+
+              {/* Payment Method */}
+              <View className="flex-row justify-between items-center">
+                <Text className="text-sm text-gray-600">
+                  Payment: <Text className="font-semibold">{order.payment_method || 'N/A'}</Text>
+                </Text>
+                <Text className="text-xs text-gray-500">Tap to view details</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 }

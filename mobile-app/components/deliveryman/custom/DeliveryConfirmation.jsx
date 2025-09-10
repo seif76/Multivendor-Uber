@@ -14,7 +14,7 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
   useEffect(() => {
     console.log('DeliveryConfirmation useEffect - order.delivery_status changed:', order.delivery_status);
     setCurrentStatus(order.delivery_status || 'none');
-    alert("order are :" + JSON.stringify(order));  
+   // alert("order are :" + JSON.stringify(order));  
   }, [order.delivery_status]);
 
   // Debug logging for component renders
