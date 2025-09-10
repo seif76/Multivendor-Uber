@@ -145,6 +145,7 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
       id: order.id,
       total_price: order.total_price,
       address: order.address,
+      payment_method: order.payment_method,
       customer: {
         id: order.customer.id,
         name: order.customer.name,
@@ -190,8 +191,12 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
     throw new Error('No deliveryman assigned to this order');
   }
 
-  // Validate status progression for vendor actions
-  const validVendorStatuses = ['order_handed_over', 'payment_confirmed'];
+  // Validate status progression for vendor actions based on payment method
+  const isCashPayment = order.payment_method === 'cash';
+  const validVendorStatuses = !isCashPayment 
+    ? ['order_handed_over'] 
+    : ['order_handed_over', 'payment_confirmed'];
+  
   if (!validVendorStatuses.includes(newStatus)) {
     throw new Error('Invalid status for vendor action');
   }
@@ -201,8 +206,13 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
     throw new Error('Deliveryman must arrive first before handing over order');
   }
 
-  if (newStatus === 'payment_confirmed' && order.delivery_status !== 'payment_received') {
-    throw new Error('Payment must be received first before confirming');
+
+  if (newStatus === 'payment_confirmed' && order.delivery_status !== 'payment_made') {
+    throw new Error('Payment must be made first before confirming');
+  }
+
+  if (newStatus === 'payment_confirmed' && !isCashPayment) {
+    throw new Error('Payment confirmation is only valid for cash payments');
   }
 
   // Ensure order is in ready status
@@ -213,8 +223,20 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
   // Update delivery status
   await order.update({ delivery_status: newStatus });
 
-  // If payment is confirmed, mark order as shipped and notify customer
-  if (newStatus === 'payment_confirmed') {
+  // For cash payments, when order is handed over, mark as shipped
+  if (newStatus === 'payment_confirmed' && isCashPayment) {
+    await order.update({ status: 'shipped' });
+    
+    // Notify customer that order is on the way
+    const OrderSocket = require('../../../config/socket/orderSocket');
+    if (order.customer) {
+      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that order ${orderId} is on the way`);
+    }
+  }
+
+  // For wallet payments, when payment is confirmed, mark order as shipped
+  if (newStatus === 'order_received' && !isCashPayment) {
     await order.update({ status: 'shipped' });
     
     // Notify customer that order is on the way

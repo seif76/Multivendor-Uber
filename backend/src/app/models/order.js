@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
       },
 
       delivery_status: {
-        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_received', 'payment_confirmed'),
+        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_made', 'payment_confirmed'),
         defaultValue: 'none',
       },
   

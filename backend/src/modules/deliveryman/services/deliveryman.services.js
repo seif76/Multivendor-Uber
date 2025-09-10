@@ -293,8 +293,12 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     throw new Error('Order must be in ready status to update delivery status');
   }
 
-  // Validate status progression
-  const validStatuses = ['deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_received', 'payment_confirmed'];
+  // Validate status progression based on payment method
+  const isCashPayment = order.payment_method === 'cash';
+  const validStatuses = !isCashPayment 
+    ? ['deliveryman_arrived', 'order_handed_over', 'order_received']
+    : ['deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_made', 'payment_confirmed'];
+  
   const currentIndex = validStatuses.indexOf(order.delivery_status);
   const newIndex = validStatuses.indexOf(newStatus);
 
@@ -302,12 +306,28 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     throw new Error('Invalid status progression');
   }
 
+  // Additional validation for specific statuses
+  if (newStatus === 'order_received' && order.delivery_status !== 'order_handed_over') {
+    throw new Error('Order must be handed over by vendor before deliveryman can receive it');
+  }
+
+  if (newStatus === 'payment_made' && !isCashPayment) {
+    throw new Error('Payment made status is only valid for cash payments');
+  }
+
+  if (newStatus === 'payment_confirmed' && !isCashPayment) {
+    throw new Error('Payment confirmed status is only valid for cash payments');
+  }
+
   // Update delivery status
   await order.update({ delivery_status: newStatus });
 
-  // If payment is confirmed, mark order as delivered
-  if (newStatus === 'payment_confirmed') {
-    await order.update({ status: 'delivered' });
+  // Mark order as shipped when delivery is complete
+  if (newStatus === 'order_received' && !isCashPayment) {
+    await order.update({ status: 'shipped' });
+  }
+  if (newStatus === 'payment_confirmed' && isCashPayment) {
+    await order.update({ status: 'shipped' });
   }
 
   // Get vendor information for socket notification
