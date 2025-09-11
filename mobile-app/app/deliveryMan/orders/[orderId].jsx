@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import DeliveryConfirmation from '../../../components/deliveryman/custom/DeliveryConfirmation';
+import CustomerDeliveryConfirmation from '../../../components/customer/custom/CustomerDeliveryConfirmation';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function DeliverymanOrderDetailsPage() {
   const [order, setOrder] = useState(null);
@@ -112,7 +114,12 @@ export default function DeliverymanOrderDetailsPage() {
       if (parseInt(updatedOrderId) === parseInt(orderId)) {
         setOrder(prevOrder => {
           if (prevOrder) {
-            return { ...prevOrder, delivery_status: status };
+            return { 
+              ...prevOrder, 
+              delivery_status: orderDetails.delivery_status,
+              customer_delivery_status: orderDetails.customer_delivery_status,
+              status: orderDetails.status // This will be 'delivered' if final step was completed
+            };
           }
           return prevOrder;
         });
@@ -163,6 +170,17 @@ export default function DeliverymanOrderDetailsPage() {
     });
   };
 
+  const handleCustomerStatusUpdate = (newStatus) => {
+    console.log('Customer delivery status updated to:', newStatus);
+    // Update the local state
+    setOrder(prevOrder => {
+      if (prevOrder) {
+        return { ...prevOrder, customer_delivery_status: newStatus };
+      }
+      return prevOrder;
+    });
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -204,6 +222,7 @@ export default function DeliverymanOrderDetailsPage() {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
+      
       <View className="px-4 py-3 bg-white border-b border-gray-200">
         <View className="flex-row items-center justify-between">
           <TouchableOpacity onPress={() => router.back()}>
@@ -284,6 +303,22 @@ export default function DeliverymanOrderDetailsPage() {
             onStatusUpdate={handleStatusUpdate}
           />
         </View>
+
+        {/* Customer Delivery Confirmation */}
+     
+        {order.status === 'shipped' && (
+        <View className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+          {console.log('Deliveryman page - rendering CustomerDeliveryConfirmation')}
+          <CustomerDeliveryConfirmation 
+            isCustomer={false}
+            order={order} 
+            onStatusUpdate={handleCustomerStatusUpdate}
+          />
+        </View>
+        )}
+
+       
+
       </ScrollView>
     </View>
   );

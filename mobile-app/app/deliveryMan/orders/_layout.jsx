@@ -41,40 +41,14 @@ export default function DeliverymanLayout() {
           screenOptions={{
             tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
             headerShown: false,
+            tabBarStyle: { display: 'none' },
           }}
         >
-          <Tabs.Screen
-            name="home"
-            options={{
-              title: 'Home',
-              tabBarIcon: ({ color }) => <FontAwesome name="home" size={22} color={color} />,
-            }}
-          />
-          <Tabs.Screen
-            name="orders"
-            options={{
-              title: 'Orders',
-              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
-            }}
-          />
-         
-          <Tabs.Screen
-            name="wallet"
-            options={{
-              title: 'Wallet',
-              tabBarIcon: ({ color }) => <FontAwesome name="dollar" size={22} color={color} />,
-            }}
-          />
-          <Tabs.Screen
-            name="profile"
-            options={{
-              title: 'Profile',
-              tabBarIcon: ({ color }) => <FontAwesome name="user" size={22} color={color} />,
-            }}
-          />
+        
+        
           
           {/* Hidden screens */}
-          <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tabs>
         </SafeAreaView>
       
