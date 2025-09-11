@@ -224,10 +224,10 @@ export default function CheckoutScreen() {
   }, [total, selectedCity]);
 
   const handlePaymentMethodSelect = (method) => {
-    if (method === 'cash' || method === 'card') {
+    if (method === 'card') {
       Alert.alert(
         'Coming Soon',
-        'This payment method is not available yet. Please use wallet payment.',
+        'Card payment is not available yet. Please use wallet or cash on delivery.',
         [{ text: 'OK' }]
       );
       return;
@@ -293,7 +293,8 @@ export default function CheckoutScreen() {
             product_id: item?.id,
             quantity: item?.quantity || 1
           })),
-          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`
+          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`,
+          payment_method: selectedPaymentMethod
         };
 
         const orderResponse = await axios.post(
@@ -345,6 +346,55 @@ export default function CheckoutScreen() {
         }
       } catch (error) {
         console.error('Order placement error:', error);
+        const errorMsg = error.response?.data?.error || error.message || 'Failed to place order';
+        Alert.alert('Order Failed', errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    } else if (selectedPaymentMethod === 'cash') {
+      // Handle cash on delivery
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Error', 'Please log in to place an order');
+          return;
+        }
+
+        // Create order for cash payment
+        const orderData = {
+          items: (safeCartItems || []).map(item => ({
+            product_id: item?.id,
+            quantity: item?.quantity || 1
+          })),
+          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`,
+          payment_method: selectedPaymentMethod
+        };
+
+        const orderResponse = await axios.post(
+          `${BACKEND_URL}/api/customers/orders`,
+          orderData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log('Cash order response:', orderResponse.data);
+
+        if (orderResponse.data) {
+          // Clear cart
+          clearCart();
+          
+          // Set order details for success modal
+          setOrderDetails({
+            orderNumber: orderResponse.data.id || 'N/A',
+            total: orderSummary.total,
+            paymentMethod: selectedPaymentMethod
+          });
+          
+          // Show success modal
+          setShowSuccessModal(true);
+        }
+      } catch (error) {
+        console.error('Error placing cash order:', error);
         const errorMsg = error.response?.data?.error || error.message || 'Failed to place order';
         Alert.alert('Order Failed', errorMsg);
       } finally {
@@ -562,15 +612,15 @@ export default function CheckoutScreen() {
           >
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className="w-10 h-10 bg-gray-400 rounded-full items-center justify-center mr-3">
+                <View className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mr-3">
                   <Ionicons name="cash" size={20} color="white" />
                 </View>
                 <View>
-                  <Text className="font-semibold text-gray-500">Cash on Delivery</Text>
-                  <Text className="text-sm text-gray-400">Coming Soon</Text>
+                  <Text className="font-semibold text-gray-700">Cash on Delivery</Text>
+                  <Text className="text-sm text-gray-500">Pay when your order arrives</Text>
                 </View>
               </View>
-              <View className="w-5 h-5 rounded-full border-2 border-gray-300 bg-gray-100">
+              <View className={`w-5 h-5 rounded-full border-2 ${selectedPaymentMethod === 'cash' ? 'border-primary bg-primary' : 'border-gray-300 bg-white'}`}>
                 {selectedPaymentMethod === 'cash' && (
                   <View className="w-2 h-2 bg-white rounded-full m-0.5" />
                 )}
@@ -684,7 +734,10 @@ export default function CheckoutScreen() {
               </View>
               <Text className="text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</Text>
               <Text className="text-gray-600 text-center">
-                Your order #{orderDetails?.orderId} has been placed and payment has been processed.
+                {orderDetails?.paymentMethod === 'cash' 
+                  ? `Your order #${orderDetails?.orderNumber || orderDetails?.orderId} has been placed. Please have cash ready for delivery.`
+                  : `Your order #${orderDetails?.orderId} has been placed and payment has been processed.`
+                }
               </Text>
             </View>
             

@@ -9,6 +9,10 @@ const {
   getDeliverymanStatusCounts,
   deleteDeliveryman,
   acceptDeliveryOrder,
+  updateDeliveryStatus,
+  getDeliverymanOrders,
+  getDeliverymanOrderDetails,
+
 } = require('../services/deliveryman.services');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
@@ -241,6 +245,76 @@ const acceptDeliveryOrderController = async (req, res) => {
   }
 };
 
+// Update delivery status
+const updateDeliveryStatusController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    const result = await updateDeliveryStatus(orderId, deliverymanId, status);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Delivery status updated successfully',
+      order: result,
+    });
+  } catch (error) {
+    console.error('Error updating delivery status:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
+// Get all orders assigned to deliveryman
+const getDeliverymanOrdersController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const orders = await getDeliverymanOrders(deliverymanId);
+    
+    res.status(200).json({
+      success: true,
+      orders: orders,
+    });
+  } catch (error) {
+    console.error('Error fetching deliveryman orders:', error);
+    res.status(500).json({ 
+      error: error.message,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
+// Get single order details for deliveryman
+const getDeliverymanOrderDetailsController = async (req, res) => {
+  try {
+    const deliverymanId = req.user.id;
+    const orderId = req.params.orderId;
+
+    const {order, vendor} = await getDeliverymanOrderDetails(orderId, deliverymanId);
+    
+    res.status(200).json({
+      success: true,
+      order: order,
+      vendor: vendor
+    });
+  } catch (error) {
+    console.error('Error fetching deliveryman order details:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+      deliverymanId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   registerDeliverymanController,
   registerCustomerAsDeliverymanController,
@@ -252,5 +326,8 @@ module.exports = {
   getDeliverymanStatusCountsController,
   deleteDeliverymanController,
   acceptDeliveryOrderController,
+  updateDeliveryStatusController,
+  getDeliverymanOrdersController,
+  getDeliverymanOrderDetailsController,
 };
   

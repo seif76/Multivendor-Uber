@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import DeliveryConfirmation from './DeliveryConfirmation';
 
 export default function DeliveryOrderManager() {
   const [availableOrders, setAvailableOrders] = useState([]);
@@ -60,6 +61,7 @@ export default function DeliveryOrderManager() {
 
     socketRef.current.on('newDeliveryOrder', ({ orderId, deliverymanId: orderDeliverymanId, customerId, status, orderDetails }) => {
       console.log('New delivery order:', orderId, status);
+   //   alert('Order details:' + JSON.stringify(orderDetails));
       
       // Add to available orders
       setAvailableOrders(prevOrders => {
@@ -80,6 +82,40 @@ export default function DeliveryOrderManager() {
           { text: 'OK', style: 'default' }
         ]
       );
+    });
+
+    // Listen for delivery status updates
+    socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+      console.log('Delivery status update received:', orderId, status);
+      console.log('Current accepted orders before update:', acceptedOrders);
+      // Update accepted orders with new delivery status
+      //alert('Order details:' + JSON.stringify(orderDetails));
+      setAcceptedOrders(prev => {
+        const updated = prev.map(order => {
+          // Handle both string and number comparison
+
+          if (order.id == orderId || order.id === parseInt(orderId)) {
+            console.log('Updating order:', order.id, 'with status:', status);
+            return { ...order, delivery_status: status };
+          }
+          return order;
+        });
+        console.log('Updated accepted orders:', updated);
+        return updated;
+      });
+      
+      // Show notification for important status changes
+      const statusMessages = {
+        'deliveryman_arrived': `You have arrived for order #${orderId}`,
+        'order_handed_over': `Order #${orderId} has been handed over to you`,
+        'order_received': `Order #${orderId} received successfully`,
+        'payment_made': `Payment made for order #${orderId}`,
+        'payment_confirmed': `Order #${orderId} delivery completed successfully!`
+      };
+      
+      if (statusMessages[status]) {
+        Alert.alert('Status Update', statusMessages[status]);
+      }
     });
 
     socketRef.current.on('disconnect', () => {
@@ -106,23 +142,26 @@ export default function DeliveryOrderManager() {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
+   
       if (response.data.success) {
-        // Find the order being accepted
-        const acceptedOrder = availableOrders.find(order => order.id === orderId);
+        // Use the order data from the API response (includes payment_method)
+        const acceptedOrderData = response.data.order;
+        console.log('Accepted order data from API:', JSON.stringify(acceptedOrderData, null, 2));
         
         // Remove from available orders and add to accepted orders
         setAvailableOrders(prevOrders => 
           prevOrders.filter(order => order.id !== orderId)
         );
         
-        // Add to accepted orders with accepted status
-        if (acceptedOrder) {
-          setAcceptedOrders(prevAccepted => [
-            { ...acceptedOrder, status: 'shipped', acceptedAt: new Date().toISOString() },
-            ...prevAccepted
-          ]);
-        }
+        // Add to accepted orders with complete data from API response
+        setAcceptedOrders(prevAccepted => [
+          { 
+            ...acceptedOrderData, 
+            status: 'ready', // Keep as ready for delivery confirmation
+            acceptedAt: new Date().toISOString() 
+          },
+          ...prevAccepted
+        ]);
         
         Alert.alert('Order Accepted', 'You have accepted the delivery order!');
         console.log('Delivery order accepted:', orderId);
@@ -158,14 +197,16 @@ export default function DeliveryOrderManager() {
     );
   };
 
+  
   // Only show component if there are available orders or accepted orders
   if (availableOrders.length === 0 && acceptedOrders.length === 0) {
     return null; // Don't render anything if no orders
   }
 
   return (
-    <View className="mb-4">
+    <View className="mb-4 pt-4">
       {/* Connection Status */}
+      
       <View className="px-4 mb-3">
         <View className="flex-row items-center justify-between">
           <Text className="text-lg font-bold text-gray-800">Delivery Orders</Text>
@@ -181,21 +222,36 @@ export default function DeliveryOrderManager() {
       
       {/* Available Orders */}
       {availableOrders.length > 0 && (
-        <View className="mb-4">
+        <View className="mb-16">
           <Text className="text-md font-semibold text-gray-700 px-4 mb-2">Available Orders</Text>
           <ScrollView 
-            horizontal 
+            vertical 
+            showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16 }}
+            contentContainerStyle={{ paddingVertical: 16 }}
           >
             {availableOrders.map((order) => (
               <View key={order.id} className="w-80 my-4 mr-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                 <View className="flex-row justify-between items-start mb-3">
-                  <View>
+                  <View className="flex-1">
                     <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
-                    <Text className="text-sm text-gray-600">Customer: {order.customer.name}</Text>
                     <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
-                    <Text className="text-sm text-gray-600">Address: {order.address}</Text>
+                    
+                    {/* Customer Details */}
+                    <View className="mt-2 p-2 bg-blue-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
+                      <Text className="text-xs text-blue-700">Name: {order.customer?.name}</Text>
+                      <Text className="text-xs text-blue-700">Phone: {order.customer?.phone_number}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order?.address}</Text>
+                    </View>
+                    
+                    {/* Vendor Details */}
+                    <View className="mt-2 p-2 bg-green-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor?.shop_name || order.vendor?.name}</Text>
+                      <Text className="text-xs text-green-700">Phone: {order.vendor?.phone_number}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor?.shop_location || order.vendor?.address}</Text>
+                    </View>
                   </View>
                 </View>
 
@@ -215,13 +271,15 @@ export default function DeliveryOrderManager() {
                 </View>
               </View>
             ))}
-          </ScrollView>
-        </View>
-      )}
+            
+            </ScrollView>
+          </View>
+        )}
+     
       
       {/* Accepted Orders */}
       {acceptedOrders.length > 0 && (
-        <View className="mb-4">
+        <View className="mb-16">
           <View className="flex-row justify-between items-center px-4 mb-2">
             <Text className="text-md font-semibold text-gray-700">Your Accepted Orders</Text>
             <TouchableOpacity
@@ -232,36 +290,64 @@ export default function DeliveryOrderManager() {
             </TouchableOpacity>
           </View>
           <ScrollView 
-            horizontal 
+            vertical 
+            showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16 }}
+            contentContainerStyle={{ paddingVertical: 16 }}
           >
-            {acceptedOrders.map((order) => (
+            {acceptedOrders.map((order) => {
+              console.log('Rendering accepted order:', order.id, 'vendor:', order.vendor, 'customer:', order.customer);
+              return (
               <View key={order.id} className="w-80 my-4 mr-4 bg-green-50 rounded-xl shadow-sm border border-green-200 p-4">
                 <View className="flex-row justify-between items-start mb-3">
-                  <View>
+                  <View className="flex-1">
                     <View className="flex-row items-center mb-1">
                       <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
                       <View className="bg-green-600 px-2 py-1 rounded-full ml-2">
                         <Text className="text-white text-xs font-bold">ACCEPTED</Text>
                       </View>
                     </View>
-                    <Text className="text-sm text-gray-600">Customer: {order.customer.name}</Text>
                     <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
-                    <Text className="text-sm text-gray-600">Address: {order.address}</Text>
-                    <Text className="text-xs text-green-600 mt-1">
+                    
+                    {/* Customer Details */}
+                    <View className="mt-2 p-2 bg-blue-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-blue-800">Customer Details</Text>
+                      <Text className="text-xs text-blue-700">Name: {order.customer?.name}</Text>
+                      <Text className="text-xs text-blue-700">Phone: {order.customer?.phone_number}</Text>
+                      <Text className="text-xs text-blue-700">Address: {order?.address || order.customer?.address}</Text>
+                    </View>
+                   
+                    
+                    {/* Vendor Details */}
+                    <View className="mt-2 p-2 bg-green-50 rounded-lg">
+                      <Text className="text-sm font-semibold text-green-800">Vendor Details</Text>
+                      <Text className="text-xs text-green-700">Name: {order.vendor?.shop_name || order.vendor?.name}</Text>
+                      <Text className="text-xs text-green-700">Phone: {order.vendor?.phone_number}</Text>
+                      <Text className="text-xs text-green-700">Address: {order.vendor?.shop_location || order.vendor?.address}</Text>
+                    </View>
+
+
+                    <DeliveryConfirmation 
+                      key={`${order.id}-${order.delivery_status}`}
+                      order={order} 
+                      onStatusUpdate={(newStatus) => {
+                        console.log('DeliveryConfirmation onStatusUpdate called:', order.id, newStatus);
+                        setAcceptedOrders(prev => prev.map(o => 
+                          o.id === order.id ? { ...o, delivery_status: newStatus } : o
+                        ));
+                      }}
+                    />
+                    
+                    <Text className="text-xs text-green-600 mt-2">
                       Accepted: {new Date(order.acceptedAt).toLocaleString()}
                     </Text>
                   </View>
                 </View>
 
-                <View className="bg-green-100 p-3 rounded-lg">
-                  <Text className="text-green-800 text-center font-semibold">
-                    Order is being delivered
-                  </Text>
-                </View>
+                
               </View>
-            ))}
+              );
+            })}
           </ScrollView>
         </View>
       )}

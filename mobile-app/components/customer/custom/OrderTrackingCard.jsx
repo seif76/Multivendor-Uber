@@ -161,6 +161,20 @@ export default function OrderTrackingCard({ order, onStatusUpdate, onDismiss }) 
               <Text className="text-gray-800 text-xs">{currentOrder.address}</Text>
             </View>
           )}
+          
+          {/* Deliveryman Information */}
+          {currentOrder.deliveryman && (
+            <View className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <Text className="text-blue-800 font-semibold text-sm mb-2">Deliveryman Assigned</Text>
+              <Text className="text-blue-700 text-xs">Name: {currentOrder.deliveryman.name}</Text>
+              <Text className="text-blue-700 text-xs">Phone: {currentOrder.deliveryman.phone_number}</Text>
+              {currentOrder.deliveryman.delivery_vehicle && (
+                <Text className="text-blue-700 text-xs">
+                  Vehicle: {currentOrder.deliveryman.delivery_vehicle.make} {currentOrder.deliveryman.delivery_vehicle.model} ({currentOrder.deliveryman.delivery_vehicle.license_plate})
+                </Text>
+              )}
+            </View>
+          )}
         </View>
 
         {/* Action Buttons */}

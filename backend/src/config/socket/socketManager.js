@@ -136,6 +136,17 @@ class SocketManager {
     console.log(`Delivery order ${orderId} broadcasted to ${Object.keys(this.deliverymen).length} deliverymen`);
   }
 
+  notifyVendorOrderAccepted(orderId, vendorId, deliveryman) {
+    const vendorSocket = this.vendors[vendorId]?.socketId;
+    if (vendorSocket) {
+      this.io.to(vendorSocket).emit('orderAcceptedByDeliveryman', { 
+        orderId, 
+        vendorId, 
+        deliveryman 
+      });
+    }
+  }
+
   // Ride tracking methods
   notifyCaptainLocation(captainId, coords) {
     this.captains[captainId] = { ...coords, socketId: this.captains[captainId]?.socketId };
@@ -200,6 +211,67 @@ class SocketManager {
 
   getDeliverymen() {
     return this.deliverymen;
+  }
+
+  // Delivery confirmation methods
+  notifyDeliveryStatusUpdate(orderId, vendorId, deliverymanId, status, orderDetails) {
+    // Notify vendor about delivery status update
+    const vendorSocket = this.vendors[vendorId]?.socketId;
+  //  console.log('Vendor socket found:', vendorSocket);
+  //  console.log(' vendor socket isssss:'  + vendorSocket);
+    if (vendorSocket) {   
+      this.io.to(vendorSocket).emit('deliveryStatusUpdate', {
+        orderId,
+        status,
+        orderDetails,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Notify deliveryman about status update
+    const deliverymanSocket = this.deliverymen[deliverymanId]?.socketId;
+    if (deliverymanSocket) {
+      this.io.to(deliverymanSocket).emit('deliveryStatusUpdate', {
+        orderId,
+        status,
+        orderDetails,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Notify customer about delivery status update
+    if (orderDetails.customer) {
+      const customerSocket = this.customers[orderDetails.customer.id]?.socketId;
+      if (customerSocket) {
+        this.io.to(customerSocket).emit('deliveryStatusUpdate', {
+          orderId,
+          status,
+          orderDetails,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    console.log(`Delivery status update broadcasted for order ${orderId}: ${status}`);
+  }
+
+  // Create delivery room for vendor-deliveryman communication
+  createDeliveryRoom(orderId, vendorId, deliverymanId) {
+    const roomName = `delivery_${orderId}`;
+    
+    // Join vendor to room
+    const vendorSocket = this.vendors[vendorId]?.socketId;
+    if (vendorSocket) {
+      this.io.to(vendorSocket).emit('joinDeliveryRoom', { roomName, orderId });
+    }
+
+    // Join deliveryman to room
+    const deliverymanSocket = this.deliverymen[deliverymanId]?.socketId;
+    if (deliverymanSocket) {
+      this.io.to(deliverymanSocket).emit('joinDeliveryRoom', { roomName, orderId });
+    }
+
+    console.log(`Delivery room created: ${roomName} for order ${orderId}`);
   }
 }
 
