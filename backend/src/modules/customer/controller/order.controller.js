@@ -55,7 +55,7 @@ const cancelOrderController = async (req, res) => {
 // Update customer delivery status
 const updateCustomerDeliveryStatusController = async (req, res) => {
   try {
-    const customerId = req.user.id;
+   // const customerId = req.user.id;
     const orderId = req.params.orderId;
     const { status } = req.body;
     
@@ -63,7 +63,7 @@ const updateCustomerDeliveryStatusController = async (req, res) => {
       return res.status(400).json({ error: 'Status is required' });
     }
     
-    const result = await updateCustomerDeliveryStatus(orderId, customerId, status);
+    const result = await updateCustomerDeliveryStatus(orderId, status);
     
     res.status(200).json({
       success: true,
@@ -75,7 +75,7 @@ const updateCustomerDeliveryStatusController = async (req, res) => {
     res.status(500).json({ 
       error: error.message,
       orderId: req.params.orderId,
-      customerId: req.user.id
+     // customerId: req.user.id
     });
   }
 };

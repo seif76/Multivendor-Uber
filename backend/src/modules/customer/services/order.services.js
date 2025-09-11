@@ -108,19 +108,19 @@ const cancelOrder = async (orderId, customerId) => {
 };
 
 // Update customer delivery status
-const updateCustomerDeliveryStatus = async (orderId, customerId, newStatus) => {
+const updateCustomerDeliveryStatus = async (orderId, newStatus) => {
   try {
     const order = await Order.findOne({
       where: { 
         id: orderId, 
-        customer_id: customerId 
+       // customer_id: customerId 
       },
       include: [
         { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
         { model: User, as: 'deliveryman', attributes: ['id', 'name', 'email', 'phone_number'] }
       ]
     });
-
+  console.log("order: ", order);
     if (!order) {
       throw new Error('Order not found or not assigned to this customer');
     }
