@@ -12,7 +12,8 @@
     "next": "Next",
     "done": "Done",
     "retry": "Retry",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "logout": "Logout"
   },
   "navigation": {
     "home": "Home",
@@ -93,7 +94,8 @@
     "notifications": "Notifications",
     "privacy": "Privacy",
     "help": "Help",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?"
   },
   "auth": {
     "login": "Login",
