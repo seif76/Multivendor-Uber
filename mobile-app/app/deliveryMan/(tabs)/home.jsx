@@ -32,13 +32,14 @@
 
 
 import { useContext } from 'react';
-import { Text, View, ScrollView, Pressable } from 'react-native';
+import { Text, View, ScrollView, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import RideRequestPopup from '../../../components/deliveryman/custom/RideRequestPopup';
 import DeliverymanMap from '../../../components/deliveryman/custom/maps';
 import DeliveryOrderManager from '../../../components/deliveryman/custom/DeliveryOrderManager';
 import { DeliverymanAuthContext } from '../../../context/DeliverymanAuthContext';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useWallet } from '../../../context/customer/WalletContext';
 
 export default function DeliverymanHome() {

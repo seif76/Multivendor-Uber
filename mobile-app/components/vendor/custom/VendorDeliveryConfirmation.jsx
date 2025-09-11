@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Constants from 'expo-constants';
+
 
 const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
   const [currentStatus, setCurrentStatus] = useState(order.delivery_status || 'none');
@@ -64,10 +66,10 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
       color: 'bg-yellow-500', 
       description: 'Deliveryman has confirmed receiving the order'
     },
-    payment_received: { 
-      title: 'Payment Received', 
+    payment_made: { 
+      title: 'Payment Made', 
       color: 'bg-green-500', 
-      description: 'Deliveryman has received payment from customer',
+      description: 'Deliveryman has paid the payment to vendor',
       vendorAction: 'payment_confirmed',
       vendorButtonText: 'Confirm Payment'
     },
@@ -110,21 +112,30 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
         
         {/* Step 1: Arrived */}
         <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">1</Text>
           </View>
-          <Text className={`text-sm ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+          <Text className={`text-sm ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
             Deliveryman Arrived
           </Text>
         </View>
 
         {/* Step 2: Order Handed Over */}
         <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">2</Text>
           </View>
-          <Text className={`text-sm ${currentStatus === 'order_handed_over' || currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+          <Text className={`text-sm ${currentStatus === 'order_handed_over' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
             Order Handed Over
+          </Text>
+        </View>
+         {/* Step 3: Order Received */}
+         <View className="flex-row items-center mb-2">
+          <View className={`w-6 h-6 rounded-full ${currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+            <Text className="text-white text-xs text-center leading-6">3</Text>
+          </View>
+          <Text className={`text-sm ${currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+            Order Received to deliveryman
           </Text>
         </View>
 
@@ -132,34 +143,28 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
         {isCashPayment && (
           <>
             <View className="flex-row items-center mb-2">
-              <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
-                <Text className="text-white text-xs text-center leading-6">3</Text>
+              <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
+                <Text className="text-white text-xs text-center leading-6">4</Text>
               </View>
-              <Text className={`text-sm ${currentStatus === 'payment_received' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
-                Payment Received
+              <Text className={`text-sm ${currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+                Payment Made
               </Text>
             </View>
 
             <View className="flex-row items-center mb-2">
               <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
-                <Text className="text-white text-xs text-center leading-6">4</Text>
+                <Text className="text-white text-xs text-center leading-6">5</Text>
               </View>
               <Text className={`text-sm ${currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
                 Payment Confirmed
               </Text>
             </View>
           </>
+          
         )}
 
-        {/* Step 3/4: Delivered */}
-        <View className="flex-row items-center mb-2">
-          <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_confirmed' ? 'bg-green-500' : 'bg-gray-300'} mr-3`}>
-            <Text className="text-white text-xs text-center leading-6">{isCashPayment ? '5' : '3'}</Text>
-          </View>
-          <Text className={`text-sm ${currentStatus === 'payment_confirmed' ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>
-            Delivered
-          </Text>
-        </View>
+       
+       
       </View>
 
       {/* Current Status */}

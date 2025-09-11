@@ -59,6 +59,10 @@ VendorInfo.hasMany(Product, { foreignKey: 'vendor_id', as: 'products' });
 User.hasMany(Order, { foreignKey: 'customer_id', as: 'orders' });
 Order.belongsTo(User, { foreignKey: 'customer_id', as: 'customer' });
 
+// vendor order relations
+VendorInfo.hasMany(Order, { foreignKey: 'vendor_id', as: 'orders' });
+Order.belongsTo(VendorInfo, { foreignKey: 'vendor_id', as: 'vendor' });
+
 // deliveryman order relations
 User.hasMany(Order, { foreignKey: 'deliveryman_id', as: 'delivery_orders' });
 Order.belongsTo(User, { foreignKey: 'deliveryman_id', as: 'deliveryman' });

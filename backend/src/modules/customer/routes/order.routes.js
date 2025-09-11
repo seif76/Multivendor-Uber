@@ -5,6 +5,7 @@ const {
   getMyOrdersController,
   getOrderDetailsController,
   cancelOrderController,
+  updateCustomerDeliveryStatusController,
 } = require('../controller/order.controller');
 
 const router = express.Router();
@@ -20,5 +21,8 @@ router.get('/:orderId', authenticate, getOrderDetailsController);
 
 // Cancel an order
 router.delete('/:orderId/cancel', authenticate, cancelOrderController);
+
+// Update customer delivery status
+router.put('/:orderId/customer-delivery-status', authenticate, updateCustomerDeliveryStatusController);
 
 module.exports = router; 

@@ -25,6 +25,7 @@ export default function VendorOrderDetailsPage() {
         const res = await axios.get(`${BACKEND_URL}/api/vendor/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        alert('Order fetched: ' + JSON.stringify(res.data));
         setOrder(res.data);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to fetch order');

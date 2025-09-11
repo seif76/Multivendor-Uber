@@ -58,11 +58,25 @@ const getVendorOrders = async (vendorId) => {
 
 // Get order details for this vendor (only their products/items)
 const getVendorOrderDetails = async (orderId, vendorId) => {
-  // Find order with customer info
-  const order = await Order.findByPk(orderId, {
-    include: [{ model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] }]
+  // Find order with customer info, filtered by vendor_id
+  const order = await Order.findOne({
+    where: { 
+      id: orderId,
+      vendor_id: vendorId  // ✅ Filter directly by vendor_id
+    },
+    include: [
+      { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] }
+    ]
   });
+  
   if (!order) return null;
+  
+  // Get vendor info directly
+  const vendor = await VendorInfo.findOne({ 
+    where: { vendor_id: vendorId },
+    attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+  });
+  
   // Find items for this vendor
   const items = await OrderItem.findAll({
     where: { order_id: orderId },
@@ -72,10 +86,12 @@ const getVendorOrderDetails = async (orderId, vendorId) => {
       where: { vendor_id: vendorId },
     }],
   });
+  
   return {
     ...order.dataValues,
     items,
     customer: order.customer,
+    vendor: vendor,
     address: order.address,
   };
 };
@@ -88,27 +104,25 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
     throw new Error(`Invalid status: ${status}. Valid statuses are: ${validStatuses.join(', ')}`);
   }
 
-  // Find order with customer info
-  const order = await Order.findByPk(orderId, {
-    include: [{ model: User, as: 'customer', attributes: ['id', 'name', 'email'] }]
+  // Find order with customer info, filtered by vendor_id
+  const order = await Order.findOne({
+    where: { 
+      id: orderId,
+      vendor_id: vendorId  // ✅ Filter directly by vendor_id
+    },
+    include: [
+      { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] }
+    ]
+  });
+  
+  // Get vendor info directly
+  const vendor = await VendorInfo.findOne({ 
+    where: { vendor_id: vendorId },
+    attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
   });
   
   if (!order) {
-    throw new Error('Order not found');
-  }
-
-  // Check if vendor has products in this order
-  const vendorItems = await OrderItem.findAll({
-    where: { order_id: orderId },
-    include: [{
-      model: Product,
-      as: 'product',
-      where: { vendor_id: vendorId },
-    }],
-  });
-
-  if (vendorItems.length === 0) {
-    throw new Error('No products found for this vendor in this order');
+    throw new Error('Order not found or does not belong to this vendor');
   }
 
   // Update order status
@@ -126,25 +140,19 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
 
   // If order is ready, notify deliverymen
   if (status === 'ready' && order.customer) {
-    // Get vendor details from VendorInfo table
-    const vendor = await VendorInfo.findOne({ 
-      where: { vendor_id: vendorId },
-      attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
-    });
+    // Use the directly fetched vendor data
+    // vendor is already fetched above
+    
+    console.log('Order vendor_id:', order.vendor_id);
+    console.log('Requested vendorId:', vendorId);
+    //console.log('Direct vendor data:', vendor);
 
-    if (!vendor) {
-      console.error(`Vendor info not found for vendor_id: ${vendorId}`);
-      return {
-        ...order.dataValues,
-        previousStatus,
-        vendorItems: vendorItems.length
-      };
-    }
 
     const orderDetails = {
       id: order.id,
       total_price: order.total_price,
       address: order.address,
+      payment_method: order.payment_method,
       customer: {
         id: order.customer.id,
         name: order.customer.name,
@@ -166,8 +174,7 @@ const updateOrderStatus = async (orderId, vendorId, status) => {
   
   return {
     ...order.dataValues,
-    previousStatus,
-    vendorItems: vendorItems.length
+    previousStatus
   };
 };
 
@@ -190,8 +197,12 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
     throw new Error('No deliveryman assigned to this order');
   }
 
-  // Validate status progression for vendor actions
-  const validVendorStatuses = ['order_handed_over', 'payment_confirmed'];
+  // Validate status progression for vendor actions based on payment method
+  const isCashPayment = order.payment_method === 'cash';
+  const validVendorStatuses = !isCashPayment 
+    ? ['order_handed_over'] 
+    : ['order_handed_over', 'payment_confirmed'];
+  
   if (!validVendorStatuses.includes(newStatus)) {
     throw new Error('Invalid status for vendor action');
   }
@@ -201,8 +212,13 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
     throw new Error('Deliveryman must arrive first before handing over order');
   }
 
-  if (newStatus === 'payment_confirmed' && order.delivery_status !== 'payment_received') {
-    throw new Error('Payment must be received first before confirming');
+
+  if (newStatus === 'payment_confirmed' && order.delivery_status !== 'payment_made') {
+    throw new Error('Payment must be made first before confirming');
+  }
+
+  if (newStatus === 'payment_confirmed' && !isCashPayment) {
+    throw new Error('Payment confirmation is only valid for cash payments');
   }
 
   // Ensure order is in ready status
@@ -213,8 +229,20 @@ const updateDeliveryStatus = async (orderId, vendorId, newStatus) => {
   // Update delivery status
   await order.update({ delivery_status: newStatus });
 
-  // If payment is confirmed, mark order as shipped and notify customer
-  if (newStatus === 'payment_confirmed') {
+  // For cash payments, when order is handed over, mark as shipped
+  if (newStatus === 'payment_confirmed' && isCashPayment) {
+    await order.update({ status: 'shipped' });
+    
+    // Notify customer that order is on the way
+    const OrderSocket = require('../../../config/socket/orderSocket');
+    if (order.customer) {
+      OrderSocket.notifyOrderStatusChange(orderId, 'shipped', order.customer.id);
+      console.log(`Customer ${order.customer.id} notified that order ${orderId} is on the way`);
+    }
+  }
+
+  // For wallet payments, when payment is confirmed, mark order as shipped
+  if (newStatus === 'order_received' && !isCashPayment) {
     await order.update({ status: 'shipped' });
     
     // Notify customer that order is on the way

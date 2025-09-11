@@ -1,65 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
-// import { BACKEND_URL } from '../../../config/socket';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import Constants from 'expo-constants';
+import axios from 'axios';
 
-const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
-  const [currentStatus, setCurrentStatus] = useState(order.delivery_status || 'none');
+const CustomerDeliveryConfirmation = ({ order, onStatusUpdate  , isCustomer }) => {
+  const [currentStatus, setCurrentStatus] = useState(order.customer_delivery_status || 'none');
   const [updating, setUpdating] = useState(false);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
-  
-  // Sync currentStatus with order.delivery_status when it changes
+  // alert("status order: " + JSON.stringify(order.customer_delivery_status));
+  //alert("isCustomer: " + isCustomer);
+
+  // Sync currentStatus with order.customer_delivery_status when it changes
   useEffect(() => {
-    console.log('DeliveryConfirmation useEffect - order.delivery_status changed:', order.delivery_status);
-    setCurrentStatus(order.delivery_status || 'none');
-   // alert("order are :" + JSON.stringify(order));  
-  }, [order.delivery_status]);
+    console.log('CustomerDeliveryConfirmation useEffect - order.customer_delivery_status changed:', order.customer_delivery_status);
+    setCurrentStatus(order.customer_delivery_status || 'none');
+  }, [order.customer_delivery_status]);
 
   // Debug logging for component renders
   useEffect(() => {
-    console.log('DeliveryConfirmation rendered for order:', order.id, 'with status:', order.delivery_status);
-  }, [order.id, order.delivery_status]);
-  
+    console.log('CustomerDeliveryConfirmation rendered for order:', order.id, 'with status:', order.customer_delivery_status);
+  }, [order.id, order.customer_delivery_status]);
 
   const statusConfig = {
     none: { 
-      title: 'Ready to Start', 
+      title: 'Waiting for Deliveryman', 
       color: 'bg-gray-500', 
-      nextAction: 'deliveryman_arrived',
-      nextButtonText: 'I Have Arrived',
-      description: 'Press when you arrive at the vendor location'
+      nextAction: !isCustomer ? "deliveryman_arrived" : null,
+      nextButtonText: !isCustomer ? "Deliveryman Arrived" : null,
+      description: isCustomer ? 'Waiting for deliveryman to arrive' : 'Waiting for customer to confirm delivery'
     },
     deliveryman_arrived: { 
-      title: 'Arrived at Vendor', 
+      title: 'Deliveryman Arrived', 
       color: 'bg-blue-500', 
-      nextAction: order.delivery_status === 'order_handed_over' ? 'order_received' : null, // Wait for vendor to hand over first
-      nextButtonText: order.delivery_status === 'order_handed_over' ? 'I Have the Order' : null,
-      description: 'Waiting for vendor to hand over the order'
+      nextAction: !isCustomer && order.customer_delivery_status === 'deliveryman_arrived' ? 'order_handed_over' : null, // Wait for deliveryman to hand over first
+      nextButtonText: !isCustomer && order.customer_delivery_status === 'deliveryman_arrived'  ? 'I handed the Order' : null,
+      description: 'Deliveryman has arrived. Waiting for order to be handed over.'
     },
     order_handed_over: { 
       title: 'Order Handed Over', 
       color: 'bg-yellow-500', 
-      nextAction: 'order_received',
-      nextButtonText: 'I Have the Order',
+      nextAction: isCustomer ? "order_received" : null,
+      nextButtonText: isCustomer ? 'I Have Received the Order' : null,
       description: 'Press when you confirm you have received the order'
     },
     order_received: { 
       title: 'Order Received', 
       color: 'bg-green-500', 
-      nextAction: order.payment_method === 'cash' ? 'payment_made' : null,
-      nextButtonText: order.payment_method === 'cash' ? 'Payment Made' : null,
-      description: order.payment_method === 'cash' 
-        ? 'Press when you have paid the vendor'
+      nextAction: isCustomer && order.payment_method === 'cash' ? 'payment_made' : null ,
+      nextButtonText: isCustomer && order.payment_method === 'cash' ? 'Payment Made' : null,
+      description: isCustomer && order.payment_method === 'cash' 
+        ? 'Press when payment has been made'
         : 'Order received successfully - delivery completed'
     },
     payment_made: { 
       title: 'Payment Made', 
       color: 'bg-green-500', 
-      nextAction: 'payment_confirmed',
-      nextButtonText: 'Confirm Payment',
-      description: 'Waiting for vendor to confirm payment'
+      nextAction: !isCustomer ? 'payment_confirmed' : null,
+      nextButtonText: !isCustomer ? 'Confirm Payment' : null,
+      description: 'Press to confirm that payment has been processed'
     },
     payment_confirmed: { 
       title: 'Payment Confirmed', 
@@ -77,30 +76,29 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
-     // alert("newStatus: "+ newStatus + " order.id: "+ order.id);
 
       const response = await axios.put(
-        `${BACKEND_URL}/api/deliveryman/orders/${order.id}/delivery-status`,
+        `${BACKEND_URL}/api/customers/orders/${order.id}/customer-delivery-status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("response: "+ JSON.stringify(response.data));
 
       if (response.data.success) {
         setCurrentStatus(newStatus);
         onStatusUpdate && onStatusUpdate(newStatus);
         
         const statusMessages = {
-          'deliveryman_arrived': 'You have arrived at the vendor location',
-          'order_handed_over': 'Order has been handed over to you',
-          'payment_received': 'Payment received from customer',
+          'deliveryman_arrived': 'Deliveryman has arrived at your location',
+          'order_handed_over': 'Order has been handed over to customer',
+          'order_received': 'You have confirmed receiving the order',
+          'payment_made': 'Payment has been processed from your wallet',
           'payment_confirmed': 'Payment confirmed and delivery completed'
         };
         
         Alert.alert('Status Updated', statusMessages[newStatus] || 'Status updated successfully');
       }
     } catch (error) {
-      console.error('Error updating delivery status:'+ error.message);
+      console.error('Error updating customer delivery status:', error.message);
       Alert.alert('Error', error.response?.data?.error || 'Failed to update status');
     } finally {
       setUpdating(false);
@@ -108,16 +106,15 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
   };
 
   const currentConfig = statusConfig[currentStatus];
-  const isCashPayment = order.payment_method === 'cash';
-  const showPaymentSteps = isCashPayment;
-  const showPaymentConfirmation = !isCashPayment && currentStatus !== 'payment_confirmed';
+  const isWalletPayment = order.payment_method === 'wallet';
+  const showPaymentSteps = isWalletPayment;
 
   // Debug logging
-  console.log('DeliveryConfirmation render - Order ID:', order.id, 'Current Status:', currentStatus, 'Order Status:', order.delivery_status);
+  console.log('CustomerDeliveryConfirmation render - Order ID:', order.id, 'Current Status:', currentStatus, 'Order Status:', order.customer_delivery_status);
 
   return (
     <View className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-      <Text className="text-lg font-bold text-gray-800 mb-3">Delivery Confirmation</Text>
+      <Text className="text-lg font-bold text-gray-800 mb-3">Customer Delivery Confirmation</Text>
       
       {/* Order Info */}
       <View className="mb-4 p-3 bg-gray-50 rounded-lg">
@@ -131,13 +128,13 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
       <View className="mb-4">
         <Text className="text-sm font-semibold text-gray-700 mb-2">Delivery Progress:</Text>
         
-        {/* Step 1: Arrived */}
+        {/* Step 1: Deliveryman Arrived */}
         <View className="flex-row items-center mb-2">
           <View className={`w-6 h-6 rounded-full ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
             <Text className="text-white text-xs text-center leading-6">1</Text>
           </View>
           <Text className={`text-sm ${currentStatus === 'deliveryman_arrived' || currentStatus === 'order_handed_over' || currentStatus === 'order_received' || currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
-            Arrived at Vendor
+            Deliveryman Arrived
           </Text>
         </View>
 
@@ -162,7 +159,7 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
         </View>
 
         {/* Step 4: Payment Made (Wallet only) */}
-        {isCashPayment && (
+        {!isWalletPayment && (
           <View className="flex-row items-center mb-2">
             <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
               <Text className="text-white text-xs text-center leading-6">4</Text>
@@ -174,7 +171,7 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
         )}
 
         {/* Step 5: Payment Confirmed (Wallet only) */}
-        {isCashPayment && (
+        {!isWalletPayment && (
           <View className="flex-row items-center mb-2">
             <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
               <Text className="text-white text-xs text-center leading-6">5</Text>
@@ -184,9 +181,6 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
             </Text>
           </View>
         )}
-
-        {/* Final Step: Delivered */}
-        
       </View>
 
       {/* Current Status */}
@@ -217,4 +211,4 @@ const DeliveryConfirmation = ({ order, onStatusUpdate }) => {
   );
 };
 
-export default DeliveryConfirmation;
+export default CustomerDeliveryConfirmation;

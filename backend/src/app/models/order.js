@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      vendor_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
 
       deliveryman_id: {
         type: DataTypes.INTEGER,
@@ -30,7 +34,11 @@ module.exports = (sequelize) => {
       },
 
       delivery_status: {
-        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_received', 'payment_confirmed'),
+        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_made', 'payment_confirmed'),
+        defaultValue: 'none',
+      },
+      customer_delivery_status: {
+        type: DataTypes.ENUM('none', 'deliveryman_arrived', 'order_handed_over', 'order_received', 'payment_made', 'payment_confirmed'),
         defaultValue: 'none',
       },
   
