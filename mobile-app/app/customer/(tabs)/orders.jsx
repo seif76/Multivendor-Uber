@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -12,6 +13,7 @@ export default function OrdersPage() {
   const [error, setError] = useState(null);
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const { t, isRTL } = useLanguage();
 
   const fetchOrders = useCallback(async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -47,7 +49,7 @@ export default function OrdersPage() {
       </View>
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-sm text-gray-600">
-          Status: <Text className="font-semibold text-primary">{item.status}</Text>
+          {t('orders.orderStatus')}: <Text className="font-semibold text-primary">{item.status}</Text>
         </Text>
         <Text className="text-lg font-bold text-green-600">
           EGP {parseFloat(item.total_price).toFixed(2)}
@@ -57,30 +59,30 @@ export default function OrdersPage() {
         className="bg-primary px-4 py-2 rounded-xl self-end"
         onPress={() => router.push(`/customer/orders/${item.id}`)}
       >
-        <Text className="text-white font-bold">View Order</Text>
+        <Text className="text-white font-bold">{t('orders.viewOrder')}</Text>
       </Pressable>
     </View>
   );
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 pt-8">
-      <Text className="text-2xl font-bold text-primary mb-6">My Orders</Text>
+    <View className="flex-1 bg-gray-50 px-4 pt-8" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
+      <Text className="text-2xl font-bold text-primary mb-6">{t('orders.myOrders')}</Text>
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#0f9d58" />
-          <Text className="mt-4 text-primary font-semibold">Loading orders...</Text>
+          <Text className="mt-4 text-primary font-semibold">{t('common.loading')}</Text>
         </View>
 
       ) : error ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-red-500 font-semibold mb-2">{error}</Text>
           <Pressable onPress={() => onRefresh()} className="bg-primary px-6 py-2 rounded-xl mt-2">
-            <Text className="text-white font-bold">Retry</Text>
+            <Text className="text-white font-bold">{t('common.retry')}</Text>
           </Pressable>
         </View>
       ) : orders.length === 0 ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-400 font-semibold text-lg">You have no orders yet.</Text>
+          <Text className="text-gray-400 font-semibold text-lg">{t('orders.noOrders')}</Text>
         </View>
       ) : (
         <FlatList

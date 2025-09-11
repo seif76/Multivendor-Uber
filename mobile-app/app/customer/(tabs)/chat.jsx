@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function CustomerChatListPage() {
   const [chats, setChats] = useState([]);
@@ -12,6 +13,7 @@ export default function CustomerChatListPage() {
   const [error, setError] = useState(null);
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const { t, isRTL } = useLanguage();
 
   useEffect(() => {
     fetchChats();
@@ -126,7 +128,7 @@ export default function CustomerChatListPage() {
     return (
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#007233" />
-        <Text className="mt-2 text-gray-600">Loading chats...</Text>
+        <Text className="mt-2 text-gray-600">{t('common.loading')}</Text>
       </View>
     );
   }
@@ -140,7 +142,7 @@ export default function CustomerChatListPage() {
           onPress={fetchChats}
           className="mt-4 bg-primary px-4 py-2 rounded-lg"
         >
-          <Text className="text-white font-semibold">Retry</Text>
+          <Text className="text-white font-semibold">{t('common.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -149,7 +151,7 @@ export default function CustomerChatListPage() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-        <Text className="text-xl font-bold text-gray-800">Messages</Text>
+        <Text className="text-xl font-bold text-gray-800">{t('navigation.chat')}</Text>
         <Pressable
           onPress={() => router.push('/customer/orders')}
           className="p-2 bg-primary rounded-full"
@@ -162,16 +164,16 @@ export default function CustomerChatListPage() {
         <View className="flex-1 justify-center items-center p-4">
           <Ionicons name="chatbubbles-outline" size={64} color="#9ca3af" />
           <Text className="text-gray-500 text-center mt-4 text-lg font-semibold">
-            No chats yet
+            {t('chat.noChats')}
           </Text>
           <Text className="text-gray-400 text-center mt-2">
-            Start a conversation from your orders to see chats here
+            {t('chat.startConversation')}
           </Text>
           <Pressable
             onPress={() => router.push('/customer/orders')}
             className="mt-4 bg-primary px-6 py-3 rounded-lg"
           >
-            <Text className="text-white font-semibold">View Orders</Text>
+            <Text className="text-white font-semibold">{t('orders.viewOrders')}</Text>
           </Pressable>
         </View>
       ) : (

@@ -6,11 +6,13 @@ import { CustomerAuthProvider } from '../../../context/customer/CustomerAuthCont
 import { WalletProvider } from '../../../context/customer/WalletContext';
 import { HomeProvider } from '../../../context/customer/HomeContext';
 import { CartProvider } from '../../../context/customer/CartContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 
 export default function CustomerLayout() {
   const segments = useSegments();
   const [showTabs, setShowTabs] = useState(true);
+  const { t, isRTL } = useLanguage();
 
   useEffect(() => {
     const current = segments[segments.length - 1];
@@ -44,7 +46,7 @@ export default function CustomerLayout() {
           <Tabs.Screen
             name="home"
             options={{
-              title: 'Home',
+              title: t('navigation.home'),
               tabBarIcon: ({ color }) => <FontAwesome name="home" size={22} color={color} />,
             }}
           />
@@ -52,28 +54,28 @@ export default function CustomerLayout() {
           <Tabs.Screen
             name="orders"
             options={{
-              title: 'Orders',
+              title: t('navigation.orders'),
               tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
             }}
           />
           <Tabs.Screen
             name="chat"
             options={{
-              title: 'Messages',
+              title: t('navigation.chat'),
               tabBarIcon: ({ color }) => <FontAwesome name="comments" size={22} color={color} />,
             }}
           />
           <Tabs.Screen
             name="profile"
             options={{
-              title: 'Profile',
+              title: t('navigation.profile'),
               tabBarIcon: ({ color }) => <FontAwesome name="user" size={22} color={color} />,
             }}
           />
            <Tabs.Screen
             name="wallet"
             options={{
-              title: 'Wallet',
+              title: t('navigation.wallet'),
               tabBarIcon: ({ color }) => <FontAwesome name="money" size={22} color={color} />,
             }}
           />
