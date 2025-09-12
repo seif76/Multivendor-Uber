@@ -7,10 +7,12 @@
       "preview": {
         "environment": "preview",
         "distribution": "internal",
+        "developmentClient": false, 
         "android": { "buildType": "apk" }
       },
       "preview2": {
-        "distribution": "internal"
+        "distribution": "internal",
+        "environment": "preview"
     },
     "production": {
       "autoIncrement": true
