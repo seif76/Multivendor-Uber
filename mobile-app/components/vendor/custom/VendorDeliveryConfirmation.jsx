@@ -141,7 +141,7 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
 
         {/* Step 3: Payment (Cash only) */}
         {isCashPayment && (
-          <>
+          <View>
             <View className="flex-row items-center mb-2">
               <View className={`w-6 h-6 rounded-full ${currentStatus === 'payment_made' || currentStatus === 'payment_confirmed' ? 'bg-blue-500' : 'bg-gray-300'} mr-3`}>
                 <Text className="text-white text-xs text-center leading-6">4</Text>
@@ -159,7 +159,7 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
                 Payment Confirmed
               </Text>
             </View>
-          </>
+          </View>
           
         )}
 

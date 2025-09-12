@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function NotFoundScreen() {
   return (
-    <>
+    <View>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
         <Text style={styles.title}>This screen does not exist.</Text>
@@ -14,7 +14,7 @@ export default function NotFoundScreen() {
           </Pressable>
         </Link>
       </View>
-    </>
+    </View>
   );
 }
 

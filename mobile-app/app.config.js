@@ -5,21 +5,28 @@ export default   {
     "slug": "mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Elnaizak-logo.jpeg",
     "scheme": "mobileapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    android: {
+      package: 'com.elnaizak.mobileapp' // <— add this line
+    },
     "extra": {
       "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY,
-      "BACKEND_URL":process.env.BACKEND_URL
+      "BACKEND_URL":process.env.BACKEND_URL,
+      eas: {
+        projectId: '861a2722-042e-4bb0-9d2e-54793f09a675'
+      }
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": 'com.elnaizak.mobileapp',
 
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Elnaizak-logo.jpeg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -40,7 +47,7 @@ export default   {
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/Elnaizak-logo.jpeg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

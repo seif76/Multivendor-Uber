@@ -13,7 +13,7 @@ export default function VendorCard({ vendor }) {
   };
 
   return (
-    <>
+    <View>
       <View className="flex-row items-center bg-white py-4 px-2 mb-1 rounded-xl shadow-sm border-b border-gray-100">
         {/* Shop Logo */}
         <Image
@@ -35,6 +35,6 @@ export default function VendorCard({ vendor }) {
           <Text className="text-white font-bold text-sm">View Shop</Text>
         </Pressable>
       </View>
-    </>
+    </View>
   );
 }

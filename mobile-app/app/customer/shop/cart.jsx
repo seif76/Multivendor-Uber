@@ -67,7 +67,7 @@ export default function CartScreen() {
           </Pressable>
         </View>
       ) : (
-        <>
+        <View>
           <FlatList
             data={cartItems}
             keyExtractor={(item) => item.id.toString()}
@@ -89,7 +89,7 @@ export default function CartScreen() {
               <Text className="text-center text-white font-bold text-lg">Place Order</Text>
             </Pressable>
           </View>
-        </>
+        </View>
       )}
     </View>
   );
