@@ -41,16 +41,16 @@ export default function CustomerLogin() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="flex-1 bg-gray-50 ">
         {/* Background Pattern */}
-        <View className="absolute inset-0 opacity-5 dark:opacity-10">
+        <View className="absolute inset-0 opacity-5 ">
           <View className="absolute top-20 left-10 w-32 h-32 bg-primary rounded-full" />
           <View className="absolute top-40 right-8 w-24 h-24 bg-primary rounded-full" />
           <View className="absolute bottom-40 left-8 w-40 h-40 bg-primary rounded-full" />
         </View>
 
         {/* Back button */}
-        <Pressable onPress={() => router.push('/')} className="absolute top-12 left-6 w-10 h-10 bg-white dark:bg-gray-800 rounded-full items-center justify-center z-10 shadow-lg">
+        <Pressable onPress={() => router.push('/')} className="absolute top-12 left-6 w-10 h-10 bg-white  rounded-full items-center justify-center z-10 shadow-lg">
           <Ionicons name="arrow-back" size={20} color="#007233" />
         </Pressable>
 
@@ -58,34 +58,34 @@ export default function CustomerLogin() {
           <View className="px-6 py-8">
             {/* Logo and Heading */}
             <View className="items-center mb-8">
-              <View className="w-24 h-24 bg-white dark:bg-gray-800 rounded-full items-center justify-center shadow-xl mb-4">
+              <View className="w-24 h-24 bg-white  rounded-full items-center justify-center shadow-xl mb-4">
                 <Image source={require('../../assets/images/Elnaizak-logo.jpeg')} className="w-20 h-20 rounded-full" />
               </View>
-              <Text className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Welcome Back!</Text>
-              <Text className="text-gray-600 dark:text-gray-300 text-center text-base leading-6">
+              <Text className="text-3xl font-bold text-gray-800  mb-2">Welcome Back!</Text>
+              <Text className="text-gray-600  text-center text-base leading-6">
                 Sign in to continue your journey with us
               </Text>
             </View>
 
             {/* Login Card */}
-            <View className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl px-6 py-8 mb-6">
+            <View className="bg-white  rounded-3xl shadow-2xl px-6 py-8 mb-6">
               {error ? (
-                <View className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 rounded-lg px-4 py-3 mb-6">
+                <View className="bg-red-50  border-l-4 border-red-400 rounded-lg px-4 py-3 mb-6">
                   <View className="flex-row items-center">
                     <Ionicons name="alert-circle" size={20} color="#ef4444" />
-                    <Text className="text-red-700 dark:text-red-300 text-sm ml-2 flex-1">{error}</Text>
+                    <Text className="text-red-700  text-sm ml-2 flex-1">{error}</Text>
                   </View>
                 </View>
               ) : null}
 
               {/* Phone Number Input */}
               <View className="mb-6">
-                <Text className="text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">Phone Number</Text>
-                <View className="flex-row items-center bg-gray-50 dark:bg-gray-700 rounded-2xl px-4 py-4 border border-gray-200 dark:border-gray-600">
+                <Text className="text-gray-700  font-semibold mb-2 text-sm">Phone Number</Text>
+                <View className="flex-row items-center bg-gray-50  rounded-2xl px-4 py-4 border border-gray-200 ">
                   <Ionicons name="call-outline" size={20} color="#6b7280" />
                   <TextInput
                     placeholder="Enter your phone number"
-                    className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
+                    className="flex-1 ml-3 text-base text-gray-800 "
                     value={phoneOrEmail}
                     onChangeText={setPhoneOrEmail}
                     keyboardType="phone-pad"
@@ -97,13 +97,13 @@ export default function CustomerLogin() {
 
               {/* Password Input */}
               <View className="mb-6">
-                <Text className="text-gray-700 dark:text-gray-300 font-semibold mb-2 text-sm">Password</Text>
-                <View className="flex-row items-center bg-gray-50 dark:bg-gray-700 rounded-2xl px-4 py-4 border border-gray-200 dark:border-gray-600">
+                <Text className="text-gray-700  font-semibold mb-2 text-sm">Password</Text>
+                <View className="flex-row items-center bg-gray-50  rounded-2xl px-4 py-4 border border-gray-200 ">
                   <Ionicons name="lock-closed-outline" size={20} color="#6b7280" />
                   <TextInput
                     placeholder="Enter your password"
                     secureTextEntry={!showPassword}
-                    className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
+                    className="flex-1 ml-3 text-base text-gray-800 "
                     value={password}
                     onChangeText={setPassword}
                     autoCapitalize="none"
@@ -155,7 +155,7 @@ export default function CustomerLogin() {
 
             {/* Register Link */}
             <View className="items-center">
-              <Text className="text-gray-600 dark:text-gray-300 text-base">
+              <Text className="text-gray-600  text-base">
                 Don't have an account?{' '}
                 <Pressable onPress={() => router.push('/customer/register')}>
                   <Text className="text-primary font-bold">Create Account</Text>
@@ -163,26 +163,6 @@ export default function CustomerLogin() {
               </Text>
             </View>
 
-            {/* Social Login Options */}
-            <View className="mt-8">
-              <View className="flex-row items-center mb-6">
-                <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
-                <Text className="mx-4 text-gray-500 dark:text-gray-400 text-sm">Or continue with</Text>
-                <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
-              </View>
-              
-              <View className="flex-row justify-center space-x-4">
-                <Pressable className="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl items-center justify-center shadow-lg border border-gray-200 dark:border-gray-600">
-                  <Ionicons name="logo-google" size={24} color="#db4437" />
-                </Pressable>
-                <Pressable className="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl items-center justify-center shadow-lg border border-gray-200 dark:border-gray-600">
-                  <Ionicons name="logo-facebook" size={24} color="#4267B2" />
-                </Pressable>
-                <Pressable className="w-14 h-14 bg-white dark:bg-gray-800 rounded-2xl items-center justify-center shadow-lg border border-gray-200 dark:border-gray-600">
-                  <Ionicons name="logo-apple" size={24} color="#000" />
-                </Pressable>
-              </View>
-            </View>
           </View>
         </ScrollView>
       </View>
