@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import VendorSideNav from '../../../components/vendor/navigation/sideNav';
 import VendorTopNavbar from '../../../components/vendor/navigation/topNav';
 import { VendorAuthProvider } from '../../../context/VendorAuthContext';
+import { WalletProvider } from '../../../context/customer/WalletContext';
 
 export default function VendorLayout() {
   const segments = useSegments();
@@ -29,18 +30,19 @@ export default function VendorLayout() {
 
   return (
     <VendorAuthProvider>
-      <View className="flex-1 bg-white">
-          {/* Vendor Top Navbar */}
-      <VendorTopNavbar onProfilePress={() => setMenuOpen(true)} />
+      <WalletProvider>
+        <View className="flex-1 bg-white">
+            {/* Vendor Top Navbar */}
+        <VendorTopNavbar onProfilePress={() => setMenuOpen(true)} />
 
-      {/* Sidebar */}
-      <VendorSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Tabs
-          screenOptions={{
-            tabBarActiveTintColor: '#0f9d58',
-            headerShown: false,
-          }}
-        >
+        {/* Sidebar */}
+        <VendorSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+          <Tabs
+            screenOptions={{
+              tabBarActiveTintColor: '#0f9d58',
+              headerShown: false,
+            }}
+          >
           <Tabs.Screen
             name="home"
             options={{
@@ -79,8 +81,9 @@ export default function VendorLayout() {
           <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
-        </Tabs>
-      </View>
+          </Tabs>
+        </View>
+      </WalletProvider>
     </VendorAuthProvider>
   );
 }

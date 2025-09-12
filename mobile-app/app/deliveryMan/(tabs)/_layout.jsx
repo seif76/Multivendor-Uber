@@ -5,6 +5,7 @@ import { View, Platform } from 'react-native';
 import DeliverymanSideNav from '../../../components/deliveryman/navigation/sideNav';
 import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/topNav';
 import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
+import { WalletProvider } from '../../../context/customer/WalletContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,25 +26,26 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
-          
+      <WalletProvider>
+            
 
       <View className={`flex-1 bg-white  `}>      
         <SafeAreaView 
         edges={Platform.OS === 'android' ? ['top'] : []}
         className={`flex-1 bg-white `}>
 
-          {/* Deliveryman Top Navbar */}
-      <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
+            {/* Deliveryman Top Navbar */}
+        <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
 
-      {/* Sidebar */}
-      <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
-      <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
-        <Tabs
-          screenOptions={{
-            tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
-            headerShown: false,
-          }}
-        >
+        {/* Sidebar */}
+        <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+        <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
+          <Tabs
+            screenOptions={{
+              tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
+              headerShown: false,
+            }}
+          >
           <Tabs.Screen
             name="home"
             options={{
@@ -74,12 +76,13 @@ export default function DeliverymanLayout() {
             }}
           />
           
-          {/* Hidden screens */}
-          <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
-        </Tabs>
-        </SafeAreaView>
+            {/* Hidden screens */}
+            <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+          </Tabs>
+          </SafeAreaView>
       
       </View>
+      </WalletProvider>
 
     </DeliverymanAuthProvider>
   );

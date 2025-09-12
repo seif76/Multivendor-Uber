@@ -32,12 +32,14 @@ export default function CustomerHomePage() {
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         
         <LocationBanner />
-        <WalletCard />
-        <OrderTrackingManager />
         <ServiceSelector />
         
         <CategorySlider />
         <VendorList />
+        
+        <OrderTrackingManager />
+        <WalletCard />
+        
         
         <SupportAccess />
         <View className="h-10" />
