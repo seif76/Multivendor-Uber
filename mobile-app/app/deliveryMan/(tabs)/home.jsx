@@ -35,17 +35,14 @@ import { useContext } from 'react';
 import { Text, View, ScrollView, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import RideRequestPopup from '../../../components/deliveryman/custom/RideRequestPopup';
 import DeliverymanMap from '../../../components/deliveryman/custom/maps';
 import DeliveryOrderManager from '../../../components/deliveryman/custom/DeliveryOrderManager';
 import { DeliverymanAuthContext } from '../../../context/DeliverymanAuthContext';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useWallet } from '../../../context/customer/WalletContext';
 
 export default function DeliverymanHome() {
   const router = useRouter();
   const context = useContext(DeliverymanAuthContext);
-  const { wallet } = useWallet();
+
 
   if (!context) {
     console.warn("DeliverymanAuthContext is undefined —  you forget to wrap with the provider");
@@ -62,21 +59,7 @@ export default function DeliverymanHome() {
       <DeliverymanMap />
       <DeliveryOrderManager />
       
-      {/* Wallet Balance Card - Floating */}
-      <View className="absolute top-4 right-4 z-10">
-        <Pressable 
-          onPress={() => router.push('/deliveryMan/wallet')}
-          className="bg-blue-600 p-4 rounded-xl shadow-lg"
-        >
-          <View className="items-center">
-            <Ionicons name="wallet" size={20} color="white" />
-            <Text className="text-white text-sm font-medium mt-1">Wallet</Text>
-            <Text className="text-white text-lg font-bold">
-              ${wallet?.balance?.toFixed(2) || '0.00'}
-            </Text>
-          </View>
-        </Pressable>
-      </View>
+      
     </View>
   );
 }

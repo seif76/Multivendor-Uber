@@ -211,14 +211,14 @@ export default function WalletPage() {
           <Pressable 
             onPress={() => setShowTopUpModal(true)}
             style={{ backgroundColor: '#3b82f6' }}
-            className="flex-1 py-3 px-4 rounded-lg"
+            className="flex-1 mx-3 py-3 px-4 rounded-lg"
           >
             <Text style={{ color: 'white' }} className="font-semibold text-center">Top Up</Text>
           </Pressable>
           <Pressable 
             onPress={() => setShowWithdrawModal(true)}
             style={{ backgroundColor: '#f97316' }}
-            className="flex-1 py-3 px-4 rounded-lg"
+            className="flex-1 mx-3 py-3 px-4 rounded-lg"
           >
             <Text style={{ color: 'white' }} className="font-semibold text-center">Withdraw</Text>
           </Pressable>

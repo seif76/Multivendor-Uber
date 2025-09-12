@@ -26,10 +26,10 @@ export default function CategorySlider() {
 
   const handleCategoryPress = (category) => {
     // Navigate to shop with category filter
-    router.push(`/customer/shop/shop?category=${encodeURIComponent(category.name || category.label)}`);
+    alert("coming soon");
   };
 
-  const displayCategories = categories && categories.length > 0 ? categories : defaultCategories;
+ // const displayCategories = categories && categories.length > 0 ? categories : defaultCategories;
 
   if (loading) {
     return (
@@ -57,7 +57,8 @@ export default function CategorySlider() {
               onPress={() => handleCategoryPress(category)}
               className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
             >
-              {getCategoryIcon(category)}
+              {/* {getCategoryIcon(category)} */}
+              <Text className="text-2xl">{category.icon}</Text>
               <Text className="mt-2 text-sm text-gray-700">{category.label}</Text>
             </Pressable>
           ))}
@@ -83,15 +84,16 @@ export default function CategorySlider() {
       </Pressable>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-        {displayCategories.map((category, i) => (
+        {defaultCategories.map((category, i) => (
           <Pressable 
             key={i} 
             onPress={() => handleCategoryPress(category)}
             className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
           >
-            {getCategoryIcon(category)}
+            {/* {getCategoryIcon(category)} */}
+            <Text className="text-2xl">{category.iconType === 'Ionicons' ? <Ionicons name={category.icon} size={24} color="#007233" /> : <FontAwesome name={category.icon} size={24} color="#007233" />}</Text>
             <Text className="mt-2 text-sm text-gray-700" numberOfLines={1}>
-              {category.name || category.label}
+              {category.label}
             </Text>
           </Pressable>
         ))}

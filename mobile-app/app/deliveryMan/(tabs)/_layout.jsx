@@ -39,7 +39,6 @@ export default function DeliverymanLayout() {
 
         {/* Sidebar */}
         <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
-        <OnlineStatusBar isOnline={isOnline} setIsOnline={setIsOnline} />
           <Tabs
             screenOptions={{
               tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman

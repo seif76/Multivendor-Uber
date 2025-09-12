@@ -105,12 +105,12 @@ export default function DeliverymanProfile() {
 
       {/* Documents Section */}
       <Text className="text-lg font-semibold text-blue-600 mb-3">Documents</Text>
-      <View className="flex-row flex-wrap gap-4 justify-between mb-6">
+      <View className="flex-row flex-wrap gap-4 justify-between mb-6 ">
         {deliveryman.delivery_vehicle?.driver_license_photo && (
-          <View className="items-center">
+          <View className="items-center ">
             <Image
               source={{ uri: deliveryman.delivery_vehicle.driver_license_photo }}
-              className="w-[31%] h-28 rounded-md border"
+              className="w-full h-28 rounded-md border"
             />
             <Text className="text-xs text-gray-600 mt-1">Driver License</Text>
           </View>
@@ -119,7 +119,7 @@ export default function DeliverymanProfile() {
           <View className="items-center">
             <Image
               source={{ uri: deliveryman.delivery_vehicle.national_id_photo }}
-              className="w-[31%] h-28 rounded-md border"
+              className="w-full h-28 rounded-md border"
             />
             <Text className="text-xs text-gray-600 mt-1">National ID</Text>
           </View>
@@ -128,7 +128,7 @@ export default function DeliverymanProfile() {
           <View className="items-center">
             <Image
               source={{ uri: deliveryman.profile_photo }}
-              className="w-[31%] h-28 rounded-md border"
+              className="w-full h-28 rounded-md border"
             />
             <Text className="text-xs text-gray-600 mt-1">Profile Photo</Text>
           </View>

@@ -101,24 +101,33 @@ export default function VendorProfile() {
 
       {/* Documents */}
       <Text className="text-lg font-semibold text-primary mb-3">Documents</Text>
-      <View className="flex-row flex-wrap gap-4 justify-between">
+      <View className="flex-row flex-wrap gap-4 justify-between w-full">
         {vendor.info?.passport_photo && (
+          <View className="items-center">
           <Image
             source={{ uri: vendor.info?.passport_photo }}
-            className="w-[31%] h-28 rounded-md border"
+            className="w-full h-28 rounded-md border"
           />
+          <Text className="text-xs text-gray-600 mt-1">Passport Photo</Text>
+          </View>
         )}
         {vendor.info?.license_photo && (
+          <View className="items-center">
           <Image
             source={{ uri: vendor.info?.license_photo }}
-            className="w-[31%] h-28 rounded-md border"
+            className="w-full h-28 rounded-md border"
           />
+          <Text className="text-xs text-gray-600 mt-1">License Photo</Text>
+          </View>
         )}
         {vendor.info?.shop_front_photo && (
+          <View className="items-center">
           <Image
             source={{ uri: vendor.info?.shop_front_photo }}
-            className="w-[31%] h-28 rounded-md border"
+            className="w-full h-28 rounded-md border"
           />
+          <Text className="text-xs text-gray-600 mt-1">Shop Front Photo</Text>
+          </View>
         )}
       </View>
     </ScrollView>

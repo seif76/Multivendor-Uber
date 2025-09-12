@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-<<<<<<< HEAD
-=======
-import Constants from 'expo-constants';
->>>>>>> main
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -13,11 +9,7 @@ const VendorDeliveryConfirmation = ({ order, onStatusUpdate }) => {
   const [currentStatus, setCurrentStatus] = useState(order.delivery_status || 'none');
   const [updating, setUpdating] = useState(false);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
-<<<<<<< HEAD
 
-
-=======
->>>>>>> main
   const handleVendorAction = async (newStatus) => {
     if (updating) return;
     
