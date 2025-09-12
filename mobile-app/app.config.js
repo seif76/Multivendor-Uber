@@ -8,7 +8,7 @@ export default   {
     "icon": "./assets/images/Elnaizak-logo.jpeg",
     "scheme": "mobileapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+  //  "newArchEnabled": true,
     android: {
       package: 'com.elnaizak.mobileapp' // <— add this line
     },
