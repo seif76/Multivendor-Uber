@@ -14,6 +14,10 @@
         },
         "ios": {
           "buildConfiguration": "Release"
+        },
+        "env": {
+          "BACKEND_URL": "$BACKEND_URL",
+          "GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY"
         }
       },
       "preview2": {
@@ -23,6 +27,10 @@
         "android": { 
           "buildType": "apk",
           "gradleCommand": ":app:assembleDebug"
+        },
+        "env": {
+          "BACKEND_URL": "$BACKEND_URL",
+          "GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY"
         }
     },
     "production": {
