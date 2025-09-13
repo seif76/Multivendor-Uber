@@ -26,8 +26,8 @@ export default function CustomerLogin() {
     setLoading(true);
     
     // Debug: Log the backend URL
-    alert('BACKEND_URL:'+ BACKEND_URL);
-    alert('BACKEND_URL_EAS:'+ BACKEND_URL_EAS);
+   // alert('BACKEND_URL:'+ BACKEND_URL);
+   // alert('BACKEND_URL_EAS:'+ BACKEND_URL_EAS);
     //alert('Full URL:', `${BACKEND_URL}/api/customers/auth/login`);
     
     try {
