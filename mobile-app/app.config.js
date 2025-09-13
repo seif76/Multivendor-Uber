@@ -24,7 +24,7 @@ export default   {
     },
     "android": {
       "package": 'com.elnaizak.mobileapp',
-
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/Elnaizak-logo.jpeg",
         "backgroundColor": "#ffffff"
