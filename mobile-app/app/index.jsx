@@ -67,8 +67,8 @@ export default function RoleSelector() {
         <View className="space-y-4 mb-8">
           {roles.map((role, index) => (
             <Link key={role.name} href={role.path} asChild>
-              <Pressable className="bg-white rounded-2xl p-6 shadow-lg">
-                <View className="flex-row items-center">
+              <Pressable className="bg-white my-1 rounded-2xl p-6 border-2 border-primary">
+                <View className="flex-row items-center ">
                   {/* Icon Container */}
                   <View className={`w-16 h-16 ${role.bgColor} rounded-2xl items-center justify-center mr-4`}>
                     <Ionicons name={role.icon} size={28} color={role.color} />

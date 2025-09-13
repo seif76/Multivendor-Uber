@@ -8,6 +8,7 @@ import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext
 import { WalletProvider } from '../../../context/customer/WalletContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { LanguageProvider } from '../../../context/LanguageContext';
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
@@ -26,6 +27,7 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
+      <LanguageProvider>
       <WalletProvider>
             
 
@@ -82,7 +84,7 @@ export default function DeliverymanLayout() {
       
       </View>
       </WalletProvider>
-
+      </LanguageProvider>
     </DeliverymanAuthProvider>
   );
 }

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../context/LanguageContext';
 import LanguageSwitcher from '../../../components/customer/custom/LanguageSwitcher';
+import { useRouter } from 'expo-router';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -13,7 +14,7 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
   const { t, isRTL } = useLanguage();
-
+  const router = useRouter();
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -56,23 +57,14 @@ export default function ProfilePage() {
       </View>
     );
   }
+  const handleLogout = async () => {
+    // Remove all relevant AsyncStorage items for logout
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('cart');
+    await AsyncStorage.removeItem('cart_vendor_id');
+    // Add more keys to remove if needed
 
-  const handleLogout = () => {
-    Alert.alert(
-      t('profile.logout'),
-      t('profile.logoutConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.logout'),
-          style: 'destructive',
-          onPress: async () => {
-            await AsyncStorage.removeItem('token');
-            // Navigate to login or home page
-          }
-        }
-      ]
-    );
+    router.push('/'); // Redirect to home or login
   };
 
   return (
@@ -114,9 +106,9 @@ export default function ProfilePage() {
         </View>
       </View>
 
-      <View className="px-6 -mt-4">
+      <View className="px-6 justify-between  -mt-4">
         {/* Quick Stats */}
-        <View className="flex-row space-x-3 mb-6">
+        <View className="flex-row  space-x-3 mb-6">
           <View className="flex-1 bg-white rounded-xl p-4">
             <View className="flex-row items-center justify-between">
               <View>

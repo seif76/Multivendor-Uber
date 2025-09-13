@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../context/LanguageContext';
 import LanguageSwitcher from '../../../components/customer/custom/LanguageSwitcher';
+import { useRouter } from 'expo-router';
 
 export default function VendorProfile() {
   const [vendor, setVendor] = useState(null);
@@ -15,7 +16,7 @@ export default function VendorProfile() {
   const [error, setError] = useState('');
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
   const { t, isRTL } = useLanguage();
-  
+  const router = useRouter();
 
   const fetchVendorProfile = async () => {
     try {
@@ -48,6 +49,7 @@ export default function VendorProfile() {
           style: 'destructive',
           onPress: async () => {
             await AsyncStorage.removeItem('token');
+            router.push('/vendor/login');
             // Navigate to login or home page
           }
         }

@@ -6,6 +6,7 @@ import VendorSideNav from '../../../components/vendor/navigation/sideNav';
 import VendorTopNavbar from '../../../components/vendor/navigation/topNav';
 import { VendorAuthProvider } from '../../../context/VendorAuthContext';
 import { WalletProvider } from '../../../context/customer/WalletContext';
+import { LanguageProvider } from '../../../context/LanguageContext';
 
 export default function VendorLayout() {
   const segments = useSegments();
@@ -30,6 +31,7 @@ export default function VendorLayout() {
 
   return (
     <VendorAuthProvider>
+      <LanguageProvider>
       <WalletProvider>
         <View className="flex-1 bg-white">
             {/* Vendor Top Navbar */}
@@ -83,7 +85,9 @@ export default function VendorLayout() {
           <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
           </Tabs>
         </View>
+        
       </WalletProvider>
+      </LanguageProvider>
     </VendorAuthProvider>
   );
 }
