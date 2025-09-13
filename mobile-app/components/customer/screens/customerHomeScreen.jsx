@@ -12,11 +12,13 @@ import CustomerTopNav from '../navigation/CustomerTopNav';
 import { useHome } from '../../../context/customer/HomeContext';
 import { useWallet } from '../../../context/customer/WalletContext';
 import { CustomerAuthContext } from '../../../context/customer/CustomerAuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function CustomerHomePage() {
   const { isCustomerVerified } = useContext(CustomerAuthContext);
   const { loadDataWhenAuthenticated } = useHome();
   const { loadWalletWhenAuthenticated } = useWallet();
+  const { isRTL } = useLanguage();
 
   // Load data when user becomes authenticated
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function CustomerHomePage() {
   }, [isCustomerVerified]);
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
       <CustomerTopNav />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         

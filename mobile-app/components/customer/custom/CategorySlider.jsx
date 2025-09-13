@@ -3,10 +3,12 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useHome } from '../../../context/customer/HomeContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function CategorySlider() {
   const router = useRouter();
   const { categories, loading, error } = useHome();
+  const { t } = useLanguage();
 
   // Default categories as fallback
   const defaultCategories = [
@@ -34,10 +36,10 @@ export default function CategorySlider() {
   if (loading) {
     return (
       <View className="px-4 py-2">
-        <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
+        <Text className="text-lg font-bold mb-3 text-gray-800">{t('home.categories')}</Text>
         <View className="flex-row items-center justify-center py-4">
           <ActivityIndicator size="small" color="#10b981" />
-          <Text className="text-gray-600 ml-2">Loading categories...</Text>
+          <Text className="text-gray-600 ml-2">{t('common.loading')}</Text>
         </View>
       </View>
     );
@@ -46,7 +48,7 @@ export default function CategorySlider() {
   if (error) {
     return (
       <View className="px-4 py-2">
-        <Text className="text-lg font-bold mb-3 text-gray-800">Shop by Category</Text>
+        <Text className="text-lg font-bold mb-3 text-gray-800">{t('home.categories')}</Text>
         <View className="bg-red-50 p-3 rounded-lg mb-3">
           <Text className="text-red-800 text-sm text-center">{error}</Text>
         </View>
@@ -70,9 +72,9 @@ export default function CategorySlider() {
   return (
     <View className="px-4 py-2">
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-lg font-bold text-gray-800">Shop by Category</Text>
+        <Text className="text-lg font-bold text-gray-800">{t('home.categories')}</Text>
         <Pressable onPress={() => router.push("/customer/shop/shop")}>
-          <Text className="text-primary font-semibold">See All</Text>
+          <Text className="text-primary font-semibold">{t('home.seeAll')}</Text>
         </Pressable>
       </View>
       
@@ -80,7 +82,7 @@ export default function CategorySlider() {
         onPress={() => router.push("/customer/shop/shop")} 
         className="bg-primary mb-3 w-full py-3 rounded-lg items-center"
       >
-        <Text className="text-white text-lg font-semibold">Browse All Stores</Text>
+        <Text className="text-white text-lg font-semibold">{t('home.browseAllStores')}</Text>
       </Pressable>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">

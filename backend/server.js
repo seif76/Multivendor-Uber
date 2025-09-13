@@ -10,11 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 // db staff
- //const syncDatabase = require('./src/app/models/seeders/seeders');
- //syncDatabase();
+//const syncDatabase = require('./src/app/models/seeders/seeders');
+//syncDatabase();
 
-// const syncMultivendorTables = require('./src/app/models/seeders/multivendorSeeders');
-// syncMultivendorTables();
+//const syncMultivendorTables = require('./src/app/models/seeders/multivendorSeeders');
+//syncMultivendorTables();
 
 // const syncVendorCategory = require('./src/app/models/seeders/syncVendorCategory');
 //  syncVendorCategory();

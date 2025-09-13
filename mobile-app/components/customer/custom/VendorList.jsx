@@ -3,10 +3,12 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useHome } from '../../../context/customer/HomeContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function VendorList() {
   const router = useRouter();
   const { vendors, loading, error } = useHome();
+  const { t } = useLanguage();
 
 
   const handleVendorPress = (vendor) => {
@@ -25,10 +27,10 @@ export default function VendorList() {
   if (loading) {
     return (
       <View className="px-4 mt-6">
-        <Text className="text-lg font-bold text-gray-800 mb-3">Featured Stores</Text>
+        <Text className="text-lg font-bold text-gray-800 mb-3">{t('home.featuredStores')}</Text>
         <View className="flex-row items-center justify-center py-8">
           <ActivityIndicator size="small" color="#10b981" />
-          <Text className="text-gray-600 ml-2">Loading stores...</Text>
+          <Text className="text-gray-600 ml-2">{t('common.loading')}</Text>
         </View>
       </View>
     );
@@ -37,7 +39,7 @@ export default function VendorList() {
   if (error) {
     return (
       <View className="px-4 mt-6">
-        <Text className="text-lg font-bold text-gray-800 mb-3">Featured Stores</Text>
+        <Text className="text-lg font-bold text-gray-800 mb-3">{t('home.featuredStores')}</Text>
         <View className="bg-red-50 p-4 rounded-lg">
           <Text className="text-red-800 text-sm text-center">{error}</Text>
         </View>
@@ -48,9 +50,9 @@ export default function VendorList() {
   if (!vendors || vendors.length === 0) {
     return (
       <View className="px-4 mt-6">
-        <Text className="text-lg font-bold text-gray-800 mb-3">Featured Stores</Text>
+        <Text className="text-lg font-bold text-gray-800 mb-3">{t('home.featuredStores')}</Text>
         <View className="bg-gray-50 p-6 rounded-lg">
-          <Text className="text-gray-500 text-center">No stores available at the moment</Text>
+          <Text className="text-gray-500 text-center">{t('home.noStoresAvailable')}</Text>
         </View>
       </View>
     );
@@ -59,9 +61,9 @@ export default function VendorList() {
   return (
     <View className="px-4 mt-6">
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-lg font-bold text-gray-800">Featured Stores</Text>
+        <Text className="text-lg font-bold text-gray-800">{t('home.featuredStores')}</Text>
         <Pressable onPress={() => router.push('/customer/shop/shop')}>
-          <Text className="text-primary font-semibold">See All</Text>
+          <Text className="text-primary font-semibold">{t('home.browseAllStores')}</Text>
         </Pressable>
       </View>
       
@@ -80,7 +82,7 @@ export default function VendorList() {
                />
                {vendor.vendor_status === 'Active' && (
                  <View className="absolute top-3 right-3 bg-primary px-2 py-1 rounded-full">
-                   <Text className="text-white text-xs font-bold">Open</Text>
+                   <Text className="text-white text-xs font-bold">{t('home.open')}</Text>
                  </View>
                )}
                <View className="absolute bottom-3 left-3 bg-white/95 px-2 py-1 rounded-full">
