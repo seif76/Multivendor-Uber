@@ -13,8 +13,8 @@ export default   {
       package: 'com.elnaizak.mobileapp' // <— add this line
     },
     "extra": {
-      "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY,
-      "BACKEND_URL":process.env.BACKEND_URL,
+      "GOOGLE_MAPS_API_KEY": process.env.GOOGLE_MAPS_API_KEY || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      "BACKEND_URL": process.env.BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL,
       eas: {
         projectId: '861a2722-042e-4bb0-9d2e-54793f09a675'
       }
@@ -32,7 +32,7 @@ export default   {
       "edgeToEdgeEnabled": true,
       "config": {
             "googleMaps": {
-              "apiKey": process.env.GOOGLE_MAPS_API_KEY
+              "apiKey": process.env.GOOGLE_MAPS_API_KEY || process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
             }
           }
     },

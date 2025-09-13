@@ -8,7 +8,8 @@ import axios from 'axios';
 
 export default function CustomerLogin() {
   const router = useRouter();
-  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL || 'http://test:5000';
+  const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL || "http://test:5000";
+  const BACKEND_URL_EAS = Constants.expoConfig.extra.EXPO_PUBLIC_BACKEND_URL || "http://test:5000";
 
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +27,8 @@ export default function CustomerLogin() {
     
     // Debug: Log the backend URL
     alert('BACKEND_URL:', BACKEND_URL);
-    alert('Full URL:', `${BACKEND_URL}/api/customers/auth/login`);
+    alert('BACKEND_URL_EAS:', BACKEND_URL_EAS);
+    //alert('Full URL:', `${BACKEND_URL}/api/customers/auth/login`);
     
     try {
       const response = await axios.post(`${BACKEND_URL}/api/customers/auth/login`, {
