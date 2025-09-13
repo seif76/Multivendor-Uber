@@ -31,8 +31,14 @@
         <data android:scheme="mobileapp"/>
       </intent-filter>
     </activity>
-    <provider android:name="expo.modules.filesystem.FileSystemFileProvider" android:authorities="${applicationId}.provider" android:exported="false" android:grantUriPermissions="true">
-      <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/expo_file_system_provider_paths"/>
+       <provider
+        android:name="expo.modules.filesystem.FileSystemFileProvider"
+        android:authorities="${applicationId}.provider"
+        android:exported="false"
+        android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/expo_file_system_provider_paths"/>
     </provider>
     <uses-library android:name="org.apache.http.legacy" android:required="false"/>
   </application>
