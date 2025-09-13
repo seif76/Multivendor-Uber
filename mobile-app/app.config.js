@@ -44,6 +44,8 @@ export default   {
     },
     "plugins": [
       "expo-router",
+      "expo-location",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {
