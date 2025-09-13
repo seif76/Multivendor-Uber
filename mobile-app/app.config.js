@@ -47,6 +47,14 @@ export default   {
       "expo-location",
       "expo-image-picker",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/Elnaizak-logo.jpeg",
