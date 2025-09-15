@@ -6,7 +6,9 @@ export default function RootLayout() {
   return ( 
     <View>
       <Slot />
-      <FloatingCartButton />
+       <View className="relative -bottom-16 right-0">
+        <FloatingCartButton />
+        </View>
     </View>
   );
 }
