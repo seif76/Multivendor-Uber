@@ -17,16 +17,18 @@ import { useWallet } from '../../context/customer/WalletContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function CheckoutScreen() {
   const cartContext = useContext(CartContext);
   const { wallet, payWithWallet, getWalletInfo, refreshWalletData } = useWallet();
+  const { t, isRTL } = useLanguage();
   
   // Safety checks to prevent undefined errors
   if (!cartContext) {
     return (
       <View className="flex-1 bg-gray-50 justify-center items-center">
-        <Text className="text-gray-600">Loading...</Text>
+        <Text className="text-gray-600">{t('common.loading')}</Text>
       </View>
     );
   }
@@ -224,10 +226,10 @@ export default function CheckoutScreen() {
   }, [total, selectedCity]);
 
   const handlePaymentMethodSelect = (method) => {
-    if (method === 'cash' || method === 'card') {
+    if (method === 'card') {
       Alert.alert(
         'Coming Soon',
-        'This payment method is not available yet. Please use wallet payment.',
+        'Card payment is not available yet. Please use wallet or cash on delivery.',
         [{ text: 'OK' }]
       );
       return;
@@ -351,6 +353,55 @@ export default function CheckoutScreen() {
       } finally {
         setLoading(false);
       }
+    } else if (selectedPaymentMethod === 'cash') {
+      // Handle cash on delivery
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Error', 'Please log in to place an order');
+          return;
+        }
+
+        // Create order for cash payment
+        const orderData = {
+          items: (safeCartItems || []).map(item => ({
+            product_id: item?.id,
+            quantity: item?.quantity || 1
+          })),
+          address: `${shippingAddress.address}, ${shippingAddress.city}, Libya`,
+          payment_method: selectedPaymentMethod
+        };
+
+        const orderResponse = await axios.post(
+          `${BACKEND_URL}/api/customers/orders`,
+          orderData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log('Cash order response:', orderResponse.data);
+
+        if (orderResponse.data) {
+          // Clear cart
+          clearCart();
+          
+          // Set order details for success modal
+          setOrderDetails({
+            orderNumber: orderResponse.data.id || 'N/A',
+            total: orderSummary.total,
+            paymentMethod: selectedPaymentMethod
+          });
+          
+          // Show success modal
+          setShowSuccessModal(true);
+        }
+      } catch (error) {
+        console.error('Error placing cash order:', error);
+        const errorMsg = error.response?.data?.error || error.message || 'Failed to place order';
+        Alert.alert('Order Failed', errorMsg);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -383,7 +434,7 @@ export default function CheckoutScreen() {
             <Pressable onPress={() => router.back()} className="mr-4">
               <Ionicons name="arrow-back" size={24} color="#374151" />
             </Pressable>
-            <Text className="text-xl font-bold text-gray-900">Checkout</Text>
+            <Text className="text-xl font-bold text-gray-900">{t('checkout.title')}</Text>
           </View>
           <Pressable onPress={forceRefresh} className="p-2">
             <Ionicons name="refresh" size={20} color="#007233" />
@@ -396,52 +447,52 @@ export default function CheckoutScreen() {
         <View className="bg-white mx-4 mt-4 rounded-2xl p-4 border border-gray-100">
           <View className="flex-row items-center mb-4">
             <Ionicons name="location-outline" size={20} color="#007233" />
-            <Text className="text-lg font-bold text-gray-900 ml-2">Shipping Address</Text>
+            <Text className="text-lg font-bold text-gray-900 ml-2">{t('checkout.shippingAddress')}</Text>
           </View>
           
           <View className="space-y-3">
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-1">Full Name</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">{t('checkout.fullName')}</Text>
               {loadingCustomerData ? (
                 <View className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 flex-row items-center">
                   <ActivityIndicator size="small" color="#007233" />
-                  <Text className="text-gray-500 ml-2">Loading your name...</Text>
+                  <Text className="text-gray-500 ml-2">{t('checkout.loadingName')}</Text>
                 </View>
               ) : (
                 <TextInput
                   value={shippingAddress.name}
                   onChangeText={(text) => setShippingAddress(prev => ({ ...prev, name: text }))}
                   className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-900"
-                  placeholder="Enter your full name"
+                  placeholder={t('checkout.enterFullName')}
                 />
               )}
             </View>
             
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-1">Phone Number</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">{t('checkout.phoneNumber')}</Text>
               {loadingCustomerData ? (
                 <View className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 flex-row items-center">
                   <ActivityIndicator size="small" color="#007233" />
-                  <Text className="text-gray-500 ml-2">Loading your phone...</Text>
+                  <Text className="text-gray-500 ml-2">{t('checkout.loadingPhone')}</Text>
                 </View>
               ) : (
                 <TextInput
                   value={shippingAddress.phone}
                   onChangeText={(text) => setShippingAddress(prev => ({ ...prev, phone: text }))}
                   className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-900"
-                  placeholder="Enter your phone number"
+                  placeholder={t('checkout.enterPhoneNumber')}
                   keyboardType="phone-pad"
                 />
               )}
             </View>
             
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-1">Address</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">{t('checkout.address')}</Text>
               <TextInput
                 value={shippingAddress.address}
                 onChangeText={(text) => setShippingAddress(prev => ({ ...prev, address: text }))}
                 className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-900"
-                placeholder="Enter your address"
+                placeholder={t('checkout.enterAddress')}
                 multiline
                 numberOfLines={2}
               />
@@ -563,15 +614,15 @@ export default function CheckoutScreen() {
           >
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className="w-10 h-10 bg-gray-400 rounded-full items-center justify-center mr-3">
+                <View className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mr-3">
                   <Ionicons name="cash" size={20} color="white" />
                 </View>
                 <View>
-                  <Text className="font-semibold text-gray-500">Cash on Delivery</Text>
-                  <Text className="text-sm text-gray-400">Coming Soon</Text>
+                  <Text className="font-semibold text-gray-700">Cash on Delivery</Text>
+                  <Text className="text-sm text-gray-500">Pay when your order arrives</Text>
                 </View>
               </View>
-              <View className="w-5 h-5 rounded-full border-2 border-gray-300 bg-gray-100">
+              <View className={`w-5 h-5 rounded-full border-2 ${selectedPaymentMethod === 'cash' ? 'border-primary bg-primary' : 'border-gray-300 bg-white'}`}>
                 {selectedPaymentMethod === 'cash' && (
                   <View className="w-2 h-2 bg-white rounded-full m-0.5" />
                 )}
@@ -685,7 +736,10 @@ export default function CheckoutScreen() {
               </View>
               <Text className="text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</Text>
               <Text className="text-gray-600 text-center">
-                Your order #{orderDetails?.orderId} has been placed and payment has been processed.
+                {orderDetails?.paymentMethod === 'cash' 
+                  ? `Your order #${orderDetails?.orderNumber || orderDetails?.orderId} has been placed. Please have cash ready for delivery.`
+                  : `Your order #${orderDetails?.orderId} has been placed and payment has been processed.`
+                }
               </Text>
             </View>
             

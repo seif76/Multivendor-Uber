@@ -3,6 +3,7 @@ const {
   getMyOrders,
   getOrderDetails,
   cancelOrder,
+  updateCustomerDeliveryStatus,
 } = require('../services/order.services');
 
 // Create a new order (checkout)
@@ -51,9 +52,38 @@ const cancelOrderController = async (req, res) => {
   }
 };
 
+// Update customer delivery status
+const updateCustomerDeliveryStatusController = async (req, res) => {
+  try {
+   // const customerId = req.user.id;
+    const orderId = req.params.orderId;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    const result = await updateCustomerDeliveryStatus(orderId, status);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Customer delivery status updated successfully',
+      order: result
+    });
+  } catch (error) {
+    console.error('Error updating customer delivery status:', error);
+    res.status(500).json({ 
+      error: error.message,
+      orderId: req.params.orderId,
+     // customerId: req.user.id
+    });
+  }
+};
+
 module.exports = {
   createOrderController,
   getMyOrdersController,
   getOrderDetailsController,
   cancelOrderController,
+  updateCustomerDeliveryStatusController,
 }; 

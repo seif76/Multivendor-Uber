@@ -14,6 +14,7 @@ import {
   View 
 } from 'react-native';
 import { useWallet } from '../../../context/customer/WalletContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function WalletPage() {
     createWithdrawalRequest,
     clearError 
   } = useWallet();
+  const { t, isRTL } = useLanguage();
 
   const [refreshing, setRefreshing] = useState(false);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
@@ -162,7 +164,7 @@ export default function WalletPage() {
     return (
       <View className="flex-1 bg-gray-50 justify-center items-center">
         <ActivityIndicator size="large" color="#007233" />
-        <Text className="text-gray-600 mt-4">Loading wallet...</Text>
+        <Text className="text-gray-600 mt-4">{t('common.loading')}</Text>
       </View>
     );
   }
@@ -175,7 +177,7 @@ export default function WalletPage() {
           <Pressable onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </Pressable>
-          <Text className="text-xl font-bold text-gray-800">Wallet</Text>
+          <Text className="text-xl font-bold text-gray-800">{t('wallet.title')}</Text>
           <View className="w-6" />
         </View>
       </View>
@@ -191,7 +193,7 @@ export default function WalletPage() {
           <View className="bg-primary p-6 rounded-xl shadow-lg">
             <View className="flex-row items-center justify-between">
               <View className="flex-1">
-                <Text className="text-white text-sm font-medium opacity-90">Total Balance</Text>
+                <Text className="text-white text-sm font-medium opacity-90">{t('wallet.currentBalance')}</Text>
                 <Text className="text-white text-3xl font-bold mt-1">
                   {formatBalance(wallet?.balance)}
                 </Text>
@@ -211,16 +213,16 @@ export default function WalletPage() {
           <Pressable 
             onPress={() => setShowTopUpModal(true)}
             style={{ backgroundColor: '#3b82f6' }}
-            className="flex-1 py-3 px-4 rounded-lg"
+            className="flex-1 mx-3 py-3 px-4 rounded-lg"
           >
-            <Text style={{ color: 'white' }} className="font-semibold text-center">Top Up</Text>
+            <Text style={{ color: 'white' }} className="font-semibold text-center">{t('wallet.topUp')}</Text>
           </Pressable>
           <Pressable 
             onPress={() => setShowWithdrawModal(true)}
             style={{ backgroundColor: '#f97316' }}
-            className="flex-1 py-3 px-4 rounded-lg"
+            className="flex-1 mx-3 py-3 px-4 rounded-lg"
           >
-            <Text style={{ color: 'white' }} className="font-semibold text-center">Withdraw</Text>
+            <Text style={{ color: 'white' }} className="font-semibold text-center">{t('wallet.withdraw')}</Text>
           </Pressable>
         </View>
 
@@ -229,14 +231,14 @@ export default function WalletPage() {
           <View className="mx-4 mt-4 bg-red-100 p-3 rounded-lg">
             <Text className="text-red-800 text-sm">{error}</Text>
             <Pressable onPress={clearError} className="mt-2">
-              <Text className="text-red-600 text-xs">Dismiss</Text>
+              <Text className="text-red-600 text-xs">{t('common.cancel')}</Text>
             </Pressable>
           </View>
         )}
 
         {/* Transactions */}
         <View className="mx-4 mt-6">
-          <Text className="text-lg font-bold text-gray-800 mb-3">Recent Transactions</Text>
+          <Text className="text-lg font-bold text-gray-800 mb-3">{t('wallet.recentTransactions')}</Text>
           {transactions && transactions.length > 0 ? (
             <FlatList
               data={transactions}
@@ -246,7 +248,7 @@ export default function WalletPage() {
             />
           ) : (
             <View className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-              <Text className="text-gray-500 text-center">No transactions yet</Text>
+              <Text className="text-gray-500 text-center">{t('wallet.noTransactions')}</Text>
             </View>
           )}
         </View>
@@ -266,20 +268,20 @@ export default function WalletPage() {
               <Pressable onPress={() => setShowTopUpModal(false)}>
                 <Ionicons name="close" size={24} color="#374151" />
               </Pressable>
-              <Text className="text-xl font-bold text-gray-800">Top Up Wallet</Text>
+              <Text className="text-xl font-bold text-gray-800">{t('wallet.addFunds')}</Text>
               <View className="w-6" />
             </View>
           </View>
 
           <View className="flex-1 px-4 py-6">
             <Text className="text-gray-600 mb-4">
-              Add funds to your wallet for easy payments
+              {t('wallet.addFundsDescription')}
             </Text>
 
             <View className="mb-6">
-              <Text className="text-gray-700 font-semibold mb-2">Amount</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.amount')}</Text>
               <TextInput
-                placeholder="Enter amount"
+                placeholder={t('wallet.enterAmount')}
                 value={topUpAmount}
                 onChangeText={setTopUpAmount}
                 keyboardType="numeric"
@@ -297,7 +299,7 @@ export default function WalletPage() {
                 <ActivityIndicator color="white" />
               ) : (
                 <Text style={{ color: 'white' }} className="font-semibold text-center text-lg">
-                  Add ${topUpAmount || '0.00'}
+                  {t('wallet.add')} ${topUpAmount || '0.00'}
                 </Text>
               )}
             </Pressable>
@@ -317,20 +319,20 @@ export default function WalletPage() {
               <Pressable onPress={() => setShowWithdrawModal(false)}>
                 <Ionicons name="close" size={24} color="#374151" />
               </Pressable>
-              <Text className="text-xl font-bold text-gray-800">Withdraw Funds</Text>
+              <Text className="text-xl font-bold text-gray-800">{t('wallet.requestWithdrawal')}</Text>
               <View className="w-6" />
             </View>
           </View>
 
           <ScrollView className="flex-1 px-4 py-6">
             <Text className="text-gray-600 mb-4">
-              Request a withdrawal to your bank account
+              {t('wallet.withdrawalDescription')}
       </Text>
 
             <View className="mb-4">
-              <Text className="text-gray-700 font-semibold mb-2">Amount</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.amount')}</Text>
               <TextInput
-                placeholder="Enter amount"
+                placeholder={t('wallet.enterAmount')}
                 value={withdrawAmount}
                 onChangeText={setWithdrawAmount}
                 keyboardType="numeric"
@@ -339,9 +341,9 @@ export default function WalletPage() {
             </View>
 
             <View className="mb-4">
-              <Text className="text-gray-700 font-semibold mb-2">Bank Account Number *</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.bankAccount')} *</Text>
               <TextInput
-                placeholder="Enter bank account number"
+                placeholder={t('wallet.enterBankAccount')}
                 value={bankDetails.bank_account}
                 onChangeText={(text) => setBankDetails({...bankDetails, bank_account: text})}
                 className="border border-gray-300 rounded-lg px-4 py-3"
@@ -349,9 +351,9 @@ export default function WalletPage() {
             </View>
 
             <View className="mb-4">
-              <Text className="text-gray-700 font-semibold mb-2">Bank Name *</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.bankName')} *</Text>
               <TextInput
-                placeholder="Enter bank name"
+                placeholder={t('wallet.enterBankName')}
                 value={bankDetails.bank_name}
                 onChangeText={(text) => setBankDetails({...bankDetails, bank_name: text})}
                 className="border border-gray-300 rounded-lg px-4 py-3"
@@ -359,9 +361,9 @@ export default function WalletPage() {
             </View>
 
             <View className="mb-4">
-              <Text className="text-gray-700 font-semibold mb-2">Account Holder Name *</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.accountHolder')} *</Text>
               <TextInput
-                placeholder="Enter account holder name"
+                placeholder={t('wallet.enterAccountHolder')}
                 value={bankDetails.account_holder_name}
                 onChangeText={(text) => setBankDetails({...bankDetails, account_holder_name: text})}
                 className="border border-gray-300 rounded-lg px-4 py-3"
@@ -369,9 +371,9 @@ export default function WalletPage() {
             </View>
 
             <View className="mb-6">
-              <Text className="text-gray-700 font-semibold mb-2">IBAN (Optional)</Text>
+              <Text className="text-gray-700 font-semibold mb-2">{t('wallet.iban')}</Text>
               <TextInput
-                placeholder="Enter IBAN"
+                placeholder={t('wallet.enterIban')}
                 value={bankDetails.iban}
                 onChangeText={(text) => setBankDetails({...bankDetails, iban: text})}
                 className="border border-gray-300 rounded-lg px-4 py-3"
@@ -388,7 +390,7 @@ export default function WalletPage() {
                 <ActivityIndicator color="white" />
               ) : (
                 <Text style={{ color: 'white' }} className="font-semibold text-center text-lg">
-                  Request Withdrawal
+                  {t('wallet.submit')}
                 </Text>
               )}
             </Pressable>

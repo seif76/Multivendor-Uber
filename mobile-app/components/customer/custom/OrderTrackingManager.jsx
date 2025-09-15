@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import OrderTrackingCard from './OrderTrackingCard';
+import { useLanguage } from '../../../context/LanguageContext';
 
 export default function OrderTrackingManager() {
   const [activeOrders, setActiveOrders] = useState([]);
@@ -12,6 +13,7 @@ export default function OrderTrackingManager() {
   const [customerId, setCustomerId] = useState(null);
   const socketRef = useRef(null);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const { t } = useLanguage();
 
   useEffect(() => {
     initializeOrderTracking();
@@ -211,7 +213,7 @@ export default function OrderTrackingManager() {
   if (loading) {
     return (
       <View className="p-4">
-        <Text className="text-gray-600 text-center">Loading orders...</Text>
+        <Text className="text-gray-600 text-center">{t('common.loading')}</Text>
       </View>
     );
   }
@@ -223,8 +225,8 @@ export default function OrderTrackingManager() {
   return (
     <View className="mt-4">
       <View className="px-4 mb-3">
-        <Text className="text-lg font-bold text-gray-800">Active Orders</Text>
-        <Text className="text-sm text-gray-600">Track your orders </Text>
+        <Text className="text-lg font-bold text-gray-800">{t('home.activeOrders')}</Text>
+        <Text className="text-sm text-gray-600">{t('orders.trackOrder')}</Text>
       </View>
       
       <ScrollView 

@@ -2,8 +2,8 @@
 // components/CaptainMap.js
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { StyleSheet, View, Platform, Alert, Text } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import { socket } from '../../../config/socket'; // adjust path as needed
 
 export default function DeliverymanMap() {
@@ -30,6 +30,9 @@ export default function DeliverymanMap() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Choose provider based on platform
+  const mapProvider = Platform.OS === 'android' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE;
 
   return (
     <View style={styles.container}>

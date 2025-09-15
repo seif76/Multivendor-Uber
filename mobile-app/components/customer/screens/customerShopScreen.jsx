@@ -166,7 +166,7 @@ import {
     ScrollView,
     Text,
     TextInput,
-    View
+    View,
 } from 'react-native';
 import VendorCard from '../multiShopPage/VendorCard';
 import ShopHeader from '../multiShopPage/header';
@@ -265,7 +265,7 @@ export default function CustomerShopScreen() {
       {loading ? (
   <ActivityIndicator size="large" color="#007233" className="mt-10" />
 ) : (
-  <>
+  <View>
     {filteredVendors.length === 0 ? (
       <View className="  flex-1 -mt-60 items-center justify-center">
         <Text className="text-gray-500 text-base">No vendors found.</Text>
@@ -279,7 +279,7 @@ export default function CustomerShopScreen() {
         renderItem={({ item }) => <VendorCard vendor={item} />}
       />
     )}
-  </>
+  </View>
 )}
 
     </View>
