@@ -1,6 +1,6 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React  , {useState}from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useHome } from '../../../context/customer/HomeContext';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -9,6 +9,7 @@ export default function CategorySlider() {
   const router = useRouter();
   const { categories, loading, error } = useHome();
   const { t } = useLanguage();
+  const [activeCategory, setActiveCategory] = useState("All");
 
   // Default categories as fallback
   const defaultCategories = [
@@ -28,6 +29,7 @@ export default function CategorySlider() {
 
   const handleCategoryPress = (category) => {
     // Navigate to shop with category filter
+    setActiveCategory(category.label);
     alert("coming soon");
   };
 
@@ -86,19 +88,64 @@ export default function CategorySlider() {
       </Pressable>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-        {defaultCategories.map((category, i) => (
-          <Pressable 
-            key={i} 
-            onPress={() => handleCategoryPress(category)}
-            className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
+        {defaultCategories.map((category, i) => 
+        {
+          const isActive = activeCategory === category.label;
+          return(
+
+          // <Pressable 
+          //   key={i} 
+          //   onPress={() => handleCategoryPress(category)}
+          //   className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
+          // >
+          //   {/* {getCategoryIcon(category)} */}
+          //   <Text className="text-2xl">{category.iconType === 'Ionicons' ? <Ionicons name={category.icon} size={24} color="#007233" /> : <FontAwesome name={category.icon} size={24} color="#007233" />}</Text>
+          //   <Text className="mt-2 text-sm text-gray-700" numberOfLines={1}>
+          //     {category.label}
+          //   </Text>
+          // </Pressable>
+          
+          <Pressable
+          key={category.id}
+          onPress={() => handleCategoryPress(category)}
+          className={`flex-row items-center px-4 py-2 rounded-full mr-3  ${
+            isActive ? "bg-green-100" : "bg-gray-100"
+          }`}
+        >
+          <View
+            className={`rounded-full p-2 mb-1 ${
+              isActive ? "bg-green-500" : "bg-white"
+            }`}
           >
-            {/* {getCategoryIcon(category)} */}
-            <Text className="text-2xl">{category.iconType === 'Ionicons' ? <Ionicons name={category.icon} size={24} color="#007233" /> : <FontAwesome name={category.icon} size={24} color="#007233" />}</Text>
-            <Text className="mt-2 text-sm text-gray-700" numberOfLines={1}>
-              {category.label}
-            </Text>
-          </Pressable>
-        ))}
+            {category.iconType === "Ionicons" ? (
+              <Ionicons
+                name={category.icon}
+                size={15}
+                color={isActive ? "white" : "#007233"}
+              />
+            ) : (
+              <FontAwesome
+                name={category.icon}
+                size={15}
+                color={isActive ? "white" : "#007233"}
+              />
+            )}
+          </View>
+
+          <Text
+            className={`text-xs ml-2 ${
+              isActive ? "text-green-700 font-semibold" : "text-gray-600"
+            }`}
+            numberOfLines={1}
+          >
+            {category.label}
+          </Text>
+        </Pressable>
+        )
+          }
+          )
+          
+      }
       </ScrollView>
     </View>
   );

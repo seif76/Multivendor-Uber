@@ -13,6 +13,7 @@ import { useHome } from '../../../context/customer/HomeContext';
 import { useWallet } from '../../../context/customer/WalletContext';
 import { CustomerAuthContext } from '../../../context/customer/CustomerAuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import HeroCarousel from '../custom/HeroCarousel';
 
 export default function CustomerHomePage() {
   const { isCustomerVerified } = useContext(CustomerAuthContext);
@@ -33,8 +34,10 @@ export default function CustomerHomePage() {
       <CustomerTopNav />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         
+        
         <LocationBanner />
-        <WalletCard />
+        <HeroCarousel/>
+        {/* <WalletCard /> */}
         <OrderTrackingManager />
 
         <ServiceSelector />

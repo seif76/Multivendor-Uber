@@ -153,7 +153,7 @@
 
 
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons ,FontAwesome} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -188,6 +188,23 @@ export default function CustomerShopScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  // Default categories as fallback
+  const defaultCategories = [
+    { icon: 'shopping-bag', label: 'Fashion', iconType: 'FontAwesome' },
+    { icon: 'laptop', label: 'Electronics', iconType: 'FontAwesome' },
+    { icon: 'restaurant', label: 'Food', iconType: 'Ionicons' },
+    { icon: 'home', label: 'Home', iconType: 'FontAwesome' },
+    { icon: 'medical', label: 'Health', iconType: 'Ionicons' },
+  ];
+
+  const handleCategoryPress = (category) => {
+    // Navigate to shop with category filter
+    setActiveCategory(category.label);
+    alert("coming soon");
+  };
 
   useEffect(() => {
     fetchVendors();
@@ -232,7 +249,7 @@ export default function CustomerShopScreen() {
       </View>
 
       {/* Categories */}
-      <ScrollView
+      {/* <ScrollView
  horizontal
  showsHorizontalScrollIndicator={false}
  className="mb-4"
@@ -245,7 +262,56 @@ export default function CustomerShopScreen() {
       <Text className="text-sm mt-1 text-primary">{cat.name}</Text>
     </View>
   ))}
-</ScrollView>
+</ScrollView> */}
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4 h-[4.5rem] max-h-[4.5rem]  mb-6">
+        {defaultCategories.map((category, i) => 
+        {
+          const isActive = activeCategory === category.label;
+          return(
+          
+          <Pressable
+          key={category.id}
+          onPress={() => handleCategoryPress(category)}
+          className={`flex-row items-center px-4 py-2 rounded-full mr-3  ${
+            isActive ? "bg-green-100" : "bg-gray-100"
+          }`}
+        >
+          <View
+            className={`rounded-full p-2 mb-1 ${
+              isActive ? "bg-green-500" : "bg-white"
+            }`}
+          >
+            {category.iconType === "Ionicons" ? (
+              <Ionicons
+                name={category.icon}
+                size={15}
+                color={isActive ? "white" : "#007233"}
+              />
+            ) : (
+              <FontAwesome
+                name={category.icon}
+                size={15}
+                color={isActive ? "white" : "#007233"}
+              />
+            )}
+          </View>
+
+          <Text
+            className={`text-xs ml-2 ${
+              isActive ? "text-green-700 font-semibold" : "text-gray-600"
+            }`}
+            numberOfLines={1}
+          >
+            {category.label}
+          </Text>
+        </Pressable>
+        )
+          }
+          )
+          
+      }
+      </ScrollView>
 
 
 {/* Filters */}

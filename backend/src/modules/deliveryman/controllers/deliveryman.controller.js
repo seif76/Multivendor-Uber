@@ -19,6 +19,7 @@ const { uploadToCloudinary } = require('../../../config/cloudinary/services/clou
 // Register new deliveryman
 const registerDeliverymanController = async (req, res) => {
   try {
+    console.log("mousaaaaaaa");
     console.log(JSON.stringify(req.body));
     const { name, email, password, phone_number, gender , vehicleData } = req.body;
     

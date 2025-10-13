@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import mime from "mime";
+
 
 export default function VendorRegister() {
   // Registration flow states
@@ -140,35 +142,31 @@ export default function VendorRegister() {
     if (customerVerified && customerData) {
       formData.append('customer_id', customerData.id);
     }
+    const appendFile = (fieldName, file) => {
+      if (!file) return;
+      const newImageUri = file.uri;
+      const fileName = newImageUri.split("/").pop();
+      const fileType = mime.getType(newImageUri);
+
+      formData.append(fieldName, {
+        uri: newImageUri,
+        type: fileType,
+        name: fileName,
+      });
+    };
 
     // Add images
-    if (logo && logo.uri) {
-      formData.append('logo', {
-        uri: logo.uri,
-        name: logo.name || 'logo.jpg',
-        type: logo.type || 'image/jpeg',
-      });
+    if (logo ) {
+      appendFile("logo", logo);
     }
-    if (passportPhoto && passportPhoto.uri) {
-      formData.append('passport_photo', {
-        uri: passportPhoto.uri,
-        name: passportPhoto.name || 'passport.jpg',
-        type: passportPhoto.type || 'image/jpeg',
-      });
+    if (passportPhoto ) {
+      appendFile('passport_photo',passportPhoto);
     }
-    if (licensePhoto && licensePhoto.uri) {
-      formData.append('license_photo', {
-        uri: licensePhoto.uri,
-        name: licensePhoto.name || 'license.jpg',
-        type: licensePhoto.type || 'image/jpeg',
-      });
+    if (licensePhoto ) {
+      appendFile('license_photo', licensePhoto);
     }
-    if (shopFrontPhoto && shopFrontPhoto.uri) {
-      formData.append('shop_front_photo', {
-        uri: shopFrontPhoto.uri,
-        name: shopFrontPhoto.name || 'shopfront.jpg',
-        type: shopFrontPhoto.type || 'image/jpeg',
-      });
+    if (shopFrontPhoto ) {
+      appendFile('shop_front_photo', shopFrontPhoto);
     }
     
     try {
