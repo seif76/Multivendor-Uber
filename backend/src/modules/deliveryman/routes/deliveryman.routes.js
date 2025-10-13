@@ -96,6 +96,26 @@ router.post('/register', upload.fields([
   { name: 'driver_license_photo', maxCount: 1 },
   { name: 'national_id_photo', maxCount: 1 }
 ]), registerDeliverymanController);
+// router.post('/register', (req, res, next) => {
+//   console.log("called")
+//   const uploadHandler = upload.fields([
+//     { name: 'profile_photo', maxCount: 1 },
+//     { name: 'driver_license_photo', maxCount: 1 },
+//     { name: 'national_id_photo', maxCount: 1 },
+//   ]);
+
+//   uploadHandler(req, res, function (err) {
+//     if (err) {
+//       console.error('Multer error:', err);
+//       return res.status(400).json({ error: err.message });
+//     }
+
+//     console.log('Uploaded files:', req.files);
+//     console.log('Body:', req.body);
+
+//     next();
+//   });
+// }, registerDeliverymanController);
 
 /**
  * @swagger
