@@ -190,7 +190,10 @@ export default function ProfilePage() {
           {/* Language Switcher */}
           <LanguageSwitcher />
           
-          <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
+          <Pressable
+            className="flex-row items-center justify-between py-4 border-b border-gray-100"
+            onPress={() => router.push('/customer/EditProfilePage')}
+          >
             <View className="flex-row items-center">
               <View className="w-8 h-8 bg-orange-100 rounded-full items-center justify-center mr-3">
                 <Ionicons name="create-outline" size={16} color="#f97316" />
@@ -199,6 +202,17 @@ export default function ProfilePage() {
             </View>
             <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
           </Pressable>
+
+
+          {/* <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-orange-100 rounded-full items-center justify-center mr-3">
+                <Ionicons name="create-outline" size={16} color="#f97316" />
+              </View>
+              <Text className="text-gray-800 font-medium">Edit Profile</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+          </Pressable> */}
 
           <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
             <View className="flex-row items-center">

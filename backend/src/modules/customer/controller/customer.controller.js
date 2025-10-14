@@ -59,6 +59,21 @@ const getCustomerByPhoneController = async (req, res) => {
   }
 };
 
+// const editCustomerController = async (req, res) => {
+//   try {
+//     const { phone_number, updates } = req.body;
+
+//     if (!phone_number || !updates) {
+//       return res.status(400).json({ error: 'Phone number and updates are required' });
+//     }
+
+//     const updatedCustomer = await editCustomer(phone_number, updates);
+
+//     res.status(200).json({ message: 'Customer updated', user: updatedCustomer });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 const editCustomerController = async (req, res) => {
   try {
     const { phone_number, updates } = req.body;
@@ -67,8 +82,10 @@ const editCustomerController = async (req, res) => {
       return res.status(400).json({ error: 'Phone number and updates are required' });
     }
 
-    const updatedCustomer = await editCustomer(phone_number, updates);
+    // You can also ensure photo updates are excluded
+    delete updates.profile_photo;
 
+    const updatedCustomer = await editCustomer(phone_number, updates);
     res.status(200).json({ message: 'Customer updated', user: updatedCustomer });
   } catch (err) {
     res.status(500).json({ error: err.message });
