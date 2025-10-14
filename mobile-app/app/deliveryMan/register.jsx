@@ -519,7 +519,7 @@ export default function DeliverymanRegister() {
           <View className="mb-6">
             <Text className="mb-2 text-gray-700 font-medium">Vehicle Type</Text>
             <View className="flex-row space-x-4">
-              {['car', 'motorcycle', 'bicycle'].map((type) => (
+              {['car', 'motorcycle', 'van'].map((type) => (
                 <TouchableOpacity
                   key={type}
                   onPress={() => handleVehicleChange('vehicle_type', type)}
@@ -606,7 +606,7 @@ export default function DeliverymanRegister() {
           <View className="mb-6">
             <Text className="mb-2 text-gray-700 font-medium">Vehicle Type</Text>
             <View className="flex-row space-x-4">
-              {['car', 'motorcycle', 'bicycle'].map((type) => (
+              {['car', 'motorcycle', 'van'].map((type) => (
                 <TouchableOpacity
                   key={type}
                   onPress={() => handleVehicleChange('vehicle_type', type)}
