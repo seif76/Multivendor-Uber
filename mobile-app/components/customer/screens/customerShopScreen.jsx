@@ -170,6 +170,7 @@ import {
 } from 'react-native';
 import VendorCard from '../multiShopPage/VendorCard';
 import ShopHeader from '../multiShopPage/header';
+import { useLocalSearchParams } from "expo-router";
 
 const categories = [
   { id: 'all', name: 'All', icon: '🛍️' },
@@ -182,7 +183,8 @@ const categories = [
 const filters = ['Offers', 'Free delivery', 'Under 30 mins'];
 
 export default function CustomerShopScreen() {
-  const [search, setSearch] = useState('');
+  const { query } = useLocalSearchParams(); // get the query text
+  const [search, setSearch] = useState(query || ''); // keep it as initial search
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -264,7 +266,11 @@ export default function CustomerShopScreen() {
   ))}
 </ScrollView> */}
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4 h-[4.5rem] max-h-[4.5rem]  mb-6">
+<ScrollView 
+  style={{ height: 45, maxHeight: 45 }} 
+  horizontal 
+  showsHorizontalScrollIndicator={false} 
+  className="space-x-4  mb-6">
         {defaultCategories.map((category, i) => 
         {
           const isActive = activeCategory === category.label;
@@ -331,19 +337,24 @@ export default function CustomerShopScreen() {
       {loading ? (
   <ActivityIndicator size="large" color="#007233" className="mt-10" />
 ) : (
-  <View>
+  <View className="flex-1">
     {filteredVendors.length === 0 ? (
-      <View className="  flex-1 -mt-60 items-center justify-center">
-        <Text className="text-gray-500 text-base">No vendors found.</Text>
+      <View className="  mt-40 items-center justify-center">
+        <Text className="text-gray-950 text-base">No vendors found.</Text>
       </View>
     ) : (
+     
+  
+
       <FlatList
         data={filteredVendors}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 80 }}
         renderItem={({ item }) => <VendorCard vendor={item} />}
+        horizontal={false}
       />
+     
     )}
   </View>
 )}
