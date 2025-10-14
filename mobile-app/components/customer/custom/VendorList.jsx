@@ -72,7 +72,7 @@ export default function VendorList() {
            <Pressable 
              key={vendor.id} 
              onPress={() => handleVendorPress(vendor)}
-             className="w-48 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mr-4"
+             className="w-40 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mr-4"
            >
              <View className="relative">
                <Image
