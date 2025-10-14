@@ -587,9 +587,7 @@ export default function ShopDetails() {
                 resizeMode="cover"
               />
             </View>
-            <View className="absolute top-3 right-3 bg-white/95 px-3 py-1.5 rounded-full shadow-sm">
-              <Text className="text-xs font-bold text-primary">EGP {parseFloat(item.price).toFixed(2)}</Text>
-            </View>
+            
             {item.stock > 0 && (
               <View className="absolute top-3 left-3 bg-primary px-2 py-1 rounded-full">
                 <Text className="text-white text-xs font-bold">In Stock</Text>
@@ -603,6 +601,7 @@ export default function ShopDetails() {
           </View>
           <View className="p-4">
             <Text className="font-bold text-base text-gray-900 mb-2" numberOfLines={2}>{item.name}</Text>
+            <Text className="font-bold text-sm text-gray-900 mb-2">EGP {parseFloat(item.price).toFixed(2)}</Text>
             <Text className="text-sm text-gray-500 mb-3" numberOfLines={2}>{item.description || 'Fresh and delicious'}</Text>
             
             <View className="flex-row items-center justify-between mb-3">
@@ -613,8 +612,21 @@ export default function ShopDetails() {
                 <Text className="text-xs text-gray-500 ml-1">{item.stock || 0} left</Text>
               </View>
             </View>
+            <Pressable
+             onPress={() => addToCart(item)}
+             disabled={item.stock === 0}
+             className={`absolute bottom-8 right-3 w-12 h-12 rounded-full items-center justify-center shadow-md ${
+             item.stock > 0 ? 'bg-[#007233]' : 'bg-gray-300'
+             }`}
+            >
+            <Ionicons
+           name="add"
+           size={26}
+           color={item.stock > 0 ? '#fff' : '#9ca3af'}
+           />
+         </Pressable>
             
-            <Pressable 
+            {/* <Pressable 
               className={`w-full py-3 rounded-xl ${item.stock > 0 ? 'bg-primary' : 'bg-gray-300'}`}
               disabled={item.stock === 0}
               onPress={() => addToCart(item)}
@@ -622,7 +634,7 @@ export default function ShopDetails() {
               <Text className={`text-center font-semibold ${item.stock > 0 ? 'text-white' : 'text-gray-500'}`}>
                 {item.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
               </Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         </TouchableOpacity>
       )}

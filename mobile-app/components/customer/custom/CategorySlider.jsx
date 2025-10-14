@@ -80,12 +80,7 @@ export default function CategorySlider() {
         </Pressable>
       </View>
       
-      <Pressable 
-        onPress={() => router.push("/customer/shop/shop")} 
-        className="bg-primary mb-3 w-full py-3 rounded-lg items-center"
-      >
-        <Text className="text-white text-lg font-semibold">{t('home.browseAllStores')}</Text>
-      </Pressable>
+      
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
         {defaultCategories.map((category, i) => 
@@ -147,6 +142,12 @@ export default function CategorySlider() {
           
       }
       </ScrollView>
+      <Pressable 
+        onPress={() => router.push("/customer/shop/shop")} 
+        className="bg-primary mt-4 mb-3 w-full py-3 rounded-lg items-center"
+      >
+        <Text className="text-white text-lg font-semibold">{t('home.browseAllStores')}</Text>
+      </Pressable>
     </View>
   );
 }

@@ -14,7 +14,7 @@ export default function VendorCard({ vendor }) {
 
   return (
     <View>
-      <View className="flex-row items-center bg-white py-4 px-2 mb-1 rounded-xl shadow-sm border-b border-gray-100">
+      <View className="flex-row items-center bg-white py-4 px-2 mb-2 rounded-xl shadow-sm border-b border-gray-100">
         {/* Shop Logo */}
         <Image
           source={{ uri: shopLogo }}
