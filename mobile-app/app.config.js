@@ -3,6 +3,9 @@ export default   {
   "expo": {
     "name": "mobile-app",
     "slug": "mobile-app",
+    plugins: [
+      "expo-web-browser"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Elnaizak-logo.jpeg",
