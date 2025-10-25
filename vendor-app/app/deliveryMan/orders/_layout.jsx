@@ -1,0 +1,59 @@
+import { FontAwesome } from '@expo/vector-icons';
+import { Slot, Tabs, useSegments } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { View, Platform } from 'react-native';
+import DeliverymanSideNav from '../../../components/deliveryman/navigation/sideNav';
+import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/topNav';
+import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
+import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+export default function DeliverymanLayout() {
+  const segments = useSegments();
+  const [showTabs, setShowTabs] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(false);
+  useEffect(() => {
+    const current = segments[segments.length - 1];
+    setShowTabs(current !== 'login' && current !== 'register'); // hide tabs on login/register
+  //  alert(platform?.OS);
+  }, [segments]);
+
+  if (!showTabs) {
+    return <Slot />; // only show login/register screen
+  }
+
+  return (
+    <DeliverymanAuthProvider>
+          
+
+      <View className={`flex-1 bg-white  `}>      
+        <SafeAreaView 
+        edges={Platform.OS === 'android' ? ['top'] : []}
+        className={`flex-1 bg-white `}>
+
+          {/* Deliveryman Top Navbar */}
+      <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
+
+      {/* Sidebar */}
+      <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+        <Tabs
+          screenOptions={{
+            tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
+            headerShown: false,
+            tabBarStyle: { display: 'none' },
+          }}
+        >
+        
+        
+          
+          {/* Hidden screens */}
+          <Tabs.Screen name="[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
+        </Tabs>
+        </SafeAreaView>
+      
+      </View>
+
+    </DeliverymanAuthProvider>
+  );
+}

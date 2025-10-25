@@ -57,7 +57,7 @@ export default function CategorySlider() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
           {defaultCategories.map((category, i) => (
             <Pressable 
-              key={i} 
+              key={i  || category.label } 
               onPress={() => handleCategoryPress(category)}
               className="items-center bg-gray-100 px-4 py-3 rounded-xl mr-3"
             >
@@ -101,7 +101,7 @@ export default function CategorySlider() {
           // </Pressable>
           
           <Pressable
-          key={category.id}
+          key={category.id || category.label}
           onPress={() => handleCategoryPress(category)}
           className={`flex-row items-center px-4 py-2 rounded-full mr-3  ${
             isActive ? "bg-green-100" : "bg-gray-100"
