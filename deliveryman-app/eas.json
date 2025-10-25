@@ -1,0 +1,54 @@
+{
+  "cli": {
+    "version": ">= 16.19.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+      "preview": {
+        "environment": "preview",
+        "distribution": "internal",
+        "developmentClient": false, 
+        "android": { 
+          "buildType": "apk",
+          "gradleCommand": ":app:assembleRelease"
+        },
+        "ios": {
+          "buildConfiguration": "Release"
+        },
+        "env": {
+          "EXPO_PUBLIC_BACKEND_URL": "$BACKEND_URL",
+          "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY",
+          "BACKEND_URL": "$BACKEND_URL",
+          "GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY"
+        }
+      },
+      "preview2": {
+        "environment": "preview",
+        "distribution": "internal",
+        "developmentClient": true, 
+        "android": { 
+          "buildType": "apk",
+          "gradleCommand": ":app:assembleDebug"
+        },
+        "env": {
+          "EXPO_PUBLIC_BACKEND_URL": "$BACKEND_URL",
+          "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY"
+        }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "BACKEND_URL": "$BACKEND_URL",
+        "GOOGLE_MAPS_API_KEY": "$GOOGLE_MAPS_API_KEY"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
+
+

@@ -57,9 +57,9 @@ export default function CustomerLogin() {
         </View>
 
         {/* Back button */}
-        <Pressable onPress={() => router.push('/')} className="absolute top-12 left-6 w-10 h-10 bg-white  rounded-full items-center justify-center z-10 shadow-lg">
+        {/* <Pressable onPress={() => router.push('/')} className="absolute top-12 left-6 w-10 h-10 bg-white  rounded-full items-center justify-center z-10 shadow-lg">
           <Ionicons name="arrow-back" size={20} color="#007233" />
-        </Pressable>
+        </Pressable> */}
 
         <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View className="px-6 py-8">
