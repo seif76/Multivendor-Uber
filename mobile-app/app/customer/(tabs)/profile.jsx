@@ -1,31 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Image, ScrollView, Pressable, Alert } from 'react-native';
-import axios from 'axios';
-import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
-import { useLanguage } from '../../../context/LanguageContext';
-import LanguageSwitcher from '../../../components/customer/custom/LanguageSwitcher';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from "react-native";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
+// Enable smooth expand animation
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [expandedSection, setExpandedSection] = useState(null);
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
-  const { t, isRTL } = useLanguage();
-  const router = useRouter();
+
+  // Fetch profile from backend
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem("token");
         const res = await axios.get(`${BACKEND_URL}/api/customers/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
-       
         setUser(res.data);
       } catch (err) {
-        setError('Failed to load profile');
+        console.log("Error fetching profile:", err);
       } finally {
         setLoading(false);
       }
@@ -33,19 +46,23 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  const toggleSection = (key) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedSection(expandedSection === key ? null : key);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("cart");
+    await AsyncStorage.removeItem("cart_vendor_id");
+    router.push("/");
+  };
+
   if (loading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#000" />
-        <Text className="mt-4 text-lg text-gray-500">{t('common.loading')}</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-lg text-red-500">{t('common.error')}</Text>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text className="mt-4 text-gray-500 text-lg">Loading...</Text>
       </View>
     );
   }
@@ -53,213 +70,169 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-lg text-gray-500">No user data found.</Text>
+        <Text className="text-gray-500 text-lg">No user data found.</Text>
       </View>
     );
   }
-  const handleLogout = async () => {
-    // Remove all relevant AsyncStorage items for logout
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('cart');
-    await AsyncStorage.removeItem('cart_vendor_id');
-    // Add more keys to remove if needed
-
-    router.push('/'); // Redirect to home or login
-  };
 
   return (
-    <ScrollView className="flex-1 bg-gray-100" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
-      {/* Header Section */}
-      <View className="bg-white pt-12 pb-6 px-6">
-        <View className="flex-row items-center justify-between mb-6">
-          <Text className="text-2xl font-bold text-gray-800">{t('profile.title')}</Text>
-          <Pressable className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
-            <Ionicons name="settings-outline" size={20} color="#6b7280" />
-          </Pressable>
-        </View>
-        
-        {/* Profile Header Card */}
-        <View className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6">
-          <View className="flex-row items-center">
-            <View className="relative">
-              {user.profile_photo ? (
-                <Image
-                  source={{ uri: user.profile_photo }}
-                  className="w-16 h-16 rounded-full border-3 border-white/30"
-                />
-              ) : (
-                <View className="w-16 h-16 rounded-full bg-white/20 items-center justify-center border-3 border-white/30">
-                  <Ionicons name="person" size={32} color="white" />
-                </View>
-              )}
-              <View className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></View>
+    <View className="flex-1 bg-[#f6f8f6]">
+      <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+        {/* Profile Card */}
+        <View className="bg-white p-4 shadow-sm">
+          <View className="flex-row items-center gap-4">
+            {user.profile_photo ? (
+              <Image
+                source={{ uri: user.profile_photo }}
+                className="h-16 w-16 rounded-full border border-gray-300"
+              />
+            ) : (
+              <View className="h-16 w-16 rounded-full bg-gray-200 items-center justify-center">
+                <Ionicons name="person-outline" size={28} color="#777" />
+              </View>
+            )}
+            <View className="flex-1">
+              <Text className="text-lg font-bold text-[#333]">{user.name}</Text>
+              <Text className="text-sm text-gray-500">{user.phone_number || "N/A"}</Text>
             </View>
-            <View className="ml-4 flex-1">
-              <Text className="text-black text-xl font-bold">{user.name || 'User'}</Text>
-              <Text className="text-gray-600 text-sm">{user.email || 'No email'}</Text>
-              <View className="flex-row items-center mt-1">
-                <View className="w-2 h-2 bg-green-400 rounded-full mr-2"></View>
-                <Text className="text-gray-600 text-xs">Active</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View className="px-6 justify-between  -mt-4">
-        {/* Quick Stats */}
-        <View className="flex-row  space-x-3 mb-6">
-          <View className="flex-1 bg-white rounded-xl p-4">
-            <View className="flex-row items-center justify-between">
-              <View>
-                <Text className="text-gray-500 text-xs">Total Orders</Text>
-                <Text className="text-gray-800 text-lg font-bold">12</Text>
-              </View>
-              <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center">
-                <Ionicons name="bag-outline" size={16} color="#3b82f6" />
-              </View>
-            </View>
-          </View>
-          
-          <View className="flex-1 bg-white rounded-xl p-4">
-            <View className="flex-row items-center justify-between">
-              <View>
-                <Text className="text-gray-500 text-xs">Loyalty Points</Text>
-                <Text className="text-gray-800 text-lg font-bold">1,250</Text>
-              </View>
-              <View className="w-8 h-8 bg-yellow-100 rounded-full items-center justify-center">
-                <Ionicons name="star-outline" size={16} color="#f59e0b" />
-              </View>
-            </View>
+            <TouchableOpacity
+              onPress={() => router.push("/customer/EditProfilePage")}
+              className="p-2 rounded-full bg-[#4CAF50]/10"
+            >
+              <Ionicons name="create-outline" size={22} color="#4CAF50" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Personal Information */}
-        <View className="bg-white rounded-2xl p-6 mb-6">
-          <Text className="text-lg font-bold text-gray-800 mb-4">Personal Information</Text>
-          
-          <View className="space-y-4">
-            <View className="flex-row items-center justify-between py-3 border-b border-gray-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="person-outline" size={16} color="#3b82f6" />
-                </View>
-                <Text className="text-gray-600 text-sm">Full Name</Text>
-              </View>
-              <Text className="text-gray-800 font-medium">{user.name || 'N/A'}</Text>
-            </View>
-
-            <View className="flex-row items-center justify-between py-3 border-b border-gray-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-green-100 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="mail-outline" size={16} color="#10b981" />
-                </View>
-                <Text className="text-gray-600 text-sm">Email</Text>
-              </View>
-              <Text className="text-gray-800 font-medium">{user.email || 'N/A'}</Text>
-            </View>
-
-            <View className="flex-row items-center justify-between py-3 border-b border-gray-100">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-purple-100 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="call-outline" size={16} color="#8b5cf6" />
-                </View>
-                <Text className="text-gray-600 text-sm">Phone</Text>
-              </View>
-              <Text className="text-gray-800 font-medium">{user.phone_number || 'N/A'}</Text>
-            </View>
-
-            <View className="flex-row items-center justify-between py-3">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-pink-100 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="person-circle-outline" size={16} color="#ec4899" />
-                </View>
-                <Text className="text-gray-600 text-sm">Gender</Text>
-              </View>
-              <Text className="text-gray-800 font-medium">
-                {user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'N/A'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Menu Options */}
-        <View className="bg-white rounded-2xl p-6 mb-6">
-          <Text className="text-lg font-bold text-gray-800 mb-4">Account</Text>
-          
-          {/* Language Switcher */}
-          <LanguageSwitcher />
-          
-          <Pressable
-            className="flex-row items-center justify-between py-4 border-b border-gray-100"
-            onPress={() => router.push('/customer/EditProfilePage')}
+        {/* Profile Data */}
+        <View className="mt-4 mx-4 bg-white rounded-xl shadow-md overflow-hidden">
+          <TouchableOpacity
+            className="flex-row items-center gap-4 px-4 py-3 border-b border-gray-200"
+            onPress={() => toggleSection("profileData")}
           >
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-orange-100 rounded-full items-center justify-center mr-3">
-                <Ionicons name="create-outline" size={16} color="#f97316" />
-              </View>
-              <Text className="text-gray-800 font-medium">Edit Profile</Text>
+            <View className="flex size-10 items-center justify-center rounded-lg bg-[#4CAF50]/10">
+              <Ionicons name="person-circle-outline" size={22} color="#4CAF50" />
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-          </Pressable>
+            <Text className="flex-1 text-[#333] font-medium">Profile Data</Text>
+            <Ionicons
+              name={expandedSection === "profileData" ? "chevron-up" : "chevron-down"}
+              size={20}
+              color="#888"
+            />
+          </TouchableOpacity>
 
-
-          {/* <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-orange-100 rounded-full items-center justify-center mr-3">
-                <Ionicons name="create-outline" size={16} color="#f97316" />
-              </View>
-              <Text className="text-gray-800 font-medium">Edit Profile</Text>
+          {expandedSection === "profileData" && (
+            <View className="px-5 py-4 space-y-3">
+              {[
+                { label: "Name", value: user.name, icon: "person-outline" },
+                { label: "Email", value: user.email, icon: "mail-outline" },
+                { label: "Phone", value: user.phone_number, icon: "call-outline" },
+                {
+                  label: "Gender",
+                  value: user.gender
+                    ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+                    : "N/A",
+                  icon: "male-female-outline",
+                },
+              ].map((item, index) => (
+                <View key={index} className="flex-row items-center">
+                  <Ionicons name={item.icon} size={18} color="#4CAF50" />
+                  <Text className="ml-3 text-gray-700 font-medium flex-1">
+                    {item.label}: <Text className="font-normal">{item.value || "N/A"}</Text>
+                  </Text>
+                </View>
+              ))}
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-          </Pressable> */}
-
-          <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-indigo-100 rounded-full items-center justify-center mr-3">
-                <Ionicons name="shield-checkmark-outline" size={16} color="#6366f1" />
-              </View>
-              <Text className="text-gray-800 font-medium">Privacy & Security</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-          </Pressable>
-
-          <Pressable className="flex-row items-center justify-between py-4 border-b border-gray-100">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-yellow-100 rounded-full items-center justify-center mr-3">
-                <Ionicons name="notifications-outline" size={16} color="#eab308" />
-              </View>
-              <Text className="text-gray-800 font-medium">Notifications</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-          </Pressable>
-
-          <Pressable className="flex-row items-center justify-between py-4">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center mr-3">
-                <Ionicons name="help-circle-outline" size={16} color="#6b7280" />
-              </View>
-              <Text className="text-gray-800 font-medium">Help & Support</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-          </Pressable>
+          )}
         </View>
 
-        {/* Logout Button */}
-        <Pressable 
-          onPress={handleLogout}
-          className="bg-white rounded-2xl p-6 mb-8"
-        >
-          <View className="flex-row items-center justify-center">
-            <View className="w-8 h-8 bg-red-100 rounded-full items-center justify-center mr-3">
-              <Ionicons name="log-out-outline" size={16} color="#ef4444" />
-            </View>
-            <Text className="text-red-600 font-semibold">Logout</Text>
+        {/* Expandable Sections */}
+        {[
+          { key: "rewards", title: "Rewards (Points)", icon: "trophy-outline" },
+          { key: "orders", title: "Previous Orders", icon: "bag-handle-outline" },
+          { key: "trips", title: "Previous Trips", icon: "car-outline" },
+          { key: "wallet", title: "Wallet", icon: "wallet-outline" },
+          { key: "invite", title: "Invite Friends", icon: "gift-outline" },
+          { key: "vouchers", title: "Vouchers", icon: "pricetag-outline" },
+          { key: "pro", title: "Pro Features", icon: "diamond-outline" },
+          { key: "addresses", title: "Manage Addresses", icon: "home-outline" },
+          { key: "support", title: "Support & Help", icon: "help-circle-outline" },
+          { key: "about", title: "About App", icon: "information-circle-outline" },
+        ].map((item) => (
+          <View key={item.key} className="mt-4 mx-4 bg-white rounded-xl shadow-md">
+            <TouchableOpacity
+              activeOpacity={0.9}
+              className="flex-row items-center gap-4 px-4 py-3 border-b border-gray-200"
+              onPress={() =>
+                item.key === "wallet"
+                  ? router.push("../wallet")
+                  : toggleSection(item.key)
+              }
+            >
+              <View className="flex size-10 items-center justify-center rounded-lg bg-[#4CAF50]/10">
+                <Ionicons name={item.icon} size={22} color="#4CAF50" />
+              </View>
+              <Text className="flex-1 text-[#333] font-medium">{item.title}</Text>
+              <Ionicons
+                name={expandedSection === item.key ? "chevron-up" : "chevron-down"}
+                size={20}
+                color="#888"
+              />
+            </TouchableOpacity>
+
+            {expandedSection === item.key && item.key !== "wallet" && (
+              <View className="px-4 py-3">
+                {item.key === "rewards" && (
+                  <Text className="text-gray-700">You have 1250 reward points 🎉</Text>
+                )}
+                {item.key === "orders" && (
+                  <Text className="text-gray-700">You placed 12 orders.</Text>
+                )}
+                {item.key === "trips" && (
+                  <Text className="text-gray-700">Completed 8 trips.</Text>
+                )}
+                {item.key === "invite" && (
+                  <Text className="text-gray-700">
+                    Invite friends and earn LYD 1 per invite!
+                  </Text>
+                )}
+                {item.key === "vouchers" && (
+                  <Text className="text-gray-700">You currently have 0 vouchers.</Text>
+                )}
+                {item.key === "pro" && (
+                  <Text className="text-gray-700">
+                    Upgrade to Pro for exclusive benefits.
+                  </Text>
+                )}
+                {item.key === "addresses" && (
+                  <Text className="text-gray-700">
+                    Manage your saved delivery addresses here.
+                  </Text>
+                )}
+                {item.key === "support" && (
+                  <Text className="text-gray-700">
+                    Contact support@myapp.com for assistance.
+                  </Text>
+                )}
+                {item.key === "about" && (
+                  <Text className="text-gray-700">App version 1.0.0</Text>
+                )}
+              </View>
+            )}
           </View>
-        </Pressable>
-      </View>
-    </ScrollView>
+        ))}
+
+        {/* Logout */}
+        <View className="px-4 mt-6 mb-10">
+          <TouchableOpacity
+            className="flex-row w-full items-center justify-center gap-2 rounded-lg bg-red-500/10 py-3"
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={20} color="#E53935" />
+            <Text className="text-red-500 font-bold">Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
-
-
