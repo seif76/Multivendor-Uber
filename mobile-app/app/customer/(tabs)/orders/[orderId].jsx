@@ -42,7 +42,7 @@ export default function OrderDetailsPage() {
       const profileResponse = await axios.get(`${BACKEND_URL}/api/customers/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert("profileResponse: " + JSON.stringify(profileResponse.data));
+      //alert("profileResponse: " + JSON.stringify(profileResponse.data));
       
       const customerId = profileResponse.data.id;
       setCustomerId(customerId);
@@ -133,11 +133,11 @@ export default function OrderDetailsPage() {
       await axios.delete(`${BACKEND_URL}/api/customers/orders/${orderId}/cancel`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Alert.alert('Order Cancelled', 'Your order has been cancelled.');
+      //Alert.alert('Order Cancelled', 'Your order has been cancelled.');
       router.replace('/customer/orders');
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Failed to cancel order';
-      Alert.alert('Cancel Failed', msg);
+      //Alert.alert('Cancel Failed', msg);
     } finally {
       setCancelLoading(false);
     }
@@ -170,7 +170,7 @@ export default function OrderDetailsPage() {
       });
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Failed to create chat';
-      Alert.alert('Chat Error', msg);
+      //Alert.alert('Chat Error', msg);
     } finally {
       setChatLoading(false);
     }
