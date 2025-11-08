@@ -155,7 +155,7 @@ export default function CustomerRegister() {
       {/* Register Button */}
       <TouchableOpacity
         onPress={handleRegister}
-        className="bg-green-600 py-4 rounded-xl"
+        className="bg-green-600 py-4 mb-2 rounded-xl "
         disabled={uploading}
       >
         {uploading ? (
@@ -166,7 +166,7 @@ export default function CustomerRegister() {
       </TouchableOpacity>
 
        {/* Login Link */}
-       <View className="flex-row justify-center mt-2">
+       <View className="flex-row justify-center mb-5 mt-2">
         <Text className="text-gray-600">Already have an account? </Text>
         <Link href="/customer/login" asChild>
           <Text className="text-primary font-semibold">Login</Text>
