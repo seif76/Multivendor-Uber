@@ -30,7 +30,7 @@ export default function VendorDashboard() {
         const res = await axios.get(`${BACKEND_URL}/api/vendor/dashboard/summary`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert(JSON.stringify(res.data));
+        //alert(JSON.stringify(res.data));
         setData(res.data);
       } catch (err) {
         setError('Failed to load dashboard data' + err.message);

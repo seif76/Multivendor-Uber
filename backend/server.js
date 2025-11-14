@@ -34,6 +34,13 @@ app.use(express.json());
 // const syncProdTables = require('./src/app/models/seeders/prodSeeders');
 // syncProdTables();
 
+ //const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
+ //syncAdminVendorCategories();
+
+
+
+
+
 // start Swagger 
 if (process.env.NODE_ENV !== 'production') {
   const swaggerUi = require('swagger-ui-express');

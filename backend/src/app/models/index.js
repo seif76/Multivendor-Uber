@@ -9,6 +9,7 @@ const User = require('./user')(sequelize, DataTypes);
 
 // admin
 const Admin = require('./admin')(sequelize, DataTypes);
+const AdminVendorCategory = require('./adminVendorCategory')(sequelize, DataTypes);
 
 // uber
 const CaptainVehicle = require('./captainVehicle')(sequelize, DataTypes);
@@ -135,4 +136,5 @@ module.exports = {
   Wallet,
   WalletTransaction,
   WithdrawalRequest,
+  AdminVendorCategory,
 };
