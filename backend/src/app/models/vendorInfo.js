@@ -18,6 +18,11 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
 
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     shop_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -55,7 +60,8 @@ module.exports = (sequelize) => {
   }, {
     indexes: [
       { name: 'idx_vendor_info_vendor_id', fields: ['vendor_id'] },
-      { name: 'idx_vendor_info_phone_number', fields: ['phone_number'] }
+      { name: 'idx_vendor_info_phone_number', fields: ['phone_number'] },
+      { name: 'idx_vendor_info_category', fields: ['category'] }
     ]
   });
 

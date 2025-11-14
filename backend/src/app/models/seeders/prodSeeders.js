@@ -29,6 +29,8 @@ module.exports = async function productionSeeders() {
     const OrderItem = require('../orderItem')(sequelize);
     const VendorCategory = require('../vendorCategory')(sequelize);
 
+    const AdminVendorCategory = require('../adminVendorCategory')(sequelize);
+
 
     const models = { 
         User, 
@@ -49,7 +51,8 @@ module.exports = async function productionSeeders() {
         VendorCategory, 
         DeliverymanVehicle, 
         WalletTransaction, 
-        WithdrawalRequest 
+        WithdrawalRequest,
+        AdminVendorCategory
     };
 
     // Setup associations if needed
