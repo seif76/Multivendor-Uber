@@ -7,6 +7,7 @@ import { WalletProvider } from '../../../context/customer/WalletContext';
 import { HomeProvider } from '../../../context/customer/HomeContext';
 import { CartProvider } from '../../../context/customer/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import { MaterialIcons } from '@expo/vector-icons'; // Expo's built-in icons
 
 
 export default function CustomerLayout() {
@@ -55,7 +56,7 @@ export default function CustomerLayout() {
             name="orders"
             options={{
               title: t('navigation.orders'),
-              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
+              tabBarIcon: ({ color }) => <MaterialIcons name="receipt-long" size={30} color={color}/>,
             }}
           />
           <Tabs.Screen

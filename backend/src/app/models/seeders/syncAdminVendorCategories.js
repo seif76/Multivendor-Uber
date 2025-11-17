@@ -13,34 +13,24 @@ module.exports = async function syncVendorCategories() {
     // 2. Prepare default categories
     const defaultCategories = [
       {
-        name: 'Restaurants',
+        name: 'food',
         description: 'Food delivery from restaurants.',
         is_active: true,
       },
       {
-        name: 'Groceries',
+        name: 'groceries',
         description: 'Grocery and supermarket items.',
         is_active: true,
       },
       {
-        name: 'Electronics',
-        description: 'Electronic gadgets and appliances.',
-        is_active: true,
-      },
-      {
-        name: 'Pharmacies',
+        name: 'pharmacy',
         description: 'Medicines and health products.',
         is_active: true,
       },
       {
-        name: 'Fashion',
+        name: 'stores',
         description: 'Clothing, shoes, and accessories.',
         is_active: true,
-      },
-      {
-        name: 'Services',
-        description: 'Miscellaneous local services.',
-        is_active: false, // Example of a disabled category
       }
     ];
 

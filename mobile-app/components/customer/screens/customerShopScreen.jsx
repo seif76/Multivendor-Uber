@@ -155,6 +155,7 @@
 
 import { Ionicons ,FontAwesome} from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons'; // Expo's built-in icons
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -183,7 +184,7 @@ const categories = [
 const filters = ['Offers', 'Free delivery', 'Under 30 mins'];
 
 export default function CustomerShopScreen() {
-  const { query } = useLocalSearchParams(); // get the query text
+  const { query , categoryName } = useLocalSearchParams(); // get the query text
   const [search, setSearch] = useState(query || ''); // keep it as initial search
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,16 +192,16 @@ export default function CustomerShopScreen() {
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState(categoryName == "more"?"All" :categoryName  || "All");
 
   // Default categories as fallback
   const defaultCategories = [
-    { icon: 'shopping-bag', label: 'Fashion', iconType: 'FontAwesome' },
-    { icon: 'laptop', label: 'Electronics', iconType: 'FontAwesome' },
-    { icon: 'restaurant', label: 'Food', iconType: 'Ionicons' },
-    { icon: 'home', label: 'Home', iconType: 'FontAwesome' },
-    { icon: 'medical', label: 'Health', iconType: 'Ionicons' },
-  ];
+    { id: 'Food', label: 'Food', icon: 'lunch-dining', iconType: 'Ionicons' },
+    { id: 'Grocery', label: 'Grocery', icon: 'local-grocery-store', iconType: 'MaterialIcons' }, // Assuming you'd use MaterialIcons
+    { id: 'Pharmacy', label: 'Pharmacy', icon: 'local-pharmacy', iconType: 'MaterialIcons' },
+    { id: 'Stores', label: 'Stores', icon: 'shopping-bag', iconType: 'MaterialIcons' },
+    { id: 'More', label: 'All', icon: 'more-horiz', iconType: 'MaterialIcons' },
+  ]; 
 
   const handleCategoryPress = (category) => {
     // Navigate to shop with category filter
@@ -223,11 +224,27 @@ export default function CustomerShopScreen() {
     }
   };
 
-  const filteredVendors = vendors.filter((vendor) =>
-    vendor?.vendor_info?.shop_name
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // const filteredVendors = vendors.filter((vendor) =>
+  //   vendor?.vendor_info?.shop_name
+  //     ?.toLowerCase()
+  //     .includes(search.toLowerCase())
+  // );
+
+  const filteredVendors = vendors.filter((vendor) => {
+    // Category check
+    const categoryMatch =
+      activeCategory === 'All' ||
+      vendor.vendor_info?.category?.toLowerCase() === activeCategory.toLowerCase();
+
+    // Search text check
+    const searchMatch =
+      !search || // if search is empty, all match
+      vendor.vendor_info?.shop_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+    return categoryMatch && searchMatch;
+  });
 
   return (
     <View className="bg-white px-4 pt-14 min-h-screen">
@@ -288,19 +305,24 @@ export default function CustomerShopScreen() {
               isActive ? "bg-green-500" : "bg-white"
             }`}
           >
-            {category.iconType === "Ionicons" ? (
+             <MaterialIcons
+                name={category.icon}
+                size={15}
+                color={isActive ? "white" : "#007233"}
+              />
+            {/* {category.iconType === "Ionicons" ? (
               <Ionicons
                 name={category.icon}
                 size={15}
                 color={isActive ? "white" : "#007233"}
               />
             ) : (
-              <FontAwesome
+              <MaterialIcons
                 name={category.icon}
                 size={15}
                 color={isActive ? "white" : "#007233"}
               />
-            )}
+            )} */}
           </View>
 
           <Text
