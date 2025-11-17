@@ -4,7 +4,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+import { Image, ScrollView, Text, KeyboardAvoidingView ,Platform , TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -87,6 +87,10 @@ export default function CustomerRegister() {
   };
 
   return (
+    <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  >
     <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
       <Text className="text-3xl font-bold text-green-600 mb-6 text-center">Create Your Account</Text>
 
@@ -174,5 +178,6 @@ export default function CustomerRegister() {
       </View>
 
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
