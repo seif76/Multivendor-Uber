@@ -34,8 +34,8 @@ app.use(express.json());
  //const syncProdTables = require('./src/app/models/seeders/prodSeeders');
  //syncProdTables();
 
- //const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
- //syncAdminVendorCategories();
+//  const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
+//  syncAdminVendorCategories();
 
 
 
