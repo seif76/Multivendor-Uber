@@ -1,16 +1,27 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react'; // Added useEffect
+import { 
+  Image, 
+  ScrollView, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View, 
+  Alert, 
+  ActivityIndicator,
+  Modal, // Added Modal
+  FlatList
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import mime from "mime";
-
+// No Picker import is needed
 
 export default function VendorRegister() {
   // Registration flow states
-  const [isCustomer, setIsCustomer] = useState(null); // null = not selected, true = customer, false = not customer
+  const [isCustomer, setIsCustomer] = useState(null); 
   const [customerVerified, setCustomerVerified] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   
@@ -20,7 +31,7 @@ export default function VendorRegister() {
     password: '',
   });
 
-  // Vendor registration form
+  // Vendor registration form (with shop_category_id)
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -30,6 +41,7 @@ export default function VendorRegister() {
     shop_name: '',
     shop_location: '',
     owner_name: '',
+    category: '', // Category ID is part of the form state
   });
   
   const [logo, setLogo] = useState(null);
@@ -39,13 +51,65 @@ export default function VendorRegister() {
   const [imageError, setImageError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [verifying, setVerifying] = useState(false);
+
+  // --- STATE for custom pickers ---
+  const [categories, setCategories] = useState([]);
+  const [securePassword, setSecurePassword] = useState(true);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showGenderModal, setShowGenderModal] = useState(false);
+
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const primaryColor = "#20df20"; // New primary color
 
   const handleChange = (key, value) => setForm({ ...form, [key]: value });
   const handleCustomerFormChange = (key, value) => setCustomerForm({ ...customerForm, [key]: value });
 
-  // Use the same pickImage logic as customer registration
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // --- Handler for selecting an item ---
+  const handleSelectCategory = (categoryId) => {
+    handleChange('category', categoryId); // Updates the form
+    setIsDropdownOpen(false); // Closes the dropdown
+  };
+
+  // Find the selected category name to display
+  const selectedCategoryName =
+    categories.find((c) => c.id === form.category)?.name || 'Select a category...';
+  // --- DEDICATED FUNCTION TO FETCH CATEGORIES (Improved) ---
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/admin/category`);
+      
+      let categoriesArray = [];
+      
+      // Check for common array structures in the response
+      if (Array.isArray(response.data)) {
+        categoriesArray = response.data;
+      } else if (response.data && Array.isArray(response.data.categories)) {
+        categoriesArray = response.data.categories;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        categoriesArray = response.data.data;
+      }
+      
+      setCategories(categoriesArray); 
+
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+      setImageError('Failed to load shop categories. Please try again.');
+      setCategories([]); // Ensure it's always an array, even on error
+    }
+  };
+
+  // Fetch categories when the main registration form is shown
+  useEffect(() => {
+    if (isCustomer === false || customerVerified === true) {
+      fetchCategories();
+    }
+  }, [isCustomer, customerVerified]);
+
+  // pickImage logic (from your original code)
   const pickImage = async (setter) => {
     setImageError('');
     try {
@@ -58,7 +122,7 @@ export default function VendorRegister() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [1, 1], 
         quality: 0.8,
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -76,7 +140,7 @@ export default function VendorRegister() {
     }
   };
 
-  // Check customer status
+  // handleCustomerCheck logic (from your original code)
   const handleCustomerCheck = async () => {
     setVerifying(true);
     setImageError('');
@@ -92,7 +156,6 @@ export default function VendorRegister() {
       setCustomerData(response.data.user);
       setCustomerVerified(true);
       
-      // Pre-fill vendor form with customer data
       setForm(prev => ({
         ...prev,
         name: response.data.user.name || '',
@@ -109,6 +172,7 @@ export default function VendorRegister() {
     }
   };
 
+  // handleRegister logic (from your original code, with category validation fix)
   const handleRegister = async () => {
     setUploading(true);
     setImageError('');
@@ -119,12 +183,16 @@ export default function VendorRegister() {
       return;
     }
 
-    // Validate required fields based on whether user is a verified customer
+    // Validate required fields (with category added)
     const requiredFields = customerVerified 
-      ? ['shop_name', 'shop_location', 'owner_name'] // Customer only needs vendor-specific fields
-      : ['name', 'email', 'password', 'phone_number', 'shop_name', 'shop_location', 'owner_name']; // New user needs all fields
+      ? ['shop_name', 'shop_location', 'owner_name', 'category']
+      : ['name', 'email', 'password', 'phone_number', 'shop_name', 'shop_location', 'owner_name', 'gender', 'category'];
 
-    const missingFields = requiredFields.filter(field => !form[field]);
+    // --- FIX: Changed validation to allow '0' as a valid ID ---
+    const missingFields = requiredFields.filter(field => 
+      form[field] === null || form[field] === undefined || form[field] === ''
+    );
+    
     if (missingFields.length > 0) {
       setImageError(`Missing required fields: ${missingFields.join(', ')}`);
       setUploading(false);
@@ -135,7 +203,10 @@ export default function VendorRegister() {
     
     // Add form fields
     Object.entries(form).forEach(([key, value]) => {
-      if (value) formData.append(key, value);
+      // Ensure value is not null/undefined before appending
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
     });
 
     // Add customer_id for verified customers
@@ -181,13 +252,16 @@ export default function VendorRegister() {
       Alert.alert('Success', 'Registration successful!');
       router.push('/vendor/login');
     } catch (err) {
-      setImageError('Registration failed: ' + (err.response?.data?.error || err.message));
+      // This is where your ROLLBACK error originates. Check your backend console for the *specific* database error.
+      // It is most likely a duplicate email or phone number.
+      setImageError('Registration failed: ' + (err.response?.data?.error || 'A user with this email or phone may already exist.'));
+      console.error("Registration Error:", err.response?.data || err.message);
     } finally {
       setUploading(false);
     }
   };
 
-  // Reset form when user type changes
+  // handleUserTypeSelection logic (from your original code)
   const handleUserTypeSelection = (isCustomerUser) => {
     setIsCustomer(isCustomerUser);
     setCustomerVerified(false);
@@ -202,11 +276,12 @@ export default function VendorRegister() {
       shop_name: '',
       shop_location: '',
       owner_name: '',
+      category: '', // Reset category
     });
     setImageError('');
   };
 
-  // Step 1: User Type Selection
+  // Step 1: User Type Selection (Original Design)
   if (isCustomer === null) {
     return (
       <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
@@ -268,7 +343,7 @@ export default function VendorRegister() {
     );
   }
 
-  // Step 2a: Customer Verification
+  // Step 2a: Customer Verification (Original Design)
   if (isCustomer && !customerVerified) {
     return (
       <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
@@ -330,176 +405,368 @@ export default function VendorRegister() {
     );
   }
 
-  // Step 2b: Vendor Registration Form (for both verified customers and new users)
+  // --- STEP 2B: REDESIGNED VENDOR FORM (LIGHT MODE ONLY) ---
+  
+  // --- FIX: renderInput helper updated with icon padding ---
+  const renderInput = (label, key, placeholder, keyboardType = 'default', iconName = null) => (
+    <View>
+      <Text className="text-sm font-medium text-gray-700 mb-1">{label}</Text>
+      <View className="relative">
+        <TextInput
+          className={`w-full py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 ${
+            iconName ? 'pl-10 pr-4' : 'px-4' // Dynamic padding
+          }`}
+          style={{ focus: { borderColor: primaryColor } }} 
+          placeholder={placeholder}
+          keyboardType={keyboardType}
+          value={form[key]}
+          onChangeText={(val) => handleChange(key, val)}
+        />
+        {iconName && (
+          // --- FIX: Centered icon positioning ---
+          <View className="absolute left-3 top-0 bottom-0 justify-center">
+             <Ionicons name={iconName} size={20} color="#9CA3AF" />
+          </View>
+        )}
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView className="bg-white flex-1 px-6 pt-12 pb-20">
-      <View className="flex-row items-center mb-6">
+    // --- FIX: Removed dark: classes ---
+    <View className="flex-1 bg-white">
+      {/* New App Bar */}
+      <View className="flex-row items-center bg-white p-4 pb-3 justify-between sticky top-0 z-10 border-b border-gray-200 pt-12">
         <TouchableOpacity onPress={() => handleUserTypeSelection(null)}>
-          <Ionicons name="arrow-back" size={24} color="#22c55e" />
+          <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold text-green-600 ml-4">
-          {customerVerified ? 'Complete Vendor Profile' : 'Vendor Registration'}
+        <Text className="text-lg font-bold flex-1 text-center text-gray-900">
+          {customerVerified ? 'Complete Vendor Profile' : 'New Store Registration'}
         </Text>
+        <View className="w-10" /> 
       </View>
 
-      {customerVerified && (
-        <View className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-          <View className="flex-row items-center">
-            <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-            <Text className="text-green-800 font-semibold ml-2">Customer Account Verified</Text>
-          </View>
-          <Text className="text-green-700 text-sm mt-1">
-            Using account: {customerData?.name} ({customerData?.phone_number})
-          </Text>
-        </View>
-      )}
-
-      {/* Logo Picker - required */}
-      <View className="items-center mb-6">
-        <TouchableOpacity
-          onPress={() => pickImage(setLogo)}
-          className="w-28 h-28 rounded-full bg-gray-100 border-2 border-dashed border-green-600 items-center justify-center mb-2"
-          activeOpacity={0.7}
-        >
-          {logo && logo.uri ? (
-            <Image
-              source={{ uri: logo.uri }}
-              style={{ width: 112, height: 112, borderRadius: 56 }}
-            />
-          ) : (
-            <Ionicons name="image" size={44} color="#22c55e" />
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+        <View className="space-y-6">
+          {/* Customer Verified Banner */}
+          {customerVerified && (
+            <View className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <View className="flex-row items-center">
+                <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
+                <Text className="text-green-800 font-semibold ml-2">Customer Account Verified</Text>
+              </View>
+              <Text className="text-green-700 text-sm mt-1">
+                Using account: {customerData?.name} ({customerData?.phone_number})
+              </Text>
+            </View>
           )}
-        </TouchableOpacity>
-        <Text className="text-xs text-green-700 font-semibold mt-1 text-center">Logo (required)</Text>
-      </View>
 
-      {/* Image Pickers - styled like customer registration */}
-      <View className="flex-row justify-between mb-6">
-        {[{
-          label: 'Passport Photo',
-          image: passportPhoto,
-          setter: setPassportPhoto,
-        }, {
-          label: 'License Photo',
-          image: licensePhoto,
-          setter: setLicensePhoto,
-        }, {
-          label: 'Shop Front Photo',
-          image: shopFrontPhoto,
-          setter: setShopFrontPhoto,
-        }].map(({ label, image, setter }, idx) => (
-          <View key={label} className="items-center flex-1 mx-1">
-            <TouchableOpacity
-              onPress={() => pickImage(setter)}
-              className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-green-400 items-center justify-center mb-2"
-              activeOpacity={0.7}
-            >
-              {image && image.uri ? (
-                <Image
-                  source={{ uri: image.uri }}
-                  style={{ width: 96, height: 96, borderRadius: 48 }}
-                />
-              ) : (
-                <Ionicons name="camera" size={36} color="#22c55e" />
-              )}
-            </TouchableOpacity>
-            <Text className="text-xs text-primary font-semibold mt-1 text-center">{label}</Text>
+          {/* Visual Identity Section */}
+          <View>
+            <Text className="text-gray-900 text-[22px] font-bold pb-3 pt-2">Visual Identity</Text>
+            <View className="flex-row gap-4">
+              {/* Logo Picker */}
+              <View className="flex-1 items-center gap-2">
+                <TouchableOpacity
+                  onPress={() => pickImage(setLogo)}
+                  className="w-28 h-28 bg-gray-200 rounded-full flex items-center justify-center"
+                >
+                  {logo && logo.uri ? (
+                    <Image source={{ uri: logo.uri }} className="w-28 h-28 rounded-full" />
+                  ) : (
+                    <Ionicons name="camera-outline" size={44} color="#6b7280" />
+                  )}
+                </TouchableOpacity>
+                <Text className="text-gray-600 text-sm">Logo (Required)</Text>
+              </View>
+              {/* Shop Front Photo Picker */}
+              <View className="flex-1 items-center gap-2">
+                <TouchableOpacity
+                  onPress={() => pickImage(setShopFrontPhoto)}
+                  className="w-full h-28 bg-gray-200 rounded-lg flex items-center justify-center"
+                >
+                  {shopFrontPhoto && shopFrontPhoto.uri ? (
+                    <Image source={{ uri: shopFrontPhoto.uri }} className="w-full h-28 rounded-lg" resizeMode="cover" />
+                  ) : (
+                    <Ionicons name="image-outline" size={44} color="#6b7280" />
+                  )}
+                </TouchableOpacity>
+                <Text className="text-gray-600 text-sm">Shop Front Photo</Text>
+              </View>
+            </View>
           </View>
-        ))}
-      </View>
-      {imageError ? <Text className="text-red-500 text-xs mb-4 text-center">{imageError}</Text> : null}
 
-      {/* Form Fields - Show different fields based on customer verification */}
-      {customerVerified ? (
-        // Customer verified - only show vendor-specific fields
-        [
-          { label: 'Shop Name', key: 'shop_name', keyboard: 'default' },
-          { label: 'Shop Location', key: 'shop_location', keyboard: 'default' },
-          { label: 'Owner Name', key: 'owner_name', keyboard: 'default' },
-        ].map(({ label, key, keyboard, secure }) => (
-          <View key={key} className="mb-5">
-            <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-4 text-base bg-gray-50 focus:border-green-500"
-              placeholder={label}
-              keyboardType={keyboard}
-              secureTextEntry={secure}
-              value={form[key]}
-              onChangeText={(val) => handleChange(key, val)}
-            />
+          {/* --- FIX: Added margin-top (mt-4) --- */}
+          <View className="mt-4">
+            <Text className="text-gray-900 text-[22px] font-bold pb-3 pt-2">Legal & Verification</Text>
+            <View className="flex-row gap-4">
+              {/* License Photo Picker */}
+              <View className="flex-1 items-center gap-2">
+                <TouchableOpacity
+                  onPress={() => pickImage(setLicensePhoto)}
+                  className="w-full h-28 bg-gray-200 rounded-lg flex items-center justify-center"
+                >
+                  {licensePhoto && licensePhoto.uri ? (
+                    <Image source={{ uri: licensePhoto.uri }} className="w-full h-28 rounded-lg" resizeMode="cover" />
+                  ) : (
+                    <Ionicons name="document-text-outline" size={44} color="#6b7280" />
+                  )}
+                </TouchableOpacity>
+                <Text className="text-gray-600 text-sm">License Photo</Text>
+              </View>
+              {/* Passport Photo Picker */}
+              <View className="flex-1 items-center gap-2">
+                <TouchableOpacity
+                  onPress={() => pickImage(setPassportPhoto)}
+                  className="w-full h-28 bg-gray-200 rounded-lg flex items-center justify-center"
+                >
+                  {passportPhoto && passportPhoto.uri ? (
+                    <Image source={{ uri: passportPhoto.uri }} className="w-full h-28 rounded-lg" resizeMode="cover" />
+                  ) : (
+                    <Ionicons name="person-outline" size={44} color="#6b7280" />
+                  )}
+                </TouchableOpacity>
+                <Text className="text-gray-600 text-sm">Owner's ID Photo</Text>
+              </View>
+            </View>
           </View>
-        ))
-      ) : (
-        // New user - show all fields
-        [
-          { label: 'Full Name', key: 'name', keyboard: 'default' },
-          { label: 'Email', key: 'email', keyboard: 'email-address' },
-          { label: 'Password', key: 'password', secure: true },
-          { label: 'Phone Number', key: 'phone_number', keyboard: 'phone-pad' },
-          { label: 'Shop Name', key: 'shop_name', keyboard: 'default' },
-          { label: 'Shop Location', key: 'shop_location', keyboard: 'default' },
-          { label: 'Owner Name', key: 'owner_name', keyboard: 'default' },
-        ].map(({ label, key, keyboard, secure }) => (
-          <View key={key} className="mb-5">
-            <Text className="mb-2 text-gray-700 font-medium">{label}</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50 focus:border-green-500"
-              placeholder={label}
-              keyboardType={keyboard}
-              secureTextEntry={secure}
-              value={form[key]}
-              onChangeText={(val) => handleChange(key, val)}
-            />
-          </View>
-        ))
-      )}
 
-      {/* Gender Picker - only show for new users */}
-      {!customerVerified && (
-        <View className="mb-6">
-          <Text className="mb-2 text-gray-700 font-medium">Gender</Text>
-          <View className="flex-row space-x-4">
-            {['male', 'female'].map((g) => (
+          {/* Error Message */}
+          {imageError ? (
+            <Text className="text-red-500 text-sm text-center">{imageError}</Text>
+          ) : null}
+
+          {/* Account Information & Store Details */}
+          <View className="space-y-4">
+            {customerVerified ? (
+              // Customer verified - only show vendor-specific fields
+              <>
+                {renderInput('Shop Name', 'shop_name', 'Enter your shop name')}
+                {renderInput('Shop Location', 'shop_location', 'Select location on map', 'default', 'location-outline')}
+                {renderInput('Owner Name', 'owner_name', 'Enter the owner\'s name')}
+              </>
+            ) : (
+              // New user - show all fields
+              <>
+                {renderInput('Full Name', 'name', 'Enter your full name')}
+                {renderInput('Email', 'email', 'example@email.com', 'email-address')}
+                
+                {/* --- FIX: Special case for password with icon padding --- */}
+                <View>
+                  <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
+                  <View className="relative">
+                    <TextInput
+                      className="w-full py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 pl-10 pr-4" // Added padding
+                      style={{ focus: { borderColor: primaryColor } }}
+                      placeholder="********"
+                      secureTextEntry={securePassword}
+                      value={form.password}
+                      onChangeText={(val) => handleChange('password', val)}
+                    />
+                    {/* --- FIX: Centered icon positioning --- */}
+                    <TouchableOpacity 
+                      className="absolute left-3 top-0 bottom-0 justify-center"
+                      onPress={() => setSecurePassword(prev => !prev)}
+                    >
+                      <Ionicons name={securePassword ? "eye-off-outline" : "eye-outline"} size={20} color="#9CA3AF" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                
+                {renderInput('Phone Number', 'phone_number', 'Enter phone number', 'phone-pad')}
+                {renderInput('Shop Name', 'shop_name', 'Enter your shop name')}
+                {renderInput('Shop Location', 'shop_location', 'Select location on map', 'default', 'location-outline')}
+                {renderInput('Owner Name', 'owner_name', 'Enter the owner\'s name')}
+              </>
+            )}
+
+            {/* --- CUSTOM CATEGORY PICKER (No dark classes) ---
+            <View>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Shop Category</Text>
               <TouchableOpacity
-                key={g}
-                onPress={() => handleChange('gender', g)}
-                className={`flex-1 mx-2 py-3 rounded-xl border ${
-                  form.gender === g ? 'bg-green-500 border-green-600' : 'bg-white border-gray-300'
-                }`}
+                onPress={() => setShowCategoryModal(true)}
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg"
               >
-                <Text className={`text-center text-base font-medium ${
-                  form.gender === g ? 'text-white' : 'text-gray-800'
-                }`}>
-                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                <Text className={form.category === '' ? 'text-gray-400' : 'text-gray-900'}>
+                  {categories.find(c => c.id === form.category)?.name || 'Select a category...'}
                 </Text>
               </TouchableOpacity>
-            ))}
+            </View> */}
+
+            <View className="mb-5">
+        <Text className="text-sm font-medium text-gray-700 mb-1">Shop Category</Text>
+
+        {/* 1. The Dropdown "Button" */}
+        <TouchableOpacity
+          // It's styled just like your TextInput
+          className="border border-gray-300 rounded-xl px-4 py-4 text-base bg-gray-50 flex-row justify-between items-center"
+          onPress={() => setIsDropdownOpen((prev) => !prev)} // Toggles the list
+        >
+          <Text
+            className={`text-base ${
+              form.category === '' ? 'text-gray-400' : 'text-gray-900'
+            }`}
+          >
+            {selectedCategoryName}
+          </Text>
+          <Ionicons
+            name={isDropdownOpen ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color="gray"
+          />
+        </TouchableOpacity>
+
+        {/* 2. The Dropdown "List" */}
+        {isDropdownOpen && (
+          <View className="border border-gray-300 rounded-xl mt-1 bg-white">
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item.id.toString()}
+              // We set a max height in case the list is very long
+              style={{ maxHeight: 200 }} 
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="px-4 py-3 border-b border-gray-200"
+                  onPress={() => handleSelectCategory(item.name)}
+                >
+                  <Text className="text-base text-gray-800">{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+      </View>
+
+            {/* --- CUSTOM GENDER PICKER (No dark classes) --- */}
+            {!customerVerified && (
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-1">Gender</Text>
+                <TouchableOpacity
+                  onPress={() => setShowGenderModal(true)}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg"
+                >
+                  <Text className={`capitalize ${!form.gender ? 'text-gray-400' : 'text-gray-900'}`}>
+                    {form.gender || 'Select gender...'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Register Button */}
+          <View className="pt-4 pb-8">
+            <TouchableOpacity
+              onPress={handleRegister}
+              className="w-full py-3 px-4 rounded-lg shadow-md"
+              style={{ backgroundColor: primaryColor }} 
+              disabled={uploading}
+            >
+              {uploading ? (
+                <ActivityIndicator color="#000" /> 
+              ) : (
+                <Text className="text-center text-black font-bold text-lg">
+                  {customerVerified ? 'Complete Registration' : 'Register'}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Login Link */}
+          <View className="flex-row justify-center mt-2 pb-4">
+            <Text className="text-gray-600">Already have an account? </Text>
+            <Link href="/vendor/login" asChild>
+              <Text className="font-semibold" style={{ color: primaryColor }}>Login</Text>
+            </Link>
           </View>
         </View>
-      )}
+      </ScrollView>
 
-      {/* Register Button */}
-      <TouchableOpacity
-        onPress={handleRegister}
-        className="bg-green-600 py-4 rounded-xl"
-        disabled={uploading}
+      {/* --- PICKER MODALS (No dark classes) --- */}
+
+      {/* Category Modal */}
+      {/* <Modal
+        visible={showCategoryModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCategoryModal(false)}
       >
-        {uploading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text className="text-center text-white font-bold text-lg">
-            {customerVerified ? 'Complete Registration' : 'Register'}
-          </Text>
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity 
+          className="flex-1 justify-center items-center bg-black/50 p-4"
+          activeOpacity={1}
+          onPressOut={() => setShowCategoryModal(false)}
+        >
+          <View 
+            className="w-full max-w-sm bg-white rounded-lg shadow-lg max-h-[60%]"
+            onStartShouldSetResponder={() => true}
+          >
+            <Text className="text-lg font-bold text-gray-900 p-4 border-b border-gray-200">Select Category</Text>
+            <ScrollView>
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={cat.id}
+                  onPress={() => {
+                    handleChange('category', cat.id);
+                    setShowCategoryModal(false);
+                  }}
+                  className="p-4 border-b border-gray-100"
+                >
+                  <Text className="text-base text-gray-800">{cat.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              onPress={() => setShowCategoryModal(false)}
+              className="p-4 border-t border-gray-200"
+            >
+              <Text className="text-center text-base font-medium" style={{ color: primaryColor }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal> */}
+
       
-      {/* Login Link */}
-      <View className="flex-row justify-center mt-2">
-        <Text className="text-gray-600">Already have an account? </Text>
-        <Link href="/vendor/login" asChild>
-          <Text className="text-primary font-semibold">Login</Text>
-        </Link>
-      </View>
-    </ScrollView>
+
+      {/* Gender Modal */}
+      <Modal
+        visible={showGenderModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowGenderModal(false)}
+      >
+        <TouchableOpacity 
+          className="flex-1 justify-center items-center bg-black/50 p-4"
+          activeOpacity={1}
+          onPressOut={() => setShowGenderModal(false)}
+        >
+          <View 
+            className="w-full max-w-sm bg-white rounded-lg shadow-lg"
+            onStartShouldSetResponder={() => true}
+          >
+            <Text className="text-lg font-bold text-gray-900 p-4 border-b border-gray-200">Select Gender</Text>
+            <View>
+              {[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }].map(item => (
+                <TouchableOpacity
+                  key={item.value}
+                  onPress={() => {
+                    handleChange('gender', item.value);
+                    setShowGenderModal(false);
+                  }}
+                  className="p-4 border-b border-gray-100"
+                >
+                  <Text className="text-base text-gray-800">{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity
+              onPress={() => setShowGenderModal(false)}
+              className="p-4 border-t border-gray-200"
+            >
+              <Text className="text-center text-base font-medium" style={{ color: primaryColor }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+    </View>
   );
-} 
+}
