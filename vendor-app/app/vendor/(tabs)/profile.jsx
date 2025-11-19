@@ -7,7 +7,6 @@ import { ActivityIndicator, Image, ScrollView, Text, View, Pressable, Alert, Tou
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../context/LanguageContext';
-import LanguageSwitcher from '../../../components/customer/custom/LanguageSwitcher';
 import { useRouter } from 'expo-router';
 
 // Enable smooth expand animation (required for Android)
@@ -22,7 +21,7 @@ export default function VendorProfile() {
   const [expandedSection, setExpandedSection] = useState('personal'); // Default to expanding Personal
   
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage(); // Kept for DataRow values and Alerts
   const router = useRouter();
 
   const primaryColor = "#007233"; // Your brand color
@@ -107,7 +106,7 @@ export default function VendorProfile() {
   return (
     <View className="flex-1 bg-[#f6f8f6]" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
-        {/* Profile Card Header (Matching new design) */}
+        {/* Profile Card Header */}
         <View className="bg-white p-4 shadow-sm pt-8">
           <View className="flex-row items-center gap-4">
             {/* Logo/Image */}
@@ -123,6 +122,7 @@ export default function VendorProfile() {
             )}
             {/* Vendor Info */}
             <View className="flex-1">
+              {/* NOTE: Vendor name/info remains dynamically driven */}
               <Text className="text-lg font-bold text-[#333]">{vendor.info?.shop_name || vendor.user?.name || 'Vendor'}</Text>
               <Text className="text-sm text-gray-500">{vendor.user?.phone_number || 'N/A'}</Text>
               <View className="flex-row items-center mt-1">
@@ -130,15 +130,7 @@ export default function VendorProfile() {
                 <Text className="text-gray-600 text-xs">{vendor.user?.vendor_status || 'Active'}</Text>
               </View>
             </View>
-            {/* Edit Profile Button */}
-            <TouchableOpacity
-              onPress={() => router.push('/vendor/EditVendorProfile')}
-              className={`p-2 rounded-full`}
-              style={{ backgroundColor: lightPrimary }}
-              activeOpacity={1} // Prevent color change on press
-            >
-              <Ionicons name="create-outline" size={22} color={primaryColor} />
-            </TouchableOpacity>
+            {/* Edit Profile Button REMOVED */}
           </View>
         </View>
         
@@ -147,8 +139,8 @@ export default function VendorProfile() {
           <View className="flex-1 bg-white rounded-xl shadow-md p-4">
             <View className="flex-row items-center justify-between">
               <View>
-                <Text className="text-gray-500 text-xs">{t('vendor.totalOrders') || 'Total Orders'}</Text>
-                {/* NOTE: Data is hardcoded as per original, replace with real data */}
+                {/* HARDCODED: Total Orders */}
+                <Text className="text-gray-500 text-xs">Total Orders</Text>
                 <Text className="text-gray-800 text-lg font-bold">156</Text> 
               </View>
               <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center">
@@ -160,8 +152,8 @@ export default function VendorProfile() {
           <View className="flex-1 bg-white rounded-xl shadow-md p-4">
             <View className="flex-row items-center justify-between">
               <View>
-                <Text className="text-gray-500 text-xs">{t('vendor.earnings') || 'Earnings'}</Text>
-                {/* NOTE: Data is hardcoded as per original, replace with real data */}
+                 {/* HARDCODED: Earnings */}
+                <Text className="text-gray-500 text-xs">Earnings</Text>
                 <Text className="text-gray-800 text-lg font-bold">$3,250</Text> 
               </View>
               <View className="w-8 h-8 bg-green-100 rounded-full items-center justify-center">
@@ -176,12 +168,13 @@ export default function VendorProfile() {
           <TouchableOpacity
             className="flex-row items-center gap-4 px-4 py-3 border-b border-gray-200"
             onPress={() => toggleSection('personal')}
-            activeOpacity={1} // Fix 1: Prevent color change on press
+            activeOpacity={1}
           >
             <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
               <Ionicons name="person-circle-outline" size={22} color={primaryColor} />
             </View>
-            <Text className="flex-1 text-[#333] font-medium">{t('profile.personalInfo') || 'Personal Information'}</Text>
+            {/* HARDCODED: Personal Information */}
+            <Text className="flex-1 text-[#333] font-medium">Personal Information</Text>
             <Ionicons
               name={expandedSection === 'personal' ? 'chevron-up' : 'chevron-down'}
               size={20}
@@ -212,12 +205,13 @@ export default function VendorProfile() {
           <TouchableOpacity
             className="flex-row items-center gap-4 px-4 py-3 border-b border-gray-200"
             onPress={() => toggleSection('shop')}
-            activeOpacity={1} // Fix 1: Prevent color change on press
+            activeOpacity={1}
           >
             <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
               <Ionicons name="storefront-outline" size={22} color={primaryColor} />
             </View>
-            <Text className="flex-1 text-[#333] font-medium">{t('profile.shopInfo') || 'Shop Information'}</Text>
+            {/* HARDCODED: Shop Information */}
+            <Text className="flex-1 text-[#333] font-medium">Shop Information</Text>
             <Ionicons
               name={expandedSection === 'shop' ? 'chevron-up' : 'chevron-down'}
               size={20}
@@ -241,42 +235,30 @@ export default function VendorProfile() {
           <TouchableOpacity
             className="flex-row items-center justify-between gap-4 px-4 py-3 border-b border-gray-200"
             onPress={() => router.push('/vendor/EditVendorProfile')}
-            activeOpacity={1} // Fix 1: Prevent color change on press
+            activeOpacity={1}
           >
             <View className="flex-row items-center flex-1">
               <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
                 <Ionicons name="create-outline" size={22} color={primaryColor} />
               </View>
-              <Text className="ml-4 text-gray-800 font-medium">{t('profile.editProfile') || 'Edit Profile'}</Text>
+               {/* HARDCODED: Edit Profile */}
+              <Text className="ml-4 text-gray-800 font-medium">Edit Profile</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-
-          {/* Language Switcher (Fix 2: Integrated into TouchableOpacity structure) */}
-          <TouchableOpacity
-            className="flex-row items-center justify-between gap-4 px-4 py-3 border-b border-gray-200"
-            activeOpacity={1} // Fix 1: Prevent color change on press
-          >
-             <View className="flex-row items-center flex-1">
-                <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
-                    <Ionicons name="language-outline" size={22} color={primaryColor} />
-                </View>
-                <Text className="ml-4 text-gray-800 font-medium">{t('common.language') || 'Language'}</Text>
-            </View>
-            <LanguageSwitcher />
           </TouchableOpacity>
           
           {/* Privacy & Security */}
           <TouchableOpacity
             className="flex-row items-center justify-between gap-4 px-4 py-3 border-b border-gray-200"
-            onPress={() => toggleSection('security')} // Example expandable section for security
-            activeOpacity={1} // Fix 1: Prevent color change on press
+            onPress={() => toggleSection('security')}
+            activeOpacity={1}
           >
             <View className="flex-row items-center flex-1">
               <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
                 <Ionicons name="shield-checkmark-outline" size={22} color={primaryColor} />
               </View>
-              <Text className="ml-4 text-gray-800 font-medium">{t('profile.privacySecurity') || 'Privacy & Security'}</Text>
+              {/* HARDCODED: Privacy & Security */}
+              <Text className="ml-4 text-gray-800 font-medium">Privacy & Security</Text>
             </View>
             <Ionicons
               name={expandedSection === 'security' ? 'chevron-up' : 'chevron-down'}
@@ -292,15 +274,16 @@ export default function VendorProfile() {
           
           {/* Help & Support */}
           <TouchableOpacity
-            className="flex-row items-center justify-between gap-4 px-4 py-3"
-            onPress={() => toggleSection('support')} // Example expandable section for support
-            activeOpacity={1} // Fix 1: Prevent color change on press
+            className="flex-row items-center justify-between gap-4 px-4 py-3" 
+            onPress={() => toggleSection('support')}
+            activeOpacity={1}
           >
             <View className="flex-row items-center flex-1">
               <View className="flex size-10 items-center justify-center rounded-lg" style={{ backgroundColor: lightPrimary }}>
                 <Ionicons name="help-circle-outline" size={22} color={primaryColor} />
               </View>
-              <Text className="ml-4 text-gray-800 font-medium">{t('profile.helpSupport') || 'Help & Support'}</Text>
+              {/* HARDCODED: Help & Support */}
+              <Text className="ml-4 text-gray-800 font-medium">Help & Support</Text>
             </View>
             <Ionicons
               name={expandedSection === 'support' ? 'chevron-up' : 'chevron-down'}
