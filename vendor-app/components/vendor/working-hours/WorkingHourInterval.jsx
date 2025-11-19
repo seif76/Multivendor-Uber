@@ -19,9 +19,9 @@ export default function WorkingHourInterval({ interval, onEdit, onDelete }) {
       <Pressable onPress={() => onEdit(interval)} className="mr-2 bg-yellow-400 px-3 py-1 rounded-xl">
         <Text className="text-white font-bold">Edit</Text>
       </Pressable>
-      <Pressable onPress={() => onDelete(interval)} className="bg-red-500 px-3 py-1 rounded-xl">
+      {/* <Pressable onPress={() => onDelete(interval)} className="bg-red-500 px-3 py-1 rounded-xl">
         <Text className="text-white font-bold">Delete</Text>
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 } 

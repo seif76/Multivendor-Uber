@@ -31,8 +31,8 @@ app.use(express.json());
 // const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
 // syncWalletTables();
 
-// const syncProdTables = require('./src/app/models/seeders/prodSeeders');
-// syncProdTables();
+ //const syncProdTables = require('./src/app/models/seeders/prodSeeders');
+ //syncProdTables();
 
 //  const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
 //  syncAdminVendorCategories();

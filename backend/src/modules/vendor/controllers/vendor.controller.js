@@ -17,9 +17,9 @@ const {
   const registerVendorController = async (req, res) => {
     try {
       console.log(JSON.stringify(req.body));
-      const { name, email, password, phone_number, gender, shop_name, shop_location, owner_name } = req.body;
+      const { name, email, password, phone_number, gender, shop_name, shop_location, owner_name,category } = req.body;
       // Validate required fields
-      if (!name || !email || !password || !phone_number || !shop_name || !shop_location || !owner_name) {
+      if (!name || !email || !password || !phone_number || !shop_name || !shop_location || !owner_name || !category) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
       console.log("registering vendor");
@@ -37,13 +37,14 @@ const {
         return res.status(400).json({ error: 'Logo is required' });
       }
       // Call service to create user and vendor info
-      const userData = { name, email, password, phone_number, gender, vendor_status: 'pending' };
+      const userData = { name, email, password, phone_number, gender,vendor_status: 'pending' };
       const infoData = {
         shop_name, shop_location, owner_name,
         passport_photo: passportPhotoUrl,
         license_photo: licensePhotoUrl,
         shop_front_photo: shopFrontPhotoUrl,
         logo: logoUrl,
+        category,
         phone_number // for VendorInfo
       };
       const result = await registerVendor(userData, infoData);
@@ -58,9 +59,9 @@ const {
   const registerCustomerAsVendorController = async (req, res) => {
     try {
       
-      const { phone_number, shop_name, shop_location, owner_name, customer_id } = req.body;
+      const { phone_number, shop_name, shop_location, owner_name, customer_id,category} = req.body;
       // Validate required fields
-      if ( !phone_number || !shop_name || !shop_location || !owner_name || !customer_id) {
+      if ( !phone_number || !shop_name || !shop_location || !owner_name || !customer_id || !category) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
       // Upload images to Cloudinary
@@ -84,7 +85,8 @@ const {
         license_photo: licensePhotoUrl,
         shop_front_photo: shopFrontPhotoUrl,
         logo: logoUrl,
-        phone_number // for VendorInfo
+        phone_number,
+        category: category // for VendorInfo
       };
       const result = await registerCustomerAsVendor(customer_id, infoData);
       res.status(201).json({ message: 'Vendor registered successfully', result });

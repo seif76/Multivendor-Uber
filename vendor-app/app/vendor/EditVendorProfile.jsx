@@ -7,18 +7,23 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  // Removed Platform and Keyboard to adhere to the constraint
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "expo-router";
+
+// Define primary color for better readability and consistency
+const PRIMARY_COLOR = "#007233"; 
+const LIGHT_BG = "#E8F5E9"; 
 
 export default function EditVendorProfile() {
   const [loading, setLoading] = useState(true);
   const [vendor, setVendor] = useState(null);
-
+  
   // User info
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -107,64 +112,95 @@ export default function EditVendorProfile() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#007233" />
+        <ActivityIndicator size="large" color={PRIMARY_COLOR} />
         <Text className="text-gray-500 mt-2">Loading...</Text>
       </View>
     );
   }
 
+  // Helper component for styled text input with icon
+  const StyledTextInput = ({ label, value, onChangeText, icon, keyboardType, editable = true, placeholder }) => (
+    <View>
+      <Text className="text-gray-600 font-medium mb-2">{label}</Text>
+      <View className={`flex-row items-center border rounded-xl px-4 py-2 ${editable ? 'border-gray-300 bg-white' : 'border-gray-200 bg-gray-100'}`}>
+        <MaterialIcons name={icon} size={20} color={editable ? '#7f8c8d' : '#bdc3c7'} className="mr-3" />
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType || 'default'}
+          editable={editable}
+          placeholder={placeholder}
+          placeholderTextColor="#95a5a6"
+          className="flex-1 text-base text-gray-800 ml-2"
+        />
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView className="flex-1 bg-white px-6 pt-12">
-      {/* Back Button */}
-      <Pressable
-        onPress={() => router.back()}
-        className="absolute top-12 left-6 z-10"
-      >
-        <Ionicons name="arrow-back" size={26} color="#007233" />
-      </Pressable>
-
-      <Text className="text-3xl font-bold text-center text-primary mb-8">
-        Edit Vendor Profile
-      </Text>
-
-      {/* User Info Section */}
-      <View className="bg-gray-50 rounded-2xl p-5 mb-8 shadow-sm">
-        <Text className="text-lg font-semibold text-primary mb-4">
-          Personal Information
+    <View className="flex-1 bg-white">
+      {/* Header and Back Button */}
+      <View className="flex-row items-center pt-16 pb-4 px-6 bg-white border-b border-gray-100 shadow-md">
+        <Pressable
+          onPress={() => router.back()}
+          className="absolute left-6"
+        >
+          <Ionicons name="arrow-back" size={26} color={PRIMARY_COLOR} />
+        </Pressable>
+        <Text className="flex-1 text-xl font-bold text-center text-gray-800">
+          Edit Vendor Profile
         </Text>
+      </View>
 
-        <View className="space-y-4">
-          <View>
-            <Text className="text-gray-600 mb-1">Full Name</Text>
-            <TextInput
+      {/* FIX: The key change is adding a large padding to the ScrollView contentContainerStyle. 
+              This manually creates the space needed to lift the content above the keyboard. */}
+      <ScrollView 
+        className="px-6 pt-4"
+        contentContainerStyle={{ 
+            paddingBottom: 250, // Increased padding to ensure fields are visible above the keyboard
+        }}
+        // Ensures the view scrolls when tapping an input
+        keyboardShouldPersistTaps="handled" 
+      >
+        {/* User Info Section */}
+        <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-100 shadow-sm" style={{ elevation: 3 }}>
+          <View className="flex-row items-center mb-5">
+            <MaterialIcons name="person-outline" size={24} color={PRIMARY_COLOR} />
+            <Text className="text-lg font-bold ml-2" style={{ color: PRIMARY_COLOR }}>
+              Personal Information
+            </Text>
+          </View>
+
+          <View className="space-y-5">
+            <StyledTextInput
+              label="Full Name"
               value={name}
               onChangeText={setName}
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white"
+              icon="badge"
+              placeholder="Your full name"
             />
-          </View>
-
-          <View>
-            <Text className="text-gray-600 mb-1">Email</Text>
-            <TextInput
+            
+            <StyledTextInput
+              label="Email"
               value={email}
               onChangeText={setEmail}
+              icon="email"
               keyboardType="email-address"
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white"
+              placeholder="Your email address"
             />
-          </View>
 
-          <View>
-            <Text className="text-gray-600 mb-1">Phone Number</Text>
-            <TextInput
+            <StyledTextInput
+              label="Phone Number"
               value={phoneNumber}
               editable={false}
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-400 bg-gray-100"
+              icon="phone"
             />
           </View>
-
-          <View>
-            <Text className="text-gray-600 mb-1">Gender</Text>
-            <View className="flex-row space-x-3 mt-2">
+          
+          {/* Gender Selection */}
+          <View className="mt-5">
+            <Text className="text-gray-600 font-medium mb-3">Gender</Text>
+            <View className="flex-row space-x-3">
               {["male", "female"].map((option) => (
                 <Pressable
                   key={option}
@@ -174,11 +210,13 @@ export default function EditVendorProfile() {
                       ? "border-primary bg-primary/10"
                       : "border-gray-300"
                   }`}
+                  style={gender === option ? { borderColor: PRIMARY_COLOR, backgroundColor: LIGHT_BG } : {}}
                 >
                   <Text
-                    className={`font-medium ${
+                    className={`font-semibold ${
                       gender === option ? "text-primary" : "text-gray-600"
                     }`}
+                    style={gender === option ? { color: PRIMARY_COLOR } : {}}
                   >
                     {option.charAt(0).toUpperCase() + option.slice(1)}
                   </Text>
@@ -187,54 +225,52 @@ export default function EditVendorProfile() {
             </View>
           </View>
         </View>
-      </View>
 
-      {/* Shop Info Section */}
-      <View className="bg-gray-50 rounded-2xl p-5 mb-8 shadow-sm">
-        <Text className="text-lg font-semibold text-primary mb-4">
-          Shop Information
-        </Text>
+        {/* Shop Info Section */}
+        <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-100 shadow-sm" style={{ elevation: 3 }}>
+          <View className="flex-row items-center mb-5">
+            <MaterialIcons name="storefront" size={24} color={PRIMARY_COLOR} />
+            <Text className="text-lg font-bold ml-2" style={{ color: PRIMARY_COLOR }}>
+              Shop Information
+            </Text>
+          </View>
 
-        <View className="space-y-4">
-          <View>
-            <Text className="text-gray-600 mb-1">Shop Name</Text>
-            <TextInput
+          <View className="space-y-5">
+            <StyledTextInput
+              label="Shop Name"
               value={shopName}
               onChangeText={setShopName}
-              placeholder="Enter shop name"
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white"
+              icon="shop"
+              placeholder="The official name of your shop"
             />
-          </View>
 
-          <View>
-            <Text className="text-gray-600 mb-1">Shop Location</Text>
-            <TextInput
+            <StyledTextInput
+              label="Shop Location"
               value={shopLocation}
               onChangeText={setShopLocation}
-              placeholder="Enter shop location"
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white"
+              icon="location-on"
+              placeholder="Physical or main service location"
             />
-          </View>
 
-          <View>
-            <Text className="text-gray-600 mb-1">Owner Name</Text>
-            <TextInput
+            <StyledTextInput
+              label="Owner Name"
               value={ownerName}
               onChangeText={setOwnerName}
-              placeholder="Enter owner name"
-              className="border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white"
+              icon="verified-user"
+              placeholder="Name of the shop owner/manager"
             />
           </View>
         </View>
-      </View>
 
-      {/* Save Button */}
-      <Pressable
-        onPress={handleSave}
-        className="bg-primary rounded-2xl p-4 mb-12 items-center"
-      >
-        <Text className="text-white font-semibold text-lg">Save Changes</Text>
-      </Pressable>
-    </ScrollView>
+        {/* Save Button */}
+        <Pressable
+          onPress={handleSave}
+          className="rounded-2xl p-4 mt-4 items-center" 
+          style={{ backgroundColor: PRIMARY_COLOR }}
+        >
+          <Text className="text-white font-bold text-lg">Save Changes</Text>
+        </Pressable>
+      </ScrollView>
+    </View>
   );
 }
