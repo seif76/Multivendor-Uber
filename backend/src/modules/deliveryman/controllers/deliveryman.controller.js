@@ -277,7 +277,8 @@ const updateDeliveryStatusController = async (req, res) => {
 const getDeliverymanOrdersController = async (req, res) => {
   try {
     const deliverymanId = req.user.id;
-    const orders = await getDeliverymanOrders(deliverymanId);
+    const { type } = req.query;
+    const orders = await getDeliverymanOrders(deliverymanId , type);
     
     res.status(200).json({
       success: true,

@@ -9,12 +9,15 @@ import { WalletProvider } from '../../../context/customer/WalletContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { LanguageProvider } from '../../../context/LanguageContext';
+import { DeliverySocketProvider } from '../../../context/Deliveryman/DeliverySocketContext'; 
+import GlobalOrderPopup from '../../../components/deliveryman/custom/GlobalOrderPopup';
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
   const [showTabs, setShowTabs] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
+  
   useEffect(() => {
     const current = segments[segments.length - 1];
     setShowTabs(current !== 'login' && current !== 'register'); // hide tabs on login/register
@@ -27,6 +30,7 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
+      <DeliverySocketProvider>
       <LanguageProvider>
       <WalletProvider>
             
@@ -80,11 +84,15 @@ export default function DeliverymanLayout() {
             {/* Hidden screens */}
             <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
           </Tabs>
+
+          <GlobalOrderPopup />
+
           </SafeAreaView>
       
       </View>
       </WalletProvider>
       </LanguageProvider>
+      </DeliverySocketProvider>
     </DeliverymanAuthProvider>
   );
 }
