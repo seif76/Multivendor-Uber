@@ -47,7 +47,7 @@ export default function DeliverymanLayout() {
         <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
           <Tabs
             screenOptions={{
-              tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
+              tabBarActiveTintColor: '#007233', 
               headerShown: false,
             }}
           >
@@ -59,10 +59,17 @@ export default function DeliverymanLayout() {
             }}
           />
           <Tabs.Screen
-            name="orders"
+            name="Activeorders"
             options={{
-              title: 'Orders',
-              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
+              title: 'Active Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="motorcycle" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="historyorders"
+            options={{
+              title: 'History Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="history" size={22} color={color} />,
             }}
           />
          

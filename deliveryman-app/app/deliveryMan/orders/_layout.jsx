@@ -7,6 +7,9 @@ import DeliverymanTopNavbar from '../../../components/deliveryman/navigation/top
 import { DeliverymanAuthProvider } from '../../../context/DeliverymanAuthContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { DeliverySocketProvider } from '../../../context/Deliveryman/DeliverySocketContext';
+import GlobalOrderPopup from '../../../components/deliveryman/custom/GlobalOrderPopup';
+
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
@@ -25,6 +28,7 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
+      <DeliverySocketProvider>
           
 
       <View className={`flex-1 bg-white  `}>      
@@ -50,10 +54,12 @@ export default function DeliverymanLayout() {
           {/* Hidden screens */}
           <Tabs.Screen name="[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
         </Tabs>
+
+        <GlobalOrderPopup />
         </SafeAreaView>
       
       </View>
-
+      </DeliverySocketProvider>
     </DeliverymanAuthProvider>
   );
 }

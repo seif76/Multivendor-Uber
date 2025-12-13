@@ -78,7 +78,7 @@ export const DeliverySocketProvider = ({ children }) => {
         });
 
         // Fetch initial data immediately after connection setup
-        await fetchInitialData();
+        await fetchInitialActiveData();
 
       } catch (e) {
         console.error('Socket Init Error:', e);
@@ -123,30 +123,23 @@ export const DeliverySocketProvider = ({ children }) => {
   };
 
   // 4. Initial Fetch (Populates data from API logic provided)
-  const fetchInitialData = async () => {
+  const fetchInitialActiveData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      if (!token) return; // Not authenticated
+      if (!token) return;
 
-      const res = await axios.get(`${BACKEND_URL}/api/deliveryman/orders`, {
+      // Notice the query param: ?type=active
+      const res = await axios.get(`${BACKEND_URL}/api/deliveryman/orders?type=active`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const fetchedOrders = res.data.orders || [];
-
-      // Logic to split orders:
-      // Since the API returns "My Orders" (likely history + active), we put them in acceptedOrders.
-      // If your API had a status like "pending_acceptance", we would filter those into availableOrders.
-      // For now, based on your previous file, these are treated as orders the deliveryman owns.
-      setAcceptedOrders(fetchedOrders);
+      const activeOrders = res.data.orders || [];
       
-      // If you have a separate endpoint for "Available Requests", fetch it here:
-      // const requests = await axios.get(...); 
-      // setAvailableOrders(requests.data);
+      console.log(`loaded ${activeOrders.length} active orders into context`);
+      setAcceptedOrders(activeOrders);
 
     } catch (err) {
-      console.error('Error fetching initial orders:', err);
-      // Optional: setError(err.message);
+      console.error('Error fetching initial active orders:', err);
     }
   };
 
@@ -159,7 +152,7 @@ export const DeliverySocketProvider = ({ children }) => {
       setAcceptedOrders, 
       acceptOrder,
       rejectOrder,
-      fetchInitialData,
+      fetchInitialActiveData,
       loading // Exposed loading state
     }}>
       {children}

@@ -67,8 +67,8 @@ export default function GlobalOrderPopup() {
 
         {/* Details */}
         <View className="mb-4">
-          <Text className="text-gray-600 font-semibold">{currentOrder.vendor?.shop_name}</Text>
-          <Text className="text-gray-500 text-xs mb-1">📍 {currentOrder.vendor?.shop_location}</Text>
+          <Text className="text-gray-600 font-semibold">{currentOrder.vendor?.shop_name || currentOrder.vendor?.name} </Text>
+          <Text className="text-gray-500 text-xs mb-1">📍 {currentOrder.vendor?.shop_location || currentOrder.vendor?.address}</Text>
           <View className="h-[1px] bg-gray-200 my-1" />
           <Text className="text-gray-600 font-semibold">{currentOrder.customer?.name}</Text>
           <Text className="text-gray-500 text-xs">📍 {currentOrder.address}</Text>
