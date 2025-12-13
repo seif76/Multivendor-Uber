@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
@@ -33,7 +34,6 @@ export default function OrdersPage() {
       const res = await axios.get(`${BACKEND_URL}/api/customers/orders/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Expecting res.data to be an array of orders
       setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to fetch orders');
@@ -52,7 +52,6 @@ export default function OrdersPage() {
     fetchOrders(true);
   }, [fetchOrders]);
 
-  // Map backend order.status to progress percent & label
   const statusToProgress = (status) => {
     if (!status) return { percent: 0, label: 'Unknown' };
     const s = status.toString().toLowerCase();
@@ -62,21 +61,19 @@ export default function OrdersPage() {
     if (s.includes('ready')) return { percent: 75, label: 'Ready' };
     if (s.includes('prepar') || s.includes('cooking') || s.includes('processing')) return { percent: 50, label: 'Preparing' };
     if (s.includes('pending') || s.includes('created')) return { percent: 25, label: 'Pending' };
-    // fallback
     return { percent: 30, label: status };
   };
 
-  // Decide if an order is "current" (active) or "history" based on status
   const isCurrentOrder = (status) => {
     if (!status) return false;
     const s = status.toString().toLowerCase();
     if (s.includes('deliver') || s.includes('delivered') || s.includes('cancel')) return false;
-    return true; // anything else considered current (pending, preparing, on the way, ready...)
+    return true;
   };
 
   const filteredOrders = orders.filter((o) => {
     if (activeTab === 'current') return isCurrentOrder(o.status);
-    return !isCurrentOrder(o.status); // history
+    return !isCurrentOrder(o.status);
   });
 
   const renderOrder = ({ item }) => {
@@ -108,7 +105,6 @@ export default function OrdersPage() {
             From {item.vendor_name || item.store_name || item.merchant_name || 'Vendor'}
           </Text>
 
-          {/* Progress bar */}
           <View className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
             <View
               style={{ width: `${percent}%`, backgroundColor: percent === 100 ? '#16a34a' : '#4CAF50', height: '100%' }}
@@ -132,12 +128,11 @@ export default function OrdersPage() {
   };
 
   return (
-    <View className="flex-1 bg-[#f6f8f6] px-4 pt-6" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
+    <SafeAreaView className="flex-1 bg-[#f6f8f6]" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-4">
+      <View className="flex-row items-center justify-between mb-4 px-4">
         <View className="flex-row items-center">
-          <Pressable onPress={() => { /* optional action */ }} className="p-2">
-            {/* shopping cart icon to match html left icon */}
+          <Pressable onPress={() => {}} className="p-2">
             <Text style={{ fontSize: 22 }} className="text-gray-800">🛒</Text>
           </Pressable>
         </View>
@@ -191,10 +186,10 @@ export default function OrdersPage() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderOrder}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 80 }}
+          contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 4 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4CAF50']} tintColor="#4CAF50" />}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
