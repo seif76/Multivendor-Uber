@@ -345,27 +345,25 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
 };
 
 // Get all orders assigned to a deliveryman
-const getDeliverymanOrders = async (deliverymanId) => {
+const getDeliverymanOrders = async (deliverymanId , type) => {
   try {
-    // const orders = await Order.findAll({
-    //   where: { 
-    //     deliveryman_id: deliverymanId,
-    //    },
-    //   include: [
-    //     { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
-    //     { model: VendorInfo, as: 'vendor', attributes: [ 'id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] }
-    //   ],
-    //   order: [['createdAt', 'DESC']]
-    // });
-    // for (const order of orders) {
-    //   const vendor = await VendorInfo.findOne({ where: { vendor_id: order.vendor_id }, attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] });
-    //   console.log('vendorrrrr found in deliveryman orders   :'  + JSON.stringify(vendor));
-    //   order.vendor = vendor;
-    //   console.log('orderrrrr found in deliveryman orders   :'  + JSON.stringify(order));
-    // }
+    
+    // Define status groups
+    const activeStatuses = ['pending', 'confirmed', 'ready', 'shipped'];
+    const historyStatuses = ['delivered', 'cancelled'];
+
+    let statusFilter = {};
+
+    if (type === 'active') {
+      statusFilter = { status: { [Op.in]: activeStatuses } };
+    } else if (type === 'history') {
+      statusFilter = { status: { [Op.in]: historyStatuses } };
+    } 
 
     const orders = await Order.findAll({
-      where: { deliveryman_id: deliverymanId },
+      where: { deliveryman_id: deliverymanId ,
+        ...statusFilter 
+      },
       include: [
         { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
         { model: VendorInfo, as: 'vendor', attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location'] }
@@ -388,7 +386,7 @@ const getDeliverymanOrders = async (deliverymanId) => {
     return plainOrders;
 
   
-    return orders;
+    
   } catch (error) {
     console.error('Error fetching deliveryman orders:', error);
     throw error;
