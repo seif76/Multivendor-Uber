@@ -8,6 +8,7 @@ import { HomeProvider } from '../../../context/customer/HomeContext';
 import { CartProvider } from '../../../context/customer/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { MaterialIcons } from '@expo/vector-icons'; // Expo's built-in icons
+import { Alert } from 'react-native'; // import Alert at the top
 
 
 export default function CustomerLayout() {
@@ -59,6 +60,18 @@ export default function CustomerLayout() {
               tabBarIcon: ({ color }) => <MaterialIcons name="receipt-long" size={30} color={color}/>,
             }}
           />
+
+            <Tabs.Screen
+              name="rides"
+              options={{
+                title: 'Rides',
+                tabBarIcon: ({ color }) => <FontAwesome name="car" size={22} color={color} />,
+              }}
+            />
+
+
+
+          
           <Tabs.Screen
             name="chat"
             options={{
