@@ -195,7 +195,7 @@ export default function VendorDashboard() {
         <View className="items-end">
             {/* FIX: Ensure string interpolation for total is wrapped */}
             <Text className="font-bold" style={{ color: TEXT_PRIMARY }}>
-                <Text>$</Text>{order.total.toFixed(2)}
+                <Text>$</Text>
             </Text>
             <Text className="text-xs" style={{ color: order.statusColor || TEXT_SECONDARY }}>{order.status}</Text>
         </View>

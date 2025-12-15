@@ -9,12 +9,15 @@ import { WalletProvider } from '../../../context/customer/WalletContext';
 import OnlineStatusBar from '../../../components/deliveryman/custom/OnlineStatusBar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { LanguageProvider } from '../../../context/LanguageContext';
+import { DeliverySocketProvider } from '../../../context/Deliveryman/DeliverySocketContext'; 
+import GlobalOrderPopup from '../../../components/deliveryman/custom/GlobalOrderPopup';
 
 export default function DeliverymanLayout() {
   const segments = useSegments();
   const [showTabs, setShowTabs] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
+  
   useEffect(() => {
     const current = segments[segments.length - 1];
     setShowTabs(current !== 'login' && current !== 'register'); // hide tabs on login/register
@@ -27,6 +30,7 @@ export default function DeliverymanLayout() {
 
   return (
     <DeliverymanAuthProvider>
+      <DeliverySocketProvider>
       <LanguageProvider>
       <WalletProvider>
             
@@ -43,7 +47,7 @@ export default function DeliverymanLayout() {
         <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
           <Tabs
             screenOptions={{
-              tabBarActiveTintColor: '#3b82f6', // Blue color for deliveryman
+              tabBarActiveTintColor: '#007233', 
               headerShown: false,
             }}
           >
@@ -55,10 +59,17 @@ export default function DeliverymanLayout() {
             }}
           />
           <Tabs.Screen
-            name="orders"
+            name="Activeorders"
             options={{
-              title: 'Orders',
-              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
+              title: 'Active Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="motorcycle" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="historyorders"
+            options={{
+              title: 'History Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="history" size={22} color={color} />,
             }}
           />
          
@@ -80,11 +91,15 @@ export default function DeliverymanLayout() {
             {/* Hidden screens */}
             <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
           </Tabs>
+
+          <GlobalOrderPopup />
+
           </SafeAreaView>
       
       </View>
       </WalletProvider>
       </LanguageProvider>
+      </DeliverySocketProvider>
     </DeliverymanAuthProvider>
   );
 }

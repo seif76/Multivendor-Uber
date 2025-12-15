@@ -39,6 +39,7 @@ import DeliverymanMap from '../../../components/deliveryman/custom/maps';
 import DeliveryOrderManager from '../../../components/deliveryman/custom/DeliveryOrderManager';
 import { DeliverymanAuthContext } from '../../../context/DeliverymanAuthContext';
 
+
 export default function DeliverymanHome() {
   const router = useRouter();
   const context = useContext(DeliverymanAuthContext);
@@ -57,9 +58,7 @@ export default function DeliverymanHome() {
   return (
     <View className="flex-1 bg-gray-50">
       <DeliverymanMap />
-      <DeliveryOrderManager />
-      
-      
+      {/* <DeliveryOrderManager /> */}
     </View>
   );
 }
