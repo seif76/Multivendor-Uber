@@ -83,7 +83,7 @@ export default function DeliverymanSideNav({ visible, onClose }) {
 
   const menuItems = [
     { icon: 'home', label: 'Home', route: '/deliveryMan/(tabs)/home' },
-    { icon: 'list', label: 'Orders', route: '/deliveryMan/(tabs)/orders' },
+    { icon: 'list', label: 'Orders', route: '/deliveryMan/(tabs)/Activeorders' },
     { icon: 'wallet', label: 'Wallet', route: '/deliveryMan/(tabs)/wallet' },
     { icon: 'person', label: 'Profile', route: '/deliveryMan/(tabs)/profile' },
   ];
