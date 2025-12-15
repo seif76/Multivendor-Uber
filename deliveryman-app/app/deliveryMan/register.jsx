@@ -248,7 +248,6 @@ export default function DeliverymanRegister() {
       const endpoint = customerVerified 
         ? `${BACKEND_URL}/api/deliveryman/register-customer`
         : `${BACKEND_URL}/api/deliveryman/register`;
-        alert("endpoint" + endpoint)
       // await axios.post(endpoint, formData, {
       //   headers: { 'Content-Type': 'multipart/form-data' },
       // });
