@@ -46,11 +46,19 @@ export default function ShopHeader() {
       }, []);
   return (
     <View className="flex-row items-center justify-between mb-4">
+
         
-        <Text className="text-gray-700 font-medium">
+        {/* <Text className="text-gray-700 w-full max-w-3/4 font-medium"> */}
+          <Text
+    className="flex-1 text-gray-700 font-medium mr-3"
+    numberOfLines={2}
+    ellipsizeMode="tail"
+  >
           Deliver to <Text className="text-black">{address}</Text>
         </Text>
-        <Pressable onPress={() => router.push('/customer/shop/cart')} className="relative -ml-8 ">
+        <Pressable onPress={() => router.push('/customer/shop/cart')}    
+         className="relative"
+         hitSlop={10}>
       <Ionicons name="cart-outline" size={24} color="black" />
       {itemCount > 0 && (
         <View className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 items-center justify-center">

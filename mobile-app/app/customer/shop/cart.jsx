@@ -5,6 +5,8 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { CartContext } from '../../../context/customer/CartContext';
+import {SafeAreaView} from 'react-native-safe-area-context';
+
 
 export default function CartScreen() {
   const { cartItems, removeFromCart, updateQuantity, total } = useContext(CartContext);
@@ -89,6 +91,8 @@ export default function CartScreen() {
   );
 
   return (
+        <SafeAreaView className="flex-1">
+    
     <View className="flex-1 bg-gray-50 px-4 pt-8">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-6">
@@ -162,5 +166,7 @@ export default function CartScreen() {
         </>
       )}
     </View>
+        </SafeAreaView >
+    
   );
 }
