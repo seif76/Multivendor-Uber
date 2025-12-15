@@ -694,13 +694,13 @@ export default function VendorWalletPage() {
                 <Text className="text-gray-900 text-5xl font-bold">
                   ${wallet?.balance?.toFixed(2) || '0.00'}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-xs mt-1">
                   Last updated:{' '}
                   {wallet?.last_updated ? formatDate(wallet.last_updated) : 'Now'}
                 </Text>
               </View>
               <View className="flex-row items-center space-x-1">
-                <Ionicons name="lock-closed-outline" size={16} color="#666" />
+                <Ionicons name="lock-closed-outline" size={14} color="#666" />
                 <Text className="text-xs text-gray-600">Secure Payment</Text>
               </View>
             </View>

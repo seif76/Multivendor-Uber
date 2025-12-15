@@ -7,13 +7,14 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
-  SafeAreaView,
+  
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { useLanguage } from '../../../context/LanguageContext';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);

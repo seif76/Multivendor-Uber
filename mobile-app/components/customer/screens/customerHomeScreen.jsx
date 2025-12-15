@@ -164,33 +164,70 @@ function CategoryIcons() {
   };
 
   return (
-    <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
-      <Text style={{ color: '#333', fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Categories</Text>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-        {categories.map((category) => (
-          <TouchableOpacity key={category.name} onPress={() => handleCategoryPress(category)}>
-            <View style={{ width: 64, height: 64, backgroundColor: 'white', borderRadius: 32, alignItems: 'center', justifyContent: 'center', elevation: 2 }}>
-              <MaterialIcons name={category.icon} size={32} color="#4CAF50" />
-            </View>
-            <Text style={{ textAlign: 'center', marginTop: 6, color: '#333' }}>{category.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+    // <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+    //   <Text style={{ color: '#333', fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Categories</Text>
+    //   <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+    //     {categories.map((category) => (
+    //       <TouchableOpacity key={category.name} onPress={() => handleCategoryPress(category)}>
+    //         <View style={{ width: 64, height: 64, backgroundColor: 'grey', borderRadius: 32, alignItems: 'center', justifyContent: 'center', elevation: 2 }}>
+    //           <MaterialIcons name={category.icon} size={32} color="#4CAF50" />
+    //         </View>
+    //         <Text style={{ textAlign: 'center', marginTop: 6, color: '#333' }}>{category.name}</Text>
+    //       </TouchableOpacity>
+    //     ))}
+    //   </View>
+    // </View>
+
+   <View className="pt-6">
+  <Text className="px-4 mb-3 text-lg font-bold text-[#333]">
+    Categories
+  </Text>
+
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerClassName="px-4 gap-4"
+  >
+    {categories.map((category) => (
+      <TouchableOpacity
+        key={category.name}
+        onPress={() => handleCategoryPress(category)}
+        className="items-center"
+        activeOpacity={0.8}
+      >
+        {/* Icon Circle */}
+        <View className="aspect-square h-16 rounded-full bg-stone-50 items-center justify-center shadow-sm">
+          <MaterialIcons
+            name={category.icon}
+            size={28}
+            color="#4CAF50"
+          />
+        </View>
+
+        {/* Label */}
+        <Text className="mt-2 text-xs text-center text-[#333]">
+          {category.name}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+</View>
+
+
   );
 }
 
 function ServiceButtons() {
   return (
     <View style={{ flexDirection: 'row', gap: 16, paddingHorizontal: 16, paddingTop: 24 }}>
-      <TouchableOpacity style={{ flex: 1, backgroundColor: 'white', padding: 16, borderRadius: 12, alignItems: 'center', elevation: 2 }}>
-        <MaterialIcons name="inventory-2" size={48} color="#4CAF50" />
-        <Text style={{ color: '#333', fontSize: 16, fontWeight: 'bold' }}>Package Delivery</Text>
+      <TouchableOpacity style={{ flex: 1, backgroundColor: 'white', padding: 16, borderRadius: 12, alignItems: 'center',justifyContent:'center', elevation: 2 }}>
+        <MaterialIcons name="inventory-2" size={44} color="#4CAF50" className='pb-2' />
+        <Text style={{ color: '#333', fontSize: 14, fontWeight: 'bold'  }}>Package Delivery</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={{ flex: 1, backgroundColor: 'white', padding: 16, borderRadius: 12, alignItems: 'center', elevation: 2 }}>
-        <MaterialIcons name="directions-car" size={48} color="#4CAF50" />
-        <Text style={{ color: '#333', fontSize: 16, fontWeight: 'bold' }}>Ride Hailing</Text>
+        <MaterialIcons name="directions-car" size={44} color="#4CAF50" className='pb-2' />
+        <Text style={{ color: '#333', fontSize: 14, fontWeight: 'bold' }}>Ride Hailing</Text>
       </TouchableOpacity>
     </View>
   );
@@ -210,12 +247,12 @@ function StoreList() {
   };
 
   return (
-    <View style={{ paddingTop: 20 }}>
-      <Text style={{ paddingHorizontal: 16, fontSize: 18, fontWeight: 'bold', color: '#333' }}>
+    <View style={{ paddingTop: 20,paddingBottom: 20 }}>
+      <Text  style={{ paddingHorizontal: 16, fontSize: 18, fontWeight: 'bold', color: '#333', paddingBottom: 20 }}>
         Most Popular Stores
       </Text>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 16 ,paddingBottom: 1  }}>
         {vendors.slice(0, 5).map((store) => (
           <TouchableOpacity key={store.shop_name} onPress={() => handleVendorPress(store)} style={{ width: 280, backgroundColor: 'white', borderRadius: 12, overflow: 'hidden', elevation: 2 }}>
             <ImageBackground source={getVendorImage(store)} style={{ width: '100%', aspectRatio: 16 / 9 }} resizeMode="cover" />
@@ -285,3 +322,4 @@ function OffersList() {
     </View>
   );
 }
+  

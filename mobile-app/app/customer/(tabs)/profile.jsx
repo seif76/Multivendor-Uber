@@ -15,6 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import {SafeAreaView} from 'react-native-safe-area-context';
+
 
 // Enable smooth expand animation
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -76,6 +78,7 @@ export default function ProfilePage() {
   }
 
   return (
+    <SafeAreaView className="flex-1">
     <View className="flex-1 bg-[#f6f8f6]">
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
         {/* Profile Card */}
@@ -220,7 +223,9 @@ export default function ProfilePage() {
               </View>
             )}
           </View>
+
         ))}
+
 
         {/* Logout */}
         <View className="px-4 mt-6 mb-10">
@@ -234,5 +239,7 @@ export default function ProfilePage() {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
+
   );
 }

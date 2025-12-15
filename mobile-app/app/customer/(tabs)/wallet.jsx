@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useWallet } from '../../../context/customer/WalletContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function WalletPage() {
   }
 
   return (
+    <SafeAreaView className="flex-1">
     <View className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 py-6 pt-12 shadow-sm">
@@ -164,7 +166,7 @@ export default function WalletPage() {
                 <Text className="text-gray-900 text-5xl font-bold">
                   {formatBalance(wallet?.balance)}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 text-xs mt-1">
                   Last updated:{' '}
                   {wallet?.last_updated ? formatDate(wallet.last_updated) : 'Now'}
                 </Text>
@@ -323,5 +325,6 @@ export default function WalletPage() {
         </View>
       </Modal>
     </View>
+    </SafeAreaView>
   );
 }
