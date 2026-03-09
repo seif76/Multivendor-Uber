@@ -16,13 +16,13 @@ const {
   
   const registerVendorController = async (req, res) => {
     try {
-      console.log(JSON.stringify(req.body));
+     // console.log(JSON.stringify(req.body));
       const { name, email, password, phone_number, gender, shop_name, shop_location, owner_name,category } = req.body;
       // Validate required fields
       if (!name || !email || !password || !phone_number || !shop_name || !shop_location || !owner_name || !category) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-      console.log("registering vendor");
+      // console.log("registering vendor");
       // Upload images to Cloudinary
       const passportPhoto = req.files?.passport_photo?.[0];
       const licensePhoto = req.files?.license_photo?.[0];

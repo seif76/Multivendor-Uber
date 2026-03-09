@@ -110,7 +110,7 @@ const getOrderStats = async () => {
       total: totalOrders,
       pending: pendingOrders,
       confirmed: confirmedOrders,
-      completed: completedOrders,
+      delivered: completedOrders,
       cancelled: cancelledOrders
     };
   } catch (error) {
@@ -134,6 +134,79 @@ const updateOrderStatus = async (orderId, status) => {
   }
 };
 
+// const getOrderById = async (orderId) => {
+//   try {
+//     const order = await Order.findByPk(orderId, {
+//       include: [
+//         {
+//           model: User,
+//           as: 'customer',
+//           attributes: ['name', 'phone_number', 'email']
+//         }
+//       ]
+//     });
+
+//     if (!order) {
+//       throw new Error('Order not found');
+//     }
+
+//     const orderData = order.toJSON();
+    
+//     // Get order items
+//     const orderItems = await OrderItem.findAll({
+//       where: { order_id: orderId },
+//       include: [
+//         {
+//           model: Product,
+//           as: 'product',
+//           attributes: ['id', 'name', 'price', 'image', 'description', 'vendor_id']
+//         }
+//       ]
+//     });
+    
+//     orderData.items = orderItems;
+    
+//     // Get vendor information if there are products
+//     if (orderItems.length > 0) {
+//       const vendorIds = [...new Set(orderItems.map(item => item.product?.vendor_id).filter(Boolean))];
+      
+//       if (vendorIds.length > 0) {
+//         const vendors = await User.findAll({
+//           where: { 
+//             id: vendorIds
+//           },
+//           include: [
+//             {
+//               model: VendorInfo,
+//               as: 'vendor_info',
+//               attributes: ['shop_name', 'shop_location']
+//             }
+//           ],
+//           attributes: ['id', 'name', 'phone_number', 'email']
+//         });
+        
+//         orderData.vendors = vendors;
+//       } else {
+//         orderData.vendors = [];
+//       }
+//     } else {
+//       orderData.vendors = [];
+//     }
+
+//     // Format data for frontend
+//     orderData.customer_name = orderData.customer?.name || 'Unknown Customer';
+//     orderData.vendor_name = orderData.vendors?.[0]?.name || 'Unknown Vendor';
+//     orderData.items_count = orderData.items?.length || 0;
+//     orderData.total_amount = parseFloat(orderData.total_price) || 0;
+//     orderData.created_at = orderData.createdAt ? new Date(orderData.createdAt).toISOString() : new Date().toISOString();
+
+//     return orderData;
+//   } catch (error) {
+//     console.error('Error in getOrderById:', error);
+//     throw new Error(`Failed to get order: ${error.message}`);
+//   }
+// };
+
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findByPk(orderId, {
@@ -141,18 +214,21 @@ const getOrderById = async (orderId) => {
         {
           model: User,
           as: 'customer',
-          attributes: ['name', 'phone_number', 'email']
+          attributes: ['name', 'phone_number', 'email' ,'profile_photo']
+        },
+        {
+          model: User,          // ← add this
+          as: 'deliveryman',
+          attributes: ['id', 'name', 'phone_number', 'email', 'profile_photo', 'rating'],
+          required: false       // LEFT JOIN — order may not have a deliveryman yet
         }
       ]
     });
 
-    if (!order) {
-      throw new Error('Order not found');
-    }
+    if (!order) throw new Error('Order not found');
 
     const orderData = order.toJSON();
-    
-    // Get order items
+
     const orderItems = await OrderItem.findAll({
       where: { order_id: orderId },
       include: [
@@ -163,28 +239,24 @@ const getOrderById = async (orderId) => {
         }
       ]
     });
-    
+
     orderData.items = orderItems;
-    
-    // Get vendor information if there are products
+
     if (orderItems.length > 0) {
       const vendorIds = [...new Set(orderItems.map(item => item.product?.vendor_id).filter(Boolean))];
-      
+
       if (vendorIds.length > 0) {
         const vendors = await User.findAll({
-          where: { 
-            id: vendorIds
-          },
+          where: { id: vendorIds },
           include: [
             {
               model: VendorInfo,
               as: 'vendor_info',
-              attributes: ['shop_name', 'shop_location']
+              attributes: ['shop_name', 'shop_location' , 'logo']
             }
           ],
           attributes: ['id', 'name', 'phone_number', 'email']
         });
-        
         orderData.vendors = vendors;
       } else {
         orderData.vendors = [];
@@ -193,7 +265,6 @@ const getOrderById = async (orderId) => {
       orderData.vendors = [];
     }
 
-    // Format data for frontend
     orderData.customer_name = orderData.customer?.name || 'Unknown Customer';
     orderData.vendor_name = orderData.vendors?.[0]?.name || 'Unknown Vendor';
     orderData.items_count = orderData.items?.length || 0;
@@ -206,6 +277,8 @@ const getOrderById = async (orderId) => {
     throw new Error(`Failed to get order: ${error.message}`);
   }
 };
+
+
 
 const deleteOrder = async (orderId) => {
   try {

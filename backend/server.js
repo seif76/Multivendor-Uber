@@ -114,6 +114,7 @@ const chatRoutes = require('./src/modules/chat/routes/chat.routes');
 const deliverymanRoutes = require('./src/modules/deliveryman/routes/deliveryman.routes');
 const walletRoutes = require('./src/modules/wallet/routes/wallet.routes');
 const adminWalletRoutes = require('./src/modules/wallet/routes/admin.wallet.routes');
+const serviceFee = require('./src/modules/serviceFee/serviceFee');
 
 
 app.use('/api/captain', captainRoutes);
@@ -124,6 +125,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/deliveryman', deliverymanRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/serviceFee', serviceFee);
+
 
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');
