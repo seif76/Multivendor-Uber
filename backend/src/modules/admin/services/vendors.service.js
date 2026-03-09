@@ -3,24 +3,27 @@ const { User, VendorInfo, Product } = require('../../../app/models');
 const getAllVendors = async (page = 1, limit = 10, status = null) => {
   try {
     const offset = (page - 1) * limit;
-    const whereClause = {};
     
-    if (status) {
-      whereClause.vendor_status = status;
-    }
+    const whereClause = {
+      vendor_status: { [require('sequelize').Op.ne]: 'none' }, // always exclude 'none'
+    };
 
+    if (status) {
+      whereClause.vendor_status = status; // override with specific status if provided
+    }
+    
     const { count, rows } = await User.findAndCountAll({
-      where: { vendor_status: { [require('sequelize').Op.ne]: 'none' } },
+      where: whereClause , 
       include: [
         {
           model: VendorInfo,
           as: 'vendor_info',
-          attributes: ['shop_name', 'shop_location', 'owner_name', 'phone_number', 'passport_photo', 'license_photo', 'shop_front_photo', 'logo']
+          attributes: ['shop_name',  'owner_name', 'phone_number']
         }
       ],
       attributes: [
         'id', 'name', 'email', 'phone_number', 'gender', 
-        'vendor_status', 'profile_photo', 'rating', 'createdAt'
+        'vendor_status', 'rating', 'createdAt'
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),

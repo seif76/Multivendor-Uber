@@ -10,6 +10,7 @@ const User = require('./user')(sequelize, DataTypes);
 // admin
 const Admin = require('./admin')(sequelize, DataTypes);
 const AdminVendorCategory = require('./adminVendorCategory')(sequelize, DataTypes);
+const ServiceFee = require('./serviceFee')(sequelize, DataTypes);
 
 // uber
 const CaptainVehicle = require('./captainVehicle')(sequelize, DataTypes);
@@ -37,6 +38,7 @@ const DeliveryZone = require('./deliveryZone')(sequelize, DataTypes);
 const Wallet = require('./wallet')(sequelize, DataTypes);
 const WalletTransaction = require('./walletTransaction')(sequelize, DataTypes);
 const WithdrawalRequest = require('./withdrawalRequest')(sequelize, DataTypes);
+
 
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
@@ -137,4 +139,5 @@ module.exports = {
   WalletTransaction,
   WithdrawalRequest,
   AdminVendorCategory,
+  ServiceFee,
 };

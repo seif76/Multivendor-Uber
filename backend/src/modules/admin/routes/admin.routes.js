@@ -9,7 +9,7 @@ const vendorsRoutes = require('./vendors.routes');
 const ordersRoutes = require('./orders.routes');
 const supportRoutes = require('./support.routes');
 const categoriesRoutes = require('./category.routes');
-
+const deliverymenRoutes = require('./deliverymen.routes')
 
 // Import middleware
 const { adminAuthMiddleware } = require('../middlewares/adminAuth.middleware');
@@ -43,6 +43,7 @@ router.use('/dashboard', adminAuthMiddleware, dashboardRoutes);
 router.use('/customers', adminAuthMiddleware, customersRoutes);
 router.use('/captains', adminAuthMiddleware, captainsRoutes);
 router.use('/vendors', adminAuthMiddleware, vendorsRoutes);
+router.use('/deliverymen', adminAuthMiddleware, deliverymenRoutes);
 router.use('/orders', adminAuthMiddleware, ordersRoutes);
 router.use('/support', adminAuthMiddleware, supportRoutes);
 router.use('/category', categoriesRoutes);
