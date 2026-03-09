@@ -11,8 +11,12 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    type: {
+    category: {
       type: DataTypes.ENUM('payment', 'earning', 'refund', 'withdrawal', 'topup', 'adjustment'),
+      allowNull: false,
+    },
+    direction: {
+      type: DataTypes.ENUM('incoming','outcoming'),
       allowNull: false,
     },
     amount: {

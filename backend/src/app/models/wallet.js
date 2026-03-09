@@ -15,6 +15,10 @@ module.exports = (sequelize) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
+    debt: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
     last_updated: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
