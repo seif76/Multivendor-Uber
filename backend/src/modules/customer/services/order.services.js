@@ -1,13 +1,14 @@
 const { Order, OrderItem, Product, User, DeliverymanVehicle, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
 
-const createOrder = async (customerId, { 
-  items, 
-  address, 
-  payment_method, 
-  vendor_fee,       
-  deliveryman_fee,  
-  service_fee       
+const createOrder = async (customerId, {
+  items,
+  address,
+  payment_method,
+  delivery_zone_id,
+  delivery_fee,
+  service_fee,
+  notes,
 }) => {
   let total = 0;
   const productMap = {};
@@ -15,14 +16,15 @@ const createOrder = async (customerId, {
 
   for (const item of items) {
     const product = await Product.findByPk(item.product_id);
-    
+
     if (!product) {
       throw new Error(`Product with ID ${item.product_id} not found`);
     }
 
-    // ✅ VALIDATION 1: Check if requested quantity exceeds available stock
     if (product.stock < item.quantity) {
-      throw new Error(`Insufficient stock for ${product.name}. Requested: ${item.quantity}, Available: ${product.stock}`);
+      throw new Error(
+        `Insufficient stock for ${product.name}. Requested: ${item.quantity}, Available: ${product.stock}`
+      );
     }
 
     if (vendorId === null) vendorId = product.vendor_id;
@@ -34,55 +36,44 @@ const createOrder = async (customerId, {
     total += parseFloat(product.price) * item.quantity;
   }
 
-  // Format the calculated total to handle JS floating point inaccuracies 
-  const calculatedTotal = parseFloat(total.toFixed(2));
+  const subtotal = parseFloat(total.toFixed(2));
+  const dFee = parseFloat(parseFloat(delivery_fee || 0).toFixed(2));
+  const sFee = parseFloat(parseFloat(service_fee || 0).toFixed(2));
 
-  // Ensure fees are treated as numbers and format them
-  const vFee = parseFloat(vendor_fee || 0);
-  const dFee = parseFloat(deliveryman_fee || 0);
-  const sFee = parseFloat(service_fee || 0);
-  
-  const sumOfFees = parseFloat((vFee + dFee + sFee).toFixed(2));
+  const totalPrice = parseFloat((subtotal + dFee + sFee).toFixed(2));
+  const vFee = subtotal;
+  const deliverymanFee = dFee;
 
-  // ✅ VALIDATION 2: Check if sum of fees equals the calculated total price
-  if (sumOfFees !== calculatedTotal) {
-    throw new Error(`Fee mismatch: Vendor Fee (${vFee}) + Delivery Fee (${dFee}) + Service Fee (${sFee}) equals ${sumOfFees}. This does not match the cart total of ${calculatedTotal}.`);
-  }
-
-  // Create order
   const order = await Order.create({
     customer_id: customerId,
-    vendor_id: vendorId, 
-    total_price: calculatedTotal, 
+    vendor_id: vendorId,
+    total_price: totalPrice,
+    vendor_fee: vFee,
+    deliveryman_fee: deliverymanFee,
+    service_fee: sFee,
     address,
     payment_method,
     status: 'pending',
-    vendor_fee: vFee,
-    deliveryman_fee: dFee,
-    service_fee: sFee,
   });
 
-  
-
-  // Create order items
-  const orderItems = await Promise.all(items.map(item =>
-    OrderItem.create({
-      order_id: order.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: productMap[item.product_id].price,
-    })
-  ));
+  const orderItems = await Promise.all(
+    items.map((item) =>
+      OrderItem.create({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: productMap[item.product_id].price,
+      })
+    )
+  );
 
   const orderWithItems = { ...order.dataValues, items: orderItems };
 
-  // Use OrderSocket for new order notification
   OrderSocket.notifyNewOrder(order.id, customerId, 'pending');
-  
-  // Notify vendor about new order
   OrderSocket.notifyVendorNewOrder(order.id, vendorId, customerId, 'pending');
 
   console.log(`New order ${order.id} created for vendor ${vendorId} by customer ${customerId}`);
+  console.log(`Fees — subtotal: ${subtotal}, delivery: ${dFee}, service: ${sFee}, total: ${totalPrice}`);
 
   return orderWithItems;
 };

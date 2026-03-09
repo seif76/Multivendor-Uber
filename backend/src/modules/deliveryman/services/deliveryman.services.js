@@ -317,6 +317,12 @@ const updateDeliveryStatus = async (orderId, deliverymanId, newStatus) => {
     await order.update({ status: 'shipped' });
   }
 
+  // Release wallet payment to vendor when deliveryman confirms order_received
+  if (newStatus === 'order_received' && order.payment_method === 'wallet') {
+    const { releasePaymentToVendor } = require('../../../modules/vendor/services/wallet.service');
+    await releasePaymentToVendor(orderId);
+  }
+
   // Get vendor information for socket notification
   const {VendorInfo } = require('../../../app/models');
  
