@@ -2,15 +2,16 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 const initializeDatabase = require('../../../config/mysql/dbconnection'); // your DB connection file
 
-
 module.exports = async function syncAdminTables() {
   try {
     const sequelize = await initializeDatabase();
     const Admin = require('../admin')(sequelize);
 
     // 1. Ensure the Admin table exists and is up to date
-    await Admin.sync({ alter: true }); // This will create or alter the table as needed
+    // This will drop the `permissions` column automatically if you are using { alter: true }
+    await Admin.sync({ alter: true }); 
     console.log('✅ Admin tables synced successfully.');
+    
     // 2. Prepare default admin data
     const defaultPassword = await bcrypt.hash('123', 10);
 
@@ -20,16 +21,6 @@ module.exports = async function syncAdminTables() {
         email: 'superadmin@example.com',
         password: defaultPassword,
         role: 'super_admin',
-        permissions: {
-          customers: ['view', 'edit', 'delete', 'create'],
-          captains: ['view', 'edit', 'delete', 'create'],
-          vendors: ['view', 'edit', 'delete', 'create'],
-          orders: ['view', 'edit', 'delete'],
-          analytics: ['view', 'export'],
-          support: ['view', 'respond', 'assign'],
-          settings: ['view', 'edit'],
-          admins: ['view', 'edit', 'delete', 'create']
-        },
         is_active: true
       },
       {
@@ -37,15 +28,6 @@ module.exports = async function syncAdminTables() {
         email: 'admin@example.com',
         password: defaultPassword,
         role: 'admin',
-        permissions: {
-          customers: ['view', 'edit'],
-          captains: ['view', 'edit'],
-          vendors: ['view', 'edit'],
-          orders: ['view', 'edit'],
-          analytics: ['view'],
-          support: ['view', 'respond'],
-          settings: ['view']
-        },
         is_active: true
       },
       {
@@ -53,15 +35,6 @@ module.exports = async function syncAdminTables() {
         email: 'moderator@example.com',
         password: defaultPassword,
         role: 'moderator',
-        permissions: {
-          customers: ['view'],
-          captains: ['view'],
-          vendors: ['view'],
-          orders: ['view'],
-          analytics: ['view'],
-          support: ['view', 'respond'],
-          settings: ['view']
-        },
         is_active: true
       },
       {
@@ -69,15 +42,6 @@ module.exports = async function syncAdminTables() {
         email: 'support@example.com',
         password: defaultPassword,
         role: 'support',
-        permissions: {
-          customers: ['view'],
-          captains: ['view'],
-          vendors: ['view'],
-          orders: ['view'],
-          analytics: ['view'],
-          support: ['view', 'respond'],
-          settings: ['view']
-        },
         is_active: true
       }
     ];
@@ -92,9 +56,8 @@ module.exports = async function syncAdminTables() {
     console.log('Default admins seeded or updated successfully');
     console.log('Default credentials:');
     console.log('- Username: superadmin, admin, moderator, support');
-    console.log('- Password: admin123');
+    console.log('- Password: 123'); // Updated log to match actual hashed password
   } catch (error) {
     console.error('Error seeding default admins:', error);
   }
 };
-

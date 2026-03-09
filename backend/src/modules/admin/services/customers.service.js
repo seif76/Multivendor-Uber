@@ -110,10 +110,10 @@ const deleteCustomer = async (customerId) => {
 
 const getCustomerStats = async () => {
   try {
-    const totalCustomers = await User.count();
+    
     const activeCustomers = await User.count({ where: { customer_status: 'Active' } });
     const deactivatedCustomers = await User.count({ where: { customer_status: 'Deactivated' } });
-
+    const totalCustomers = activeCustomers + deactivatedCustomers;
     return {
       total: totalCustomers,
       active: activeCustomers,

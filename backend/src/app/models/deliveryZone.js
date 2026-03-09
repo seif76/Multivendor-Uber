@@ -27,22 +27,6 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0.00,
       comment: 'Base delivery fee for this zone'
     },
-    distance_km: {
-      type: DataTypes.DECIMAL(8, 2),
-      allowNull: false,
-      comment: 'Distance in kilometers from city center'
-    },
-    delivery_time_minutes: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 30,
-      comment: 'Estimated delivery time in minutes'
-    },
-    min_order_amount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true,
-      comment: 'Minimum order amount for free delivery in this zone'
-    },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

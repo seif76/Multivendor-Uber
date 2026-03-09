@@ -111,7 +111,7 @@ export default function EditProfilePage() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white px-6 pt-12">
+    <ScrollView className="flex-1 bg-white px-6 mb-20 pt-12">
       {/* Back Button */}
       <Pressable
         onPress={() => router.back()}
