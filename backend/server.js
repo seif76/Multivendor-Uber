@@ -31,11 +31,11 @@ app.use(express.json());
 // const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
 // syncWalletTables();
 
- //const syncProdTables = require('./src/app/models/seeders/prodSeeders');
- //syncProdTables();
+//const syncProdTables = require('./src/app/models/seeders/prodSeeders');
+//syncProdTables();
 
-//  const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
-//  syncAdminVendorCategories();
+  //const syncAdminVendorCategories= require('./src/app/models/seeders/syncAdminVendorCategories');
+  //syncAdminVendorCategories();
 
 
 
@@ -115,7 +115,7 @@ const deliverymanRoutes = require('./src/modules/deliveryman/routes/deliveryman.
 const walletRoutes = require('./src/modules/wallet/routes/wallet.routes');
 const adminWalletRoutes = require('./src/modules/wallet/routes/admin.wallet.routes');
 const serviceFee = require('./src/modules/serviceFee/serviceFee');
-
+const deliveryZone = require('./src/modules/deliveryZones/deliveryzone')
 
 app.use('/api/captain', captainRoutes);
 app.use('/api/customers',customerRoutes)
@@ -126,7 +126,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/deliveryman', deliverymanRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/serviceFee', serviceFee);
-
+app.use('/api/deliveryZone',deliveryZone);
 
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');

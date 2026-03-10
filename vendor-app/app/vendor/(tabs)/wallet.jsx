@@ -210,11 +210,11 @@ export default function VendorWalletPage() {
         </View>
         <View className="items-end">
           <Text className={`font-bold text-lg ${
-            item.type === 'earning' || item.type === 'refund' || item.type === 'topup' 
+            item.category === 'earning' || item.category === 'refund' || item.category === 'topup' 
               ? 'text-green-600' 
               : 'text-red-600'
           }`}>
-            {formatAmount(item.amount, item.type)}
+            {formatAmount(item.amount, item.category)}
           </Text>
           <Text className="text-xs text-gray-400">
             Balance: ${typeof item.balance_after === 'number' ? item.balance_after.toFixed(2) : '0.00'}

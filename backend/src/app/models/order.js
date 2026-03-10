@@ -27,6 +27,18 @@ module.exports = (sequelize) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
       },
+      vendor_fee: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      deliveryman_fee: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      service_fee: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
   
       status: {
         type: DataTypes.ENUM('pending', 'confirmed', 'ready', 'shipped', 'delivered', 'cancelled'),

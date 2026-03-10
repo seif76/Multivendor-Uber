@@ -11,9 +11,13 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    type: {
+    category: {
       type: DataTypes.ENUM('payment', 'earning', 'refund', 'withdrawal', 'topup', 'adjustment'),
-      allowNull: false,
+      allowNull: true,
+    },
+    direction: {
+      type: DataTypes.ENUM('incoming','outcoming'),
+      allowNull: true,
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -52,7 +56,8 @@ module.exports = (sequelize) => {
   }, {
     indexes: [
       { name: 'idx_wallet_transaction_wallet_id', fields: ['wallet_id'] },
-      { name: 'idx_wallet_transaction_type', fields: ['type'] },
+      { name: 'idx_wallet_transaction_category', fields: ['category'] },
+      { name: 'idx_wallet_transaction_direction', fields: ['direction'] },
       { name: 'idx_wallet_transaction_reference', fields: ['reference_id', 'reference_type'] },
       { name: 'idx_wallet_transaction_created_at', fields: ['createdAt'] }
     ]
