@@ -7,29 +7,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import mime from "mime";
 
-
-// import * as FileSystem from "expo-file-system";
-
-// const uriToFile = async (uri) => {
-  
-//   if (uri.startsWith("content://")) {
-//     const fileName = uri.split("/").pop();
-//     const filePath = `${FileSystem.cacheDirectory}${fileName}`;
-//     await FileSystem.copy({ from: uri, to: filePath });
-//     return filePath;
-//   }
-//   return uri;
-// };
-
-// const normalizeFile = async (file) => {
-//   if (!file?.uri) return null;
-
-//   const fixedUri = await uriToFile(file.uri);
-//   const name = file.name || fixedUri.split("/").pop();
-//   const type = file.type || "image/jpeg";
-
-//   return { uri: fixedUri, name, type };
-// };
 export default function DeliverymanRegister() {
   // Registration flow states
   const [isCustomer, setIsCustomer] = useState(null); // null = not selected, true = customer, false = not customer
@@ -182,40 +159,6 @@ export default function DeliverymanRegister() {
       formData.append('customer_id', customerData.id);
     }
 
-
-    // // Add images
-    // if (profilePhoto && profilePhoto.uri) {
-    //   formData.append('profile_photo', {
-    //     uri: profilePhoto.uri,
-    //     name: profilePhoto.name || 'profile.jpg',
-    //     type: profilePhoto.type || 'image/jpeg',
-    //   });
-    // }
-    // if (driverLicensePhoto && driverLicensePhoto.uri) {
-    //   formData.append('driver_license_photo', {
-    //     uri: driverLicensePhoto.uri,
-    //     name: driverLicensePhoto.name || 'driver_license.jpg',
-    //     type: driverLicensePhoto.type || 'image/jpeg',
-    //   });
-    // }
-    // if (nationalIdPhoto && nationalIdPhoto.uri) {
-    //   formData.append('national_id_photo', {
-    //     uri: nationalIdPhoto.uri,
-    //     name: nationalIdPhoto.name || 'national_id.jpg',
-    //     type: nationalIdPhoto.type || 'image/jpeg',
-    //   });
-    // }
-        // Normalize and append images
-        // const normalizedProfile = await normalizeFile(profilePhoto);
-        // const normalizedLicense = await normalizeFile(driverLicensePhoto);
-        // const normalizedID = await normalizeFile(nationalIdPhoto);
-    
-        // if (normalizedProfile)
-        //   formData.append("profile_photo", normalizedProfile);
-        // if (normalizedLicense)
-        //   formData.append("driver_license_photo", normalizedLicense);
-        // if (normalizedID)
-        //   formData.append("national_id_photo", normalizedID);
         const appendFile = (fieldName, file) => {
           if (!file) return;
           const newImageUri = file.uri;
@@ -240,8 +183,6 @@ export default function DeliverymanRegister() {
             appendFile("national_id_photo", nationalIdPhoto);
             }
        
-        
-
        
     try {
       // Use different endpoint based on customer verification
