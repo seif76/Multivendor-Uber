@@ -98,7 +98,8 @@ const deductFunds = async (userId, amount, description = 'Payment', referenceId 
   // Create transaction record
   const transaction = await WalletTransaction.create({
     wallet_id: wallet.id,
-    type: 'payment',
+    category: 'payment',
+    direction:'outcoming',
     amount: amountToDeduct,
     balance_before: balanceBefore,
     balance_after: balanceAfter,
