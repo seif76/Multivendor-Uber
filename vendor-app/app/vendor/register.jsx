@@ -55,7 +55,6 @@ export default function VendorRegister() {
   // --- STATE for custom pickers ---
   const [categories, setCategories] = useState([]);
   const [securePassword, setSecurePassword] = useState(true);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showGenderModal, setShowGenderModal] = useState(false);
 
   const router = useRouter();
