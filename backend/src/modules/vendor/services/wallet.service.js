@@ -80,7 +80,73 @@ const releasePaymentToVendor = async (orderId) => {
     throw error;
   }
 };
-    module.exports = {
+
+
+const releaseDeliveryFeeToDeliveryman = async (orderId) => {
+  const order = await Order.findByPk(orderId);
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  if (!order.deliveryman_id) {
+    throw new Error('No delivery man assigned to this order');
+  }
+
+  // Prevent double release
+  const alreadyReleased = await WalletTransaction.findOne({
+    where: {
+      reference_id: orderId.toString(),
+      reference_type: 'order',
+      category: 'earning',
+      wallet_id: (await getOrCreateWallet(order.deliveryman_id)).id,
+    },
+  });
+
+  if (alreadyReleased) {
+    throw new Error('Delivery fee has already been released for this order');
+  }
+
+  const deliverymanWallet = await getOrCreateWallet(order.deliveryman_id);
+
+  const deliveryFee = parseFloat(order.deliveryman_fee);
+  const balanceBefore = parseFloat(deliverymanWallet.balance);
+  const balanceAfter = balanceBefore + deliveryFee;
+
+  const t = await sequelize.transaction();
+
+  try {
+    await deliverymanWallet.update(
+      { balance: balanceAfter, last_updated: new Date() },
+      { transaction: t }
+    );
+
+    const deliverymanTransaction = await WalletTransaction.create(
+      {
+        wallet_id: deliverymanWallet.id,
+        category: 'earning',
+        direction: 'incoming',
+        amount: deliveryFee,
+        balance_before: balanceBefore,
+        balance_after: balanceAfter,
+        description: `Delivery fee for order #${orderId}`,
+        reference_id: orderId.toString(),
+        reference_type: 'order',
+        status: 'completed',
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    return { deliverymanWallet, deliverymanTransaction };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+  module.exports = {
   releasePaymentToVendor,
-  
+  releaseDeliveryFeeToDeliveryman,
 }
