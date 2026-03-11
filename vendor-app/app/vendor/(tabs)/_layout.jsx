@@ -1,12 +1,13 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { Slot, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View , Platform } from 'react-native';
 import VendorSideNav from '../../../components/vendor/navigation/sideNav';
 import VendorTopNavbar from '../../../components/vendor/navigation/topNav';
 import { VendorAuthProvider } from '../../../context/VendorAuthContext';
 import { WalletProvider } from '../../../context/customer/WalletContext';
 import { LanguageProvider } from '../../../context/LanguageContext';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function VendorLayout() {
   const segments = useSegments();
@@ -34,6 +35,10 @@ export default function VendorLayout() {
       <LanguageProvider>
       <WalletProvider>
         <View className="flex-1 bg-white">
+        <SafeAreaView 
+        edges={Platform.OS === 'android' ? ['top'] : []}
+        className={`flex-1 bg-white `}>
+
             {/* Vendor Top Navbar */}
         <VendorTopNavbar onProfilePress={() => setMenuOpen(true)} />
 
@@ -84,6 +89,7 @@ export default function VendorLayout() {
           <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
           </Tabs>
+        </SafeAreaView>
         </View>
         
       </WalletProvider>

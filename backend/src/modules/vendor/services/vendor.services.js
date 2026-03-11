@@ -4,8 +4,12 @@ const bcrypt = require('bcrypt');
 const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
 
 const registerVendor = async (userData, infoData) => {
+  const existingPhone = await User.findOne({ where: { phone_number: userData.phone_number } });
+  if (existingPhone) throw new Error('A user with this phone number already exists');
+
   return await User.sequelize.transaction(async (transaction) => {
     // ✅ Hash the password before saving
+
     const hashedPassword = await bcrypt.hash(userData.password, 10); // 10 salt rounds
     userData.password = hashedPassword;
 
@@ -21,21 +25,6 @@ const registerVendor = async (userData, infoData) => {
     return { user: newUser, info: vendorInfo };
   });
 };
-
-const registerCustomerAsVendor = async (customer_id, infoData) => {
-  return await User.sequelize.transaction(async (transaction) => {
-    
-    const updatedUser = await User.update({ vendor_status: 'pending' }, { where: { id: customer_id }, transaction });
-
-    // ✅ Create vendor info and associate it
-    const vendorInfo = await VendorInfo.create(
-      { ...infoData, vendor_id: customer_id },
-      { transaction }
-    );
-
-    return { user: updatedUser, info: vendorInfo };
-  });
-}
 
 const editVendor = async (phone_number, userUpdates, infoUpdates) => {
   const user = await User.findOne({ where: { phone_number } });
@@ -98,17 +87,6 @@ const updateVendorProfile = async (vendorId, updateData, imageFile = null, logoF
   return { user, vendor_info: vendorInfo };
 };
 
-const deleteVendor = async (phone_number) => {
-  const user = await User.findOne({ where: { phone_number } });
-  if (!user || user.vendor_status === 'none') throw new Error('Vendor not found');
-
-  // Delete all products for this vendor
-  await VendorWorkingHour.destroy({ where: { vendor_id: user.id } });
-  await Product.destroy({ where: { vendor_id: user.id } });
-  await VendorInfo.destroy({ where: { vendor_id: user.id } });
-  await user.destroy();
-  return 'Vendor deleted successfully';
-};
 
 const getVendorByPhone = async (phone_number) => {
   const user = await User.findOne({ where: { phone_number, vendor_status: { [Op.ne]: 'none' } } });
@@ -219,10 +197,8 @@ const getVendorAndProductsByPhone = async (phone_number) => {
 
 module.exports = {
   registerVendor,
-  registerCustomerAsVendor,
   editVendor,
   updateVendorProfile,
-  deleteVendor,
   getVendorByPhone,
   getVendorsByStatus,
   setVendorStatus,
