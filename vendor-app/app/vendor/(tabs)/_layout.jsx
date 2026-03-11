@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { Slot, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View , Platform } from 'react-native';
 import VendorSideNav from '../../../components/vendor/navigation/sideNav';
 import VendorTopNavbar from '../../../components/vendor/navigation/topNav';
 import { VendorAuthProvider } from '../../../context/VendorAuthContext';

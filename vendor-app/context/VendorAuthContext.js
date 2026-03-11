@@ -20,7 +20,6 @@ export const VendorAuthProvider = ({ children }) => {
     const verifyVendor = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        console.log(token);
         if (!token) {
           redirectToLogin();
           return;

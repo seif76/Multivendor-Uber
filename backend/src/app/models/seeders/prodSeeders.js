@@ -21,6 +21,9 @@ module.exports = async function productionSeeders() {
     const DeliverymanVehicle = require('../deliverymanVehicle')(sequelize);
     const WalletTransaction = require('../walletTransaction')(sequelize);
     const WithdrawalRequest = require('../withdrawalRequest')(sequelize);
+    const DeliveryZone = require('../deliveryZone')(sequelize);
+    const ServiceFee = require('../serviceFee')(sequelize);
+
 
     const Rating = require('../rating')(sequelize);
     const VendorInfo = require('../vendorInfo')(sequelize);
@@ -52,7 +55,9 @@ module.exports = async function productionSeeders() {
         DeliverymanVehicle, 
         WalletTransaction, 
         WithdrawalRequest,
-        AdminVendorCategory
+        AdminVendorCategory,
+        DeliveryZone,
+        ServiceFee
     };
 
     // Setup associations if needed

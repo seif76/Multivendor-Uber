@@ -281,7 +281,8 @@ export default function VendorWalletPage() {
         <View className="bg-white mx-4 rounded-[20px] shadow py-1.5 mb-7">
           <Pressable
             // Logic from File 1
-            onPress={() => setShowTopUpModal(true)} 
+           // onPress={() => setShowTopUpModal(true)} 
+           onPress={() => Alert.alert('Office top-up', 'Coming soon...')}
             className="flex-row items-center justify-between px-4 py-4 rounded-lg"
           >
             <View className="flex-row items-center space-x-3">
