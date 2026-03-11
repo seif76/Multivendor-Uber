@@ -1,4 +1,4 @@
-const { Order,WalletTransaction} = require('../../../app/models');
+const { Order,WalletTransaction,adminWallet} = require('../../../app/models');
 //const { Op } = require('sequelize');
 const sequelize = require('../../../app/models').sequelize; // ← ADD THIS
 const {getOrCreateWallet} = require('../../wallet/services/wallet.service');
@@ -75,6 +75,12 @@ const releasePaymentToVendor = async (orderId) => {
     await t.commit();
 
     return { vendorWallet, vendorTransaction };
+
+
+    
+
+
+
   } catch (error) {
     await t.rollback();
     throw error;
@@ -137,9 +143,55 @@ const releaseDeliveryFeeToDeliveryman = async (orderId) => {
       { transaction: t }
     );
 
+    //await t.commit();
+
+    //return { deliverymanWallet, deliverymanTransaction };
+
+    let adminWalletRecord = null;
+
+    if (order.payment_method === 'wallet') {
+      const serviceFee = parseFloat(order.service_fee);
+
+      if (serviceFee > 0) {
+        adminWalletRecord = await adminWallet.findOne({ transaction: t });
+
+        if (!adminWalletRecord) {
+          throw new Error('Admin wallet not found. Please run the admin wallet sync first.');
+        }
+
+        const adminBalanceBefore = parseFloat(adminWalletRecord.balance);
+        const adminBalanceAfter = adminBalanceBefore + serviceFee;
+
+        await adminWalletRecord.update(
+          { balance: adminBalanceAfter, last_updated: new Date() },
+          { transaction: t }
+        );
+
+        await WalletTransaction.create(
+          {
+            wallet_id: adminWalletRecord.id,
+            category: 'earning',
+            direction: 'incoming',
+            amount: serviceFee,
+            balance_before: adminBalanceBefore,
+            balance_after: adminBalanceAfter,
+            description: `Service fee for order #${orderId}`,
+            reference_id: orderId.toString(),
+            reference_type: 'order',
+            status: 'completed',
+          },
+          { transaction: t }
+        );
+
+        console.log(`✅ Service fee $${serviceFee} credited to admin wallet for order #${orderId}`);
+      }
+    }
+
     await t.commit();
 
-    return { deliverymanWallet, deliverymanTransaction };
+    return { deliverymanWallet, deliverymanTransaction, adminWallet: adminWalletRecord };
+
+
   } catch (error) {
     await t.rollback();
     throw error;
