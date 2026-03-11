@@ -9,8 +9,7 @@ const {
     getVendorProfile,
     getVendorStatusCounts,
     getVendorAndProductsByPhone,
-    updateVendorProfile,
-    registerCustomerAsVendor
+    updateVendorProfile
   } = require('../services/vendor.services');
   const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
   
@@ -36,6 +35,7 @@ const {
       if (!logoUrl) {
         return res.status(400).json({ error: 'Logo is required' });
       }
+
       // Call service to create user and vendor info
       const userData = { name, email, password, phone_number, gender,vendor_status: 'pending' };
       const infoData = {
@@ -54,46 +54,6 @@ const {
     }
   };
 
-
-  
-  const registerCustomerAsVendorController = async (req, res) => {
-    try {
-      
-      const { phone_number, shop_name, shop_location, owner_name, customer_id,category} = req.body;
-      // Validate required fields
-      if ( !phone_number || !shop_name || !shop_location || !owner_name || !customer_id || !category) {
-        return res.status(400).json({ error: 'Missing required fields' });
-      }
-      // Upload images to Cloudinary
-      const passportPhoto = req.files?.passport_photo?.[0];
-      const licensePhoto = req.files?.license_photo?.[0];
-      const shopFrontPhoto = req.files?.shop_front_photo?.[0];
-      const logoPhoto = req.files?.logo?.[0];
-      let passportPhotoUrl = '', licensePhotoUrl = '', shopFrontPhotoUrl = '', logoUrl = '';
-      if (passportPhoto) passportPhotoUrl = (await uploadToCloudinary(passportPhoto.path, 'vendor_passports')).url;
-      if (licensePhoto) licensePhotoUrl = (await uploadToCloudinary(licensePhoto.path, 'vendor_licenses')).url;
-      if (shopFrontPhoto) shopFrontPhotoUrl = (await uploadToCloudinary(shopFrontPhoto.path, 'vendor_shops')).url;
-      if (logoPhoto) logoUrl = (await uploadToCloudinary(logoPhoto.path, 'vendor_logos')).url;
-      if (!logoUrl) {
-        return res.status(400).json({ error: 'Logo is required' });
-      }
-      // Call service to create user and vendor info
-      
-      const infoData = {
-        shop_name, shop_location, owner_name,
-        passport_photo: passportPhotoUrl,
-        license_photo: licensePhotoUrl,
-        shop_front_photo: shopFrontPhotoUrl,
-        logo: logoUrl,
-        phone_number,
-        category: category // for VendorInfo
-      };
-      const result = await registerCustomerAsVendor(customer_id, infoData);
-      res.status(201).json({ message: 'Vendor registered successfully', result });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
   
   
   const editVendorController = async (req, res) => {
@@ -135,16 +95,6 @@ const {
       });
     } catch (err) {
       console.error('Error updating vendor profile:', err);
-      res.status(500).json({ error: err.message });
-    }
-  };
-  
-  const deleteVendorController = async (req, res) => {
-    try {
-      const { phone_number } = req.query;
-      const result = await deleteVendor(phone_number);
-      res.status(200).json({ message: result });
-    } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
@@ -244,7 +194,6 @@ const {
     registerVendorController,
     editVendorController,
     updateVendorProfileController,
-    deleteVendorController,
     getVendorByPhoneController,
     getPendingVendorsController,
     getActiveVendorsController,
@@ -253,7 +202,6 @@ const {
     getAllVendorsController,
     getAllVendorStatusCountsController,
     getVendorProfileController,
-    getVendorWithProductsByPhoneController,
-    registerCustomerAsVendorController
-  };
+    getVendorWithProductsByPhoneController
+    };
   
