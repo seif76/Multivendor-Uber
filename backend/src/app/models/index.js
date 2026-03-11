@@ -38,6 +38,7 @@ const DeliveryZone = require('./deliveryZone')(sequelize, DataTypes);
 const Wallet = require('./wallet')(sequelize, DataTypes);
 const WalletTransaction = require('./walletTransaction')(sequelize, DataTypes);
 const WithdrawalRequest = require('./withdrawalRequest')(sequelize, DataTypes);
+const adminWallet = require('./adminwallet')(sequelize, DataTypes);
 
 
 // Associations
@@ -140,4 +141,6 @@ module.exports = {
   WithdrawalRequest,
   AdminVendorCategory,
   ServiceFee,
+  adminWallet,
+
 };

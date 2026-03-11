@@ -22,14 +22,14 @@ app.use(express.json());
 // const syncChatTables = require('./src/app/models/seeders/chatSeeders');
 // syncChatTables();
 
-//  const syncAdminTables = require('./src/app/models/seeders/adminSeeders');
-//  syncAdminTables();
+  //const syncAdminTables = require('./src/app/models/seeders/adminSeeders');
+  //syncAdminTables();
 
 // const syncDeliverymanVehicleTables = require('./src/app/models/seeders/deliverymanVehicleSeeders');
 // syncDeliverymanVehicleTables();
 
-// const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
-// syncWalletTables();
+//const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
+//syncWalletTables();
 
 //const syncProdTables = require('./src/app/models/seeders/prodSeeders');
 //syncProdTables();
