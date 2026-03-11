@@ -39,6 +39,7 @@ const Wallet = require('./wallet')(sequelize, DataTypes);
 const WalletTransaction = require('./walletTransaction')(sequelize, DataTypes);
 const WithdrawalRequest = require('./withdrawalRequest')(sequelize, DataTypes);
 const adminWallet = require('./adminwallet')(sequelize, DataTypes);
+const DebtTransaction = require('./debtTransaction')(sequelize, DataTypes); // ← NEW
 
 
 // Associations
@@ -120,6 +121,16 @@ WalletTransaction.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 User.hasMany(WithdrawalRequest, { foreignKey: 'processed_by', as: 'processed_withdrawals' });
 WithdrawalRequest.belongsTo(User, { foreignKey: 'processed_by', as: 'processor' });
 
+// debt transaction relations ← NEW
+Wallet.hasMany(DebtTransaction, { foreignKey: 'wallet_id', as: 'debt_transactions' });
+DebtTransaction.belongsTo(Wallet, { foreignKey: 'wallet_id', as: 'wallet' });
+
+User.hasMany(DebtTransaction, { foreignKey: 'deliveryman_id', as: 'cod_debts' });
+DebtTransaction.belongsTo(User, { foreignKey: 'deliveryman_id', as: 'deliveryman' });
+
+Order.hasMany(DebtTransaction, { foreignKey: 'order_id', as: 'debt_transactions' });
+DebtTransaction.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
+
 module.exports = {
   sequelize,
   User,
@@ -142,5 +153,6 @@ module.exports = {
   AdminVendorCategory,
   ServiceFee,
   adminWallet,
+  DebtTransaction,
 
 };
