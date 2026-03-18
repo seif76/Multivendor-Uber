@@ -151,7 +151,7 @@ const updateCustomerDeliveryStatus = async (orderId, newStatus) => {
         { model: User, as: 'deliveryman', attributes: ['id', 'name', 'email', 'phone_number'] }
       ]
     });
-  console.log("order: ", order);
+ //console.log("order: ", order);
     if (!order) {
       throw new Error('Order not found or not assigned to this customer');
     }
@@ -166,6 +166,15 @@ const updateCustomerDeliveryStatus = async (orderId, newStatus) => {
     await order.update({ customer_delivery_status: newStatus });
 
     // Check if this is the final step and update order status to 'delivered'
+    // const isFinalStep = (order.payment_method === 'cash' && newStatus === 'payment_confirmed') ||
+    //                    (order.payment_method === 'wallet' && newStatus === 'order_received');
+    
+    // if (isFinalStep) {
+    //   await order.update({ status: 'delivered' });
+    //   console.log(`Order ${orderId} marked as delivered - customer completed final step: ${newStatus}`);
+    // }
+    //============================================================================
+    // Check if this is the final step and update order status to 'delivered'
     const isFinalStep = (order.payment_method === 'cash' && newStatus === 'payment_confirmed') ||
                        (order.payment_method === 'wallet' && newStatus === 'order_received');
     
@@ -173,6 +182,22 @@ const updateCustomerDeliveryStatus = async (orderId, newStatus) => {
       await order.update({ status: 'delivered' });
       console.log(`Order ${orderId} marked as delivered - customer completed final step: ${newStatus}`);
     }
+
+    // ─── Wallet payments: release delivery fee + service fee to deliveryman + admin ───
+    if (order.payment_method === 'wallet' && newStatus === 'order_received') {
+      const { releaseDeliveryFeeToDeliveryman } = require('../../vendor/services/wallet.service');
+      await releaseDeliveryFeeToDeliveryman(orderId);
+    }
+
+    // ─── COD payments: when customer confirms payment, credit deliveryman_fee to deliveryman ───
+    if (order.payment_method === 'cash' && newStatus === 'payment_confirmed') {
+      const { recordCodDebtOnDeliveryman } = require('../../deliveryman/services/codDebt.service');
+      await recordCodDebtOnDeliveryman(orderId,order);
+    }
+    //==============================================================================
+
+
+
 
     // Get vendor info for notifications
     const { VendorInfo } = require('../../../app/models');
