@@ -44,7 +44,6 @@ export default function DeliverymanLayout() {
         <DeliverymanTopNavbar onProfilePress={() => setMenuOpen(true)} isOnline={isOnline} setIsOnline={setIsOnline} />
 
         {/* Sidebar */}
-        <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
           <Tabs
             screenOptions={{
               tabBarActiveTintColor: '#007233', 
@@ -95,6 +94,9 @@ export default function DeliverymanLayout() {
           <GlobalOrderPopup />
 
           </SafeAreaView>
+
+          <DeliverymanSideNav visible={menuOpen} onClose={() => setMenuOpen(false)} />
+
       
       </View>
       </WalletProvider>
