@@ -6,6 +6,9 @@ const { uploadToCloudinary } = require('../../../config/cloudinary/services/clou
 
 // Register a new deliveryman
 const registerDeliveryman = async (userData, vehicleData) => {
+  const existingPhone = await User.findOne({ where: { phone_number: userData.phone_number } });
+  if (existingPhone) throw new Error('A user with this phone number already exists');
+
   return await User.sequelize.transaction(async (transaction) => {
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(userData.password, 10);

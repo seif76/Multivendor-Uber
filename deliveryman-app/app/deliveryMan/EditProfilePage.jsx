@@ -12,6 +12,7 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function EditProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -111,6 +112,14 @@ export default function EditProfilePage() {
   }
 
   return (
+    <KeyboardAwareScrollView
+    className="flex-1"
+    contentContainerStyle={{ padding: 16 }}
+    keyboardShouldPersistTaps="handled"
+    enableOnAndroid={true}
+    extraScrollHeight={20}
+    enableAutomaticScroll={true}
+  >
     <ScrollView className="flex-1 bg-white px-6 mb-20 pt-12">
       {/* Back Button */}
       <Pressable
@@ -254,5 +263,6 @@ export default function EditProfilePage() {
         <Text className="text-white font-semibold text-lg">Save Changes</Text>
       </Pressable>
     </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
