@@ -65,11 +65,11 @@ const updateCustomerDeliveryStatusController = async (req, res) => {
     
     const result = await updateCustomerDeliveryStatus(orderId, status);
 
-    // Release delivery fee to deliveryman when customer confirms order received
-    if (status === 'order_received') {
-      const { releaseDeliveryFeeToDeliveryman } = require('../../vendor/services/wallet.service');
-      await releaseDeliveryFeeToDeliveryman(orderId);
-}
+//     // Release delivery fee to deliveryman when customer confirms order received
+//     if (status === 'order_received') {
+//       const { releaseDeliveryFeeToDeliveryman } = require('../../vendor/services/wallet.service');
+//       await releaseDeliveryFeeToDeliveryman(orderId);
+// }
     
     res.status(200).json({
       success: true,

@@ -1,4 +1,4 @@
-const { Wallet, WalletTransaction, WithdrawalRequest,adminWallet } = require('../index');
+const { Wallet, WalletTransaction, WithdrawalRequest,adminWallet ,DebtTransaction} = require('../index');
 
 const syncWalletTables = async () => {
   try {
@@ -9,7 +9,7 @@ const syncWalletTables = async () => {
     await WalletTransaction.sync({ force: false });
     await WithdrawalRequest.sync({ force: false });
     await adminWallet.sync({ force: false });
-    
+    await DebtTransaction.sync({ force: false });
     console.log('✅ Wallet tables synced successfully!');
   } catch (error) {
     console.error('❌ Error syncing wallet tables:', error);
