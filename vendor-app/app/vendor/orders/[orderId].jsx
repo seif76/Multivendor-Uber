@@ -25,7 +25,7 @@ export default function VendorOrderDetailsPage() {
         const res = await axios.get(`${BACKEND_URL}/api/vendor/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        //alert('Order fetched: ' + JSON.stringify(res.data));
+        alert('Order fetched: ' + JSON.stringify(res.data));
         setOrder(res.data);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to fetch order');
@@ -46,14 +46,14 @@ export default function VendorOrderDetailsPage() {
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Alert.alert(
-      //   status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected',
-      //   status === 'confirmed' ? 'The order has been confirmed.' : 'The order has been rejected.'
-      // );
+      Alert.alert(
+        status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected',
+        status === 'confirmed' ? 'The order has been confirmed.' : 'The order has been rejected.'
+      );
       setOrder({ ...order, status });
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Failed to update order';
-      //Alert.alert('Action Failed', msg);
+      Alert.alert('Action Failed', msg);
     } finally {
       setActionLoading(false);
     }
