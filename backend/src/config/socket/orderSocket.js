@@ -16,6 +16,9 @@ class OrderSocket {
   static notifyOrderDelivered(orderId, customerId) {
     socketManager.notifyOrderStatusChange(orderId, 'delivered', customerId);
   }
+  static notifyAllDeliverymenOrderTaken(orderId, acceptedByDeliverymanId) {
+    socketManager.notifyAllDeliverymenOrderTaken(orderId, acceptedByDeliverymanId);
+  }
 
   static notifyOrderShipped(orderId, customerId) {
     socketManager.notifyOrderStatusChange(orderId, 'shipped', customerId);

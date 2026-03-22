@@ -1,7 +1,6 @@
 const {
     registerVendor,
     editVendor,
-    deleteVendor,
     getVendorByPhone,
     getVendorsByStatus,
     setVendorStatus,
@@ -9,7 +8,8 @@ const {
     getVendorProfile,
     getVendorStatusCounts,
     getVendorAndProductsByPhone,
-    updateVendorProfile
+    updateVendorProfile,
+    getAllActiveVendors,
   } = require('../services/vendor.services');
   const { uploadToCloudinary } = require('../../../config/cloudinary/services/cloudinary.service');
   
@@ -154,6 +154,15 @@ const {
       res.status(500).json({ error: err.message });
     }
   };
+  // this api is for the customer shop
+  const getAllActiveVendorsController = async (req, res) => {
+    try {
+      const { vendors, total, page, totalPages } = await getAllActiveVendors(req.query);
+      res.status(200).json({ vendors, total, currentPage: page, totalPages });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
   
   const getAllVendorStatusCountsController = async (req, res) => {
     try {
@@ -202,6 +211,7 @@ const {
     getAllVendorsController,
     getAllVendorStatusCountsController,
     getVendorProfileController,
-    getVendorWithProductsByPhoneController
+    getVendorWithProductsByPhoneController,
+    getAllActiveVendorsController
     };
   

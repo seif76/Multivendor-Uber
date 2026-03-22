@@ -18,6 +18,7 @@ export default function VendorOrdersPage() {
   const router = useRouter();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
+  
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
@@ -204,7 +205,7 @@ export default function VendorOrdersPage() {
   };
 
   const renderOrder = ({ item }) => (
-    <View className="bg-white rounded-2xl shadow p-5 mb-4 border border-gray-100">
+    <View className="bg-white rounded-2xl p-5 mb-4 border border-gray-100">
       <Pressable onPress={() => router.push(`/vendor/orders/${item?.id}`)}>
         <View className="flex-row justify-between mb-2">
           <Text className="text-base font-semibold text-gray-700">Order #{item?.id}</Text>

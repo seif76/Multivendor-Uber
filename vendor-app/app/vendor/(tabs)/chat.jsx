@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, Pressable , SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ChatList from '../../../components/chat/ChatList';
 import ChatScreen from '../../../components/chat/ChatScreen';
@@ -39,12 +39,12 @@ export default function VendorChatPage() {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
         <Text className="text-xl font-bold text-gray-800">Messages</Text>
-        <Pressable
+        {/* <Pressable
           onPress={() => setShowCreateChat(true)}
           className="p-2 bg-primary rounded-full"
         >
           <Ionicons name="add" size={20} color="white" />
-        </Pressable>
+        </Pressable> */}
       </View>
       <ChatList onChatSelect={handleChatSelect} />
     </SafeAreaView>

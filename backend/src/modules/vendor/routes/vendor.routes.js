@@ -11,6 +11,7 @@ const {
   getVendorProfileController,
   getVendorWithProductsByPhoneController,
   updateVendorProfileController,
+  getAllActiveVendorsController,
 } = require('../controllers/vendor.controller');
 const { dashboardSummaryController } = require('../controllers/dashboard.controller');
 const { authenticate } = require('../../../middlewares/auth.middleware');
@@ -239,6 +240,8 @@ router.put('/status', setVendorStatusController);
  *         description: Server error
  */
 router.get('/all', getAllVendorsController);
+router.get('/allActive', getAllActiveVendorsController);
+
 
 /**
  * @swagger

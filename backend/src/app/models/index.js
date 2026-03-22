@@ -41,6 +41,9 @@ const WithdrawalRequest = require('./withdrawalRequest')(sequelize, DataTypes);
 const adminWallet = require('./adminwallet')(sequelize, DataTypes);
 const DebtTransaction = require('./debtTransaction')(sequelize, DataTypes); // ← NEW
 
+// tickets 
+const Ticket = require('./tickets')(sequelize, DataTypes); 
+
 
 // Associations
 User.hasOne(CaptainVehicle, { foreignKey: 'captain_id', as: 'vehicle' });
@@ -131,6 +134,11 @@ DebtTransaction.belongsTo(User, { foreignKey: 'deliveryman_id', as: 'deliveryman
 Order.hasMany(DebtTransaction, { foreignKey: 'order_id', as: 'debt_transactions' });
 DebtTransaction.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
 
+// tickets 
+
+User.hasMany(Ticket, { foreignKey: 'user_id', as: 'tickets' });
+Ticket.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 module.exports = {
   sequelize,
   User,
@@ -154,5 +162,6 @@ module.exports = {
   ServiceFee,
   adminWallet,
   DebtTransaction,
+  Ticket
 
 };

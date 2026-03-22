@@ -23,6 +23,7 @@ module.exports = async function productionSeeders() {
     const WithdrawalRequest = require('../withdrawalRequest')(sequelize);
     const DeliveryZone = require('../deliveryZone')(sequelize);
     const ServiceFee = require('../serviceFee')(sequelize);
+    const Ticket = require('../tickets')(sequelize);
 
 
     const Rating = require('../rating')(sequelize);
@@ -57,7 +58,8 @@ module.exports = async function productionSeeders() {
         WithdrawalRequest,
         AdminVendorCategory,
         DeliveryZone,
-        ServiceFee
+        ServiceFee,
+        Ticket
     };
 
     // Setup associations if needed

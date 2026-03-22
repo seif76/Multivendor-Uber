@@ -89,6 +89,9 @@ export default function DeliverymanLayout() {
           
             {/* Hidden screens */}
             <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+            <Tabs.Screen name="createticket" options={{ tabBarItemStyle: { display: 'none' } }} />
+            <Tabs.Screen name="ticketdetail" options={{ tabBarItemStyle: { display: 'none' } }} />
+            <Tabs.Screen name="tickets" options={{ tabBarItemStyle: { display: 'none' } }} />
           </Tabs>
 
           <GlobalOrderPopup />

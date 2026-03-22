@@ -152,7 +152,9 @@ export const CartProvider = ({ children }) => {
       return [];
     }
   };
-
+  // const getCartItems = () => {
+  //   return safeCartItems;
+  // };
   const clearCart = () => {
     if (!isMountedRef.current) return;
     

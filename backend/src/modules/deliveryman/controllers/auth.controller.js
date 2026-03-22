@@ -2,9 +2,6 @@ const { User } = require('../../../app/models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
-//const {registerCaptain} = require('../services/captain.service');
-
-
 
 const loginDeliverymanController = async (req, res) => {
     const { phone_number, password } = req.body;
@@ -28,6 +25,14 @@ const loginDeliverymanController = async (req, res) => {
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
         return res.status(401).json({ error: 'Incorrect password' });
+      }
+
+      if (user.deliveryman_status === 'pending') {
+        return res.status(403).json({ error: 'Your account is pending approval. Please wait for admin activation.' });
+      }
+  
+      if (user.deliveryman_status === 'Deactivated') {
+        return res.status(403).json({ error: 'Your account has been deactivated. Please contact support.' });
       }
   
       // const token = jwt.sign(

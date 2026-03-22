@@ -17,9 +17,12 @@ export default function VendorSideNav({ visible, onClose }) {
     { icon: 'inventory', label: 'Products', type: MaterialIcons, route: '/vendor/products' },
     { icon: 'category', label: 'Categories', type: MaterialIcons, route: '/vendor/categories' },
     { icon: 'schedule', label: 'Working Hours', type: MaterialIcons, route: '/vendor/working-hours' },
-    { icon: 'receipt', label: 'Orders', type: MaterialIcons, route: '/vendor/orders' },
+    { icon: 'receipt',   label: 'Active Orders',type: MaterialIcons,  route: '/vendor/orders' },
+    { icon: 'history',   label: 'Order History',  type: MaterialIcons, route: '/vendor/history' },   
     { icon: 'wallet', label: 'Wallet', type: MaterialCommunityIcons, route: '/vendor/wallet' },
     { icon: 'headset', label: 'Support Chat', type: MaterialCommunityIcons, route: '/vendor/chat' },
+    { icon: 'ticket',     label: 'My Tickets',      type: MaterialCommunityIcons, route: '/vendor/tickets' },      // ← view tickets
+    { icon: 'comment-plus',label: 'Create Ticket',  type: MaterialCommunityIcons, route: '/vendor/createticket' },
     { icon: 'logout', label: 'Logout', type: MaterialCommunityIcons, route: 'Logout' },
   ];
 
@@ -93,10 +96,8 @@ export default function VendorSideNav({ visible, onClose }) {
           </TouchableOpacity>
         ))}
 
-        {/* Switch Role */}
-        <TouchableOpacity className="mt-auto rounded-full bg-primary p-3 items-center justify-center">
-          <Text className="text-white font-semibold">Switch Account</Text>
-        </TouchableOpacity>
+       
+        
       </View>
     </SafeAreaView>
   );

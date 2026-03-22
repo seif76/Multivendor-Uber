@@ -60,7 +60,14 @@ export default function VendorLayout() {
           <Tabs.Screen
             name="orders"
             options={{
-              title: 'Orders',
+              title: 'Active Orders',
+              tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="history"
+            options={{
+              title: 'History Orders',
               tabBarIcon: ({ color }) => <FontAwesome name="list-alt" size={22} color={color} />,
             }}
           />
@@ -88,6 +95,9 @@ export default function VendorLayout() {
           <Tabs.Screen name="edit-product" options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tabs.Screen name="manageShop" options={{ tabBarItemStyle: { display: 'none' } }} />
           <Tabs.Screen name="inbox" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="tickets" options={{ tabBarItemStyle: { display: 'none' } }} />
+          <Tabs.Screen name="createticket" options={{ tabBarItemStyle: { display: 'none' } }} />
+
           </Tabs>
         </SafeAreaView>
         </View>

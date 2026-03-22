@@ -95,6 +95,9 @@ export default function CustomerLayout() {
             }}
           />
          <Tabs.Screen name="orders/[orderId]" options={{ tabBarItemStyle: { display: 'none' } }} />
+         <Tabs.Screen name="createticket" options={{ tabBarItemStyle: { display: 'none' } }} />
+         <Tabs.Screen name="ticketdetail" options={{ tabBarItemStyle: { display: 'none' } }} />
+         <Tabs.Screen name="tickets" options={{ tabBarItemStyle: { display: 'none' } }} />
 
         </Tabs>
           </View>
