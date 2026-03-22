@@ -1,7 +1,7 @@
 const { User, DeliverymanVehicle, Order } = require('../../../app/models');
 const { Op } = require('sequelize');
 
-const getAllDeliverymen = async (page = 1, limit = 10, status = null) => {
+const getAllDeliverymen = async (page = 1, limit = 10, status = null,phone=null) => {
   try {
     const offset = (page - 1) * limit;
     const whereClause = {};
@@ -9,7 +9,9 @@ const getAllDeliverymen = async (page = 1, limit = 10, status = null) => {
     if (status) {
       whereClause.deliveryman_status = status;
     }
-
+    if (phone) {
+    whereClause.phone_number = { [Op.like]: `%${phone}%` };
+  }
     const { count, rows } = await User.findAndCountAll({
       where: { 
         deliveryman_status: { [Op.ne]: 'none' },

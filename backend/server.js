@@ -131,7 +131,7 @@ app.use('/api/deliveryZone',deliveryZone);
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin/wallet', adminWalletRoutes);
+//app.use('/api/admin/wallet', adminWalletRoutes);
 
 // Routes
 app.get('/', (req, res) => {

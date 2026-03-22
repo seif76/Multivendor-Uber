@@ -335,4 +335,33 @@ router.post('/withdraw', authenticate, validateWithdrawalAmount, validateBankDet
  */
 router.get('/transactions', authenticate, validatePagination, getWalletTransactionsController);
 
+
+// ─── Admin: Get wallet info for a specific user ───
+router.get('/user/:userId', authenticate, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { getWalletInfo } = require('../services/wallet.service');
+    const walletInfo = await getWalletInfo(userId, 10);
+    res.status(200).json({ success: true, data: walletInfo });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ─── Admin: Get transactions for a specific user ───
+router.get('/user/:userId/transactions', authenticate, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const { getWalletTransactions } = require('../services/wallet.service');
+    const result = await getWalletTransactions(userId, page, limit);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+
 module.exports = router;

@@ -12,8 +12,8 @@ const { uploadToCloudinary } = require('../../../config/cloudinary/services/clou
 
 const getAllCustomersController = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status } = req.query;
-    const customers = await getAllCustomers(page, limit, status);
+    const { page = 1, limit = 10, status ,phone } = req.query;
+    const customers = await getAllCustomers(page, limit, status,phone );
     res.status(200).json(customers);
   } catch (error) {
     console.error('Error in getAllCustomersController:', error);

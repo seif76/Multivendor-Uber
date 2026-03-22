@@ -80,6 +80,10 @@ const addFunds = async (userId, amount, description = 'Wallet top-up', reference
 const deductFunds = async (userId, amount, description = 'Payment', referenceId = null, referenceType = 'order') => {
   const wallet = await getOrCreateWallet(userId);
   
+   if (wallet.is_frozen) {
+    throw new Error('Wallet is frozen — payments are not allowed');
+  }
+
   const balanceBefore = parseFloat(wallet.balance);
   const amountToDeduct = parseFloat(amount);
   
@@ -180,6 +184,10 @@ const refundToWallet = async (userId, amount, description = 'Order refund', refe
 const createWithdrawalRequest = async (userId, amount, bankDetails) => {
   const wallet = await getOrCreateWallet(userId);
   
+  if (wallet.is_frozen) {
+    throw new Error('Wallet is frozen — withdrawals are not allowed');
+  }
+
   const balanceBefore = parseFloat(wallet.balance);
   const amountToWithdraw = parseFloat(amount);
   

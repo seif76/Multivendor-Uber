@@ -1,17 +1,26 @@
 const { User, Order, OrderItem, Product } = require('../../../app/models');
 const { Op } = require('sequelize');
 
-const getAllCustomers = async (page = 1, limit = 10, status = null) => {
+// ─── Added phone parameter for phone number search ───
+const getAllCustomers = async (page = 1, limit = 10, status = null, phone = null) => {
   try {
     const offset = (page - 1) * limit;
-    const whereClause = {};
-    
+
+    const where = {
+      customer_status: { [Op.ne]: 'none' },
+    };
+
     if (status) {
-      whereClause.customer_status = status;
+      where.customer_status = status;
+    }
+
+    // ─── Filter by phone number if provided ───
+    if (phone) {
+      where.phone_number = { [Op.like]: `%${phone}%` };
     }
 
     const { count, rows } = await User.findAndCountAll({
-      where: { customer_status: { [require('sequelize').Op.ne]: 'none' } },
+      where,
       attributes: [
         'id', 'name', 'email', 'phone_number', 'gender', 
         'customer_status', 'profile_photo', 'rating', 'createdAt'
@@ -136,4 +145,4 @@ module.exports = {
   updateCustomerStatus,
   deleteCustomer,
   getCustomerStats
-}; 
+};
