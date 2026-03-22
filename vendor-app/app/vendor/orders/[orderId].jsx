@@ -45,14 +45,14 @@ export default function VendorOrderDetailsPage() {
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      Alert.alert(
-        status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected',
-        status === 'confirmed' ? 'The order has been confirmed.' : 'The order has been rejected.'
-      );
+      // Alert.alert(
+      //   status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected',
+      //   status === 'confirmed' ? 'The order has been confirmed.' : 'The order has been rejected.'
+      // );
       setOrder({ ...order, status });
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Failed to update order';
-      Alert.alert('Action Failed', msg);
+      //Alert.alert('Action Failed', msg);
     } finally {
       setActionLoading(false);
     }

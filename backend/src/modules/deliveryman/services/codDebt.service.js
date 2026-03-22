@@ -1,4 +1,5 @@
 const { Order, Wallet, DebtTransaction } = require('../../../app/models');
+const { Op } = require('sequelize');
 const sequelize = require('../../../app/models').sequelize;
 const { getOrCreateWallet } = require('../../wallet/services/wallet.service');
 
@@ -6,19 +7,13 @@ const { getOrCreateWallet } = require('../../wallet/services/wallet.service');
  * ─────────────────────────────────────────────
  *  COD DEBT RECORDING
  *  Called when customer marks customer_delivery_status as 'payment_confirmed'
- *  on a cash order
- *
- *  The deliveryman collected total_price cash from the customer.
- *  He already paid vendor_fee to the vendor before picking up.
- *  Platform records this as a debt on his wallet.
  *
  *  Flow:
  *    Deliveryman wallet.debt  →  INCREASED (+vendor_fee)
  *    DebtTransaction          →  CREATED (status: pending)
  * ─────────────────────────────────────────────
  */
-
-  const recordCodDebtOnDeliveryman = async (orderId, order) => {
+const recordCodDebtOnDeliveryman = async (orderId, order) => {
   if (!order) {
     throw new Error('Order not found');
   }
@@ -42,20 +37,18 @@ const { getOrCreateWallet } = require('../../wallet/services/wallet.service');
 
   const deliverymanWallet = await getOrCreateWallet(order.deliveryman_id);
 
-  const debtAmount = parseFloat(order.service_fee);
+  const debtAmount = parseFloat(order.vendor_fee);
   const debtBefore = parseFloat(deliverymanWallet.debt || 0);
   const debtAfter = parseFloat((debtBefore + debtAmount).toFixed(2));
 
   const t = await sequelize.transaction();
 
   try {
-    // Increase debt on deliveryman wallet
     await deliverymanWallet.update(
       { debt: debtAfter, last_updated: new Date() },
       { transaction: t }
     );
 
-    // Create debt transaction record
     const debtTransaction = await DebtTransaction.create(
       {
         wallet_id: deliverymanWallet.id,
@@ -84,56 +77,204 @@ const { getOrCreateWallet } = require('../../wallet/services/wallet.service');
 
 /**
  * ─────────────────────────────────────────────
- *  COD DEBT SETTLEMENT
- *  Called by admin when deliveryman submits collected cash
+ *  SETTLE DEBT BY AMOUNT
+ *  Admin enters amount the deliveryman paid
+ *  Settles pending debt transactions oldest-first
+ *  until the amount is consumed
  *
  *  Flow:
- *    Deliveryman wallet.debt  →  DECREASED (-vendor_fee)
- *    DebtTransaction.status   →  'settled'
+ *    Deliveryman wallet.debt     →  DECREASED by paid amount
+ *    DebtTransaction(s).status   →  'settled' (oldest first, until amount runs out)
  * ─────────────────────────────────────────────
  */
-const settleCodDebt = async (orderId, adminId) => {
-  const debtTransaction = await DebtTransaction.findOne({
-    where: { order_id: orderId, status: 'pending' },
+const settleDebtByAmount = async (deliverymanId, paidAmount, adminId) => {
+  const deliverymanWallet = await Wallet.findOne({
+    where: { user_id: deliverymanId },
   });
-
-  if (!debtTransaction) {
-    throw new Error('No pending COD debt found for this order');
-  }
-
-  const deliverymanWallet = await Wallet.findByPk(debtTransaction.wallet_id);
 
   if (!deliverymanWallet) {
     throw new Error('Deliveryman wallet not found');
   }
 
-  const debtAmount = parseFloat(debtTransaction.amount);
-  const debtBefore = parseFloat(deliverymanWallet.debt || 0);
-  const debtAfter = parseFloat((debtBefore - debtAmount).toFixed(2));
+  const currentDebt = parseFloat(deliverymanWallet.debt || 0);
+
+  if (currentDebt <= 0) {
+    throw new Error('This deliveryman has no outstanding debt');
+  }
+
+  const amountToPay = parseFloat(paidAmount);
+
+  if (amountToPay <= 0) {
+    throw new Error('Payment amount must be greater than zero');
+  }
+
+  if (amountToPay > currentDebt) {
+    throw new Error(
+      `Payment amount ($${amountToPay}) exceeds total debt ($${currentDebt.toFixed(2)})`
+    );
+  }
+
+  // Fetch pending debts oldest first
+  const pendingDebts = await DebtTransaction.findAll({
+    where: {
+      deliveryman_id: deliverymanId,
+      status: 'pending',
+    },
+    order: [['createdAt', 'ASC']],
+  });
+
+  if (pendingDebts.length === 0) {
+    throw new Error('No pending debt records found for this deliveryman');
+  }
 
   const t = await sequelize.transaction();
 
   try {
-    // Decrease debt on deliveryman wallet
-    await deliverymanWallet.update(
-      { debt: debtAfter < 0 ? 0 : debtAfter, last_updated: new Date() },
-      { transaction: t }
-    );
+    let remaining = amountToPay;
+    const settledIds = [];
 
-    // Mark debt transaction as settled
-    await debtTransaction.update(
-      {
-        status: 'settled',
-        settled_at: new Date(),
-      },
+    // Settle oldest debts first until amount is consumed
+    for (const debt of pendingDebts) {
+      if (remaining <= 0) break;
+
+      const debtAmount = parseFloat(debt.amount);
+
+      if (remaining >= debtAmount) {
+        // Fully settle this debt record
+        await debt.update(
+          { status: 'settled', settled_at: new Date() },
+          { transaction: t }
+        );
+        settledIds.push(debt.id);
+        remaining = parseFloat((remaining - debtAmount).toFixed(2));
+      } else {
+        // Partially paid — split into settled + remaining
+        // Mark original as settled for the paid portion
+        await debt.update(
+          { status: 'settled', settled_at: new Date(), amount: remaining },
+          { transaction: t }
+        );
+        settledIds.push(debt.id);
+
+        // Create a new pending record for the remaining unpaid portion
+        const leftover = parseFloat((debtAmount - remaining).toFixed(2));
+        const newDebtBefore = parseFloat((currentDebt - amountToPay).toFixed(2));
+        const newDebtAfter = newDebtBefore;
+
+        await DebtTransaction.create(
+          {
+            wallet_id: deliverymanWallet.id,
+            deliveryman_id: deliverymanId,
+            order_id: debt.order_id,
+            amount: leftover,
+            debt_before: parseFloat(debt.debt_before),
+            debt_after: newDebtAfter,
+            status: 'pending',
+            description: `Remaining debt for order #${debt.order_id} after partial settlement`,
+            settled_at: null,
+          },
+          { transaction: t }
+        );
+
+        remaining = 0;
+      }
+    }
+
+    // Update wallet debt
+    const newDebt = parseFloat((currentDebt - amountToPay).toFixed(2));
+
+    await deliverymanWallet.update(
+      { debt: newDebt < 0 ? 0 : newDebt, last_updated: new Date() },
       { transaction: t }
     );
 
     await t.commit();
 
-    console.log(`COD debt $${debtAmount} settled for order #${orderId} by admin #${adminId}`);
+    console.log(
+      `Admin #${adminId} settled $${amountToPay} debt for deliveryman #${deliverymanId}. Remaining debt: $${newDebt}`
+    );
 
-    return { deliverymanWallet, debtTransaction };
+    return {
+      settledAmount: amountToPay,
+      remainingDebt: newDebt < 0 ? 0 : newDebt,
+      settledRecords: settledIds.length,
+      deliverymanWallet,
+    };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
+/**
+ * ─────────────────────────────────────────────
+ *  SETTLE ALL DEBT
+ *  Clears all pending debt for a deliveryman at once
+ *
+ *  Flow:
+ *    Deliveryman wallet.debt     →  SET TO 0
+ *    All pending DebtTransactions →  'settled'
+ * ─────────────────────────────────────────────
+ */
+const settleAllDebt = async (deliverymanId, adminId) => {
+  const deliverymanWallet = await Wallet.findOne({
+    where: { user_id: deliverymanId },
+  });
+
+  if (!deliverymanWallet) {
+    throw new Error('Deliveryman wallet not found');
+  }
+
+  const currentDebt = parseFloat(deliverymanWallet.debt || 0);
+
+  if (currentDebt <= 0) {
+    throw new Error('This deliveryman has no outstanding debt');
+  }
+
+  const pendingDebts = await DebtTransaction.findAll({
+    where: {
+      deliveryman_id: deliverymanId,
+      status: 'pending',
+    },
+  });
+
+  if (pendingDebts.length === 0) {
+    throw new Error('No pending debt records found for this deliveryman');
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    // Settle all pending records
+    await DebtTransaction.update(
+      { status: 'settled', settled_at: new Date() },
+      {
+        where: {
+          deliveryman_id: deliverymanId,
+          status: 'pending',
+        },
+        transaction: t,
+      }
+    );
+
+    // Clear wallet debt
+    await deliverymanWallet.update(
+      { debt: 0, last_updated: new Date() },
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    console.log(
+      `Admin #${adminId} settled ALL debt ($${currentDebt}) for deliveryman #${deliverymanId}`
+    );
+
+    return {
+      settledAmount: currentDebt,
+      remainingDebt: 0,
+      settledRecords: pendingDebts.length,
+      deliverymanWallet,
+    };
   } catch (error) {
     await t.rollback();
     throw error;
@@ -143,7 +284,6 @@ const settleCodDebt = async (orderId, adminId) => {
 /**
  * ─────────────────────────────────────────────
  *  GET PENDING DEBTS FOR A DELIVERYMAN
- *  For admin dashboard
  * ─────────────────────────────────────────────
  */
 const getDeliverymanPendingDebts = async (deliverymanId) => {
@@ -167,6 +307,7 @@ const getDeliverymanPendingDebts = async (deliverymanId) => {
 
 module.exports = {
   recordCodDebtOnDeliveryman,
-  settleCodDebt,
+  settleDebtByAmount,
+  settleAllDebt,
   getDeliverymanPendingDebts,
 };

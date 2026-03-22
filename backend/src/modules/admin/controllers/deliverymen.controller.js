@@ -10,8 +10,8 @@ const {
   
   const getAllDeliverymenController = async (req, res) => {
     try {
-      const { page = 1, limit = 10, status } = req.query;
-      const deliverymen = await getAllDeliverymen(page, limit, status);
+      const { page = 1, limit = 10, status,phone } = req.query;
+      const deliverymen = await getAllDeliverymen(page, limit, status,phone);
       res.status(200).json(deliverymen);
     } catch (error) {
       console.error('Error in getAllDeliverymenController:', error);

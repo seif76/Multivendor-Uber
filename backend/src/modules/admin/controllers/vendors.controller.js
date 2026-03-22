@@ -5,7 +5,8 @@ const {
   deleteVendor,
   getVendorById,
   getPendingVendors,
-  updateVendorDetails
+  updateVendorDetails,
+  getVendorOrders,
 } = require('../services/vendors.service');
 
 const getAllVendorsController = async (req, res) => {
@@ -17,6 +18,18 @@ const getAllVendorsController = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const getVendorOrdersController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, limit = 10, orderId } = req.query;
+    const result = await getVendorOrders(id, page, limit, orderId || null);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 const getVendorStatsController = async (req, res) => {
   try {
@@ -119,5 +132,6 @@ module.exports = {
   updateVendorDetailsController,
   deleteVendorController,
   getVendorByIdController,
-  getPendingVendorsController
+  getPendingVendorsController,
+  getVendorOrdersController,
 }; 

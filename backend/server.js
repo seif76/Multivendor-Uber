@@ -142,7 +142,7 @@ app.use('/api/admin/tickets',adminAuthMiddleware ,adminTicketRoutes);
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin/wallet', adminWalletRoutes);
+//app.use('/api/admin/wallet', adminWalletRoutes);
 
 // Routes
 app.get('/', (req, res) => {
