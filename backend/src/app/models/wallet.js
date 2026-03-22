@@ -19,6 +19,12 @@ module.exports = (sequelize) => {
       type: DataTypes.FLOAT,
       defaultValue: 0,
     },
+    is_frozen: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+      comment: 'When true — wallet cannot make payments or withdrawals',
+    },
     last_updated: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

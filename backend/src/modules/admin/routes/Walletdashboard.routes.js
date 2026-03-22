@@ -8,7 +8,14 @@ const {
   getAllDeliverymenDebtSummaryController,
   settleDebtByAmountController,
   settleAllDebtController,
+  
 } = require('../controllers/Walletdashboard.controller ');
+
+const{
+    getAllWalletsController,
+    freezeWalletController,
+    unfreezeWalletController,
+}= require('../controllers/Freezewallet.controller');
 
 // Admin wallet balance
 router.get('/balance', getAdminWalletBalanceController);
@@ -30,5 +37,12 @@ router.post('/cod-debts/:deliverymanId/settle-amount', settleDebtByAmountControl
 
 // Settle all debt for a specific deliveryman (Admin only)
 router.post('/cod-debts/:deliverymanId/settle-all', settleAllDebtController);
+
+// All wallets list with freeze status
+router.get('/wallets', getAllWalletsController);
+ 
+// Freeze / unfreeze a wallet (Admin only)
+router.post('/wallets/:userId/freeze', freezeWalletController);
+router.post('/wallets/:userId/unfreeze', unfreezeWalletController);
 
 module.exports = router;

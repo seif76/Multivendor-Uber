@@ -6,7 +6,8 @@ const {
   deleteVendorController,
   getVendorByIdController,
   getPendingVendorsController,
-  updateVendorDetailsController
+  updateVendorDetailsController,
+  getVendorOrdersController
 } = require('../controllers/vendors.controller');
 
 const router = express.Router();
@@ -197,5 +198,7 @@ router.get('/details', getVendorByIdController);
  *         description: Server error
  */
 router.get('/pending', getPendingVendorsController);
+
+router.get('/:id/orders', getVendorOrdersController);
 
 module.exports = router; 
