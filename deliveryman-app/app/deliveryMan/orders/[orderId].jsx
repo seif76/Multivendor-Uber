@@ -415,9 +415,13 @@ export default function DeliverymanOrderDetailsPage() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams();
   const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
+  const [localOrder, setLocalOrder] = useState(null);
+
 
   const { acceptedOrders, socketConnected } = useDeliverySocket();
-  const order = acceptedOrders.find(o => parseInt(o.id) === parseInt(orderId)) || null;
+  const contextOrder = acceptedOrders.find(o => parseInt(o.id) === parseInt(orderId)) || null;
+  const order = contextOrder || localOrder; // ← use context if available, else local
+
 
   const fetchVendor = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -427,7 +431,9 @@ export default function DeliverymanOrderDetailsPage() {
       const res = await axios.get(`${BACKEND_URL}/api/deliveryman/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      //alert(JSON.stringify(res.data));
       setVendor(res.data.vendor ? { ...res.data.vendor } : null);
+      setLocalOrder({ ...res.data.order });
       setError(null);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to fetch order details');
