@@ -6,6 +6,11 @@ const {
   getAllDeliverymenDebtSummary,
 } = require('../services/Walletdashboard.service');
 
+const {
+  settleDebtByAmount,
+  settleAllDebt,
+} = require('../../deliveryman/services/codDebt.service');
+
 /**
  * Get admin wallet balance (service fees collected)
  */
@@ -78,10 +83,47 @@ const getAllDeliverymenDebtSummaryController = async (req, res) => {
   }
 };
 
+/**
+ * Settle debt by amount for a specific deliveryman
+ */
+const settleDebtByAmountController = async (req, res) => {
+  try {
+    const { deliverymanId } = req.params;
+    const { amount } = req.body;
+    const adminId = req.user?.id;
+
+    if (!amount || parseFloat(amount) <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid amount is required' });
+    }
+
+    const result = await settleDebtByAmount(parseInt(deliverymanId), parseFloat(amount), adminId);
+    res.status(200).json({ success: true, message: 'Debt settled successfully', data: result });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * Settle all debt for a specific deliveryman
+ */
+const settleAllDebtController = async (req, res) => {
+  try {
+    const { deliverymanId } = req.params;
+    const adminId = req.user?.id;
+
+    const result = await settleAllDebt(parseInt(deliverymanId), adminId);
+    res.status(200).json({ success: true, message: 'All debt settled successfully', data: result });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   getAdminWalletBalanceController,
   getAllWalletTransactionsController,
   getAllCodDebtsController,
   getDeliverymanDebtDetailsController,
   getAllDeliverymenDebtSummaryController,
+  settleDebtByAmountController,
+  settleAllDebtController,
 };

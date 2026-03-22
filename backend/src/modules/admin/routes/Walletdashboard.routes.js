@@ -6,6 +6,8 @@ const {
   getAllCodDebtsController,
   getDeliverymanDebtDetailsController,
   getAllDeliverymenDebtSummaryController,
+  settleDebtByAmountController,
+  settleAllDebtController,
 } = require('../controllers/Walletdashboard.controller ');
 
 // Admin wallet balance
@@ -22,5 +24,11 @@ router.get('/cod-debts/summary', getAllDeliverymenDebtSummaryController);
 
 // Specific deliveryman debt details
 router.get('/cod-debts/:deliverymanId', getDeliverymanDebtDetailsController);
+
+// Settle debt by amount for a specific deliveryman (Admin only)
+router.post('/cod-debts/:deliverymanId/settle-amount', settleDebtByAmountController);
+
+// Settle all debt for a specific deliveryman (Admin only)
+router.post('/cod-debts/:deliverymanId/settle-all', settleAllDebtController);
 
 module.exports = router;
