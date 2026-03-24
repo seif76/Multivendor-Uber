@@ -8,6 +8,8 @@ import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
+import {SafeAreaView} from 'react-native-safe-area-context';
+
 
 const STATUS_CONFIG = {
   open:        { bg: '#fef9c3', text: '#854d0e', dot: '#eab308' },
@@ -86,7 +88,7 @@ export default function CustomerTicketsPage() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
       {/* Header */}
       <View style={{ backgroundColor: '#4CAF50', paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -143,6 +145,6 @@ export default function CustomerTicketsPage() {
           }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
         }

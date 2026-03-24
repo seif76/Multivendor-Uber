@@ -9,7 +9,7 @@ import { CartProvider } from '../../../context/customer/CartContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { MaterialIcons } from '@expo/vector-icons'; // Expo's built-in icons
 import { Alert } from 'react-native'; // import Alert at the top
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider  , SafeAreaView} from 'react-native-safe-area-context';
 
 export default function CustomerLayout() {
   const segments = useSegments();
@@ -40,6 +40,7 @@ export default function CustomerLayout() {
         <WalletProvider>
           <HomeProvider>
           <View className="flex-1 bg-white">
+           
         <Tabs
           screenOptions={{
             tabBarActiveTintColor: '#0f9d58',
@@ -69,9 +70,6 @@ export default function CustomerLayout() {
                 tabBarIcon: ({ color }) => <FontAwesome name="car" size={22} color={color} />,
               }}
             />
-
-
-
           
           <Tabs.Screen
             name="chat"
