@@ -5,12 +5,16 @@ const {
   getVendorOrderDetailsController,
   updateOrderStatusController,
   updateDeliveryStatusController,
+  getVendorHistoryOrdersController,
 } = require('../controllers/order.controller');
 
 const router = express.Router();
 
 // Get all orders for the authenticated vendor
 router.get('/', authenticate, getVendorOrdersController);
+
+// Get history orders for the authenticated vendor
+router.get('/history', authenticate, getVendorHistoryOrdersController);
 
 // Get order details for the authenticated vendor
 router.get('/:orderId', authenticate, getVendorOrderDetailsController);

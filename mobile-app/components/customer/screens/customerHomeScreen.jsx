@@ -104,6 +104,7 @@ export default function CustomerHomePage() {
         <StoreList />
         <PromoBanners />
         <OffersList />
+        <TicketsBanner />
       </ScrollView>
     </View>
   </SafeAreaView>
@@ -115,7 +116,7 @@ function AppHeader({ location }) {
   const router = useRouter();
 
   const handleInput = (text) => {
-    router.push({ pathname: '/customer/shop/shop', params: { query: text } });
+    router.push({ pathname: '/customer/shop/shoppage', params: { query: text } });
   };
 
   return (
@@ -160,7 +161,7 @@ function CategoryIcons() {
   const router = useRouter();
 
   const handleCategoryPress = (category) => {
-    router.push({ pathname: '/customer/shop/shop', params: { categoryName: category.name } });
+    router.push({ pathname: '/customer/shop/shoppage', params: { categoryName: category.name } });
   };
 
   return (
@@ -297,6 +298,49 @@ function PromoBanners() {
         />
       </View>
     </View>
+  );
+}
+
+
+function TicketsBanner() {
+  const router = useRouter();
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('/customer/tickets')}
+      style={{
+        marginHorizontal: 16,
+        marginTop: 24,
+        marginBottom: 8,
+        backgroundColor: '#f0fdf4',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#bbf7d0',
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+      }}
+    >
+      <View style={{
+        backgroundColor: '#4CAF50',
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <MaterialIcons name="support-agent" size={26} color="white" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#166534' }}>
+          Need Help?
+        </Text>
+        <Text style={{ fontSize: 13, color: '#4ade80', marginTop: 2 }}>
+          Submit a support ticket and we'll get back to you
+        </Text>
+      </View>
+      <MaterialIcons name="chevron-right" size={24} color="#4CAF50" />
+    </TouchableOpacity>
   );
 }
 

@@ -135,6 +135,32 @@ const getAllVendors = async ({ page = 1, limit = 10, status }) => {
   };
 };
 
+const getAllActiveVendors = async ({ page = 1, limit = 10 } = {}) => {
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await User.findAndCountAll({
+    where: { vendor_status: 'Active' }, // ← only active vendors
+    include: [
+      {
+        model: VendorInfo,
+        as: 'vendor_info',
+        attributes: ['shop_name', 'shop_location','phone_number', 'category', 'logo']
+      }
+    ],
+    attributes: ['id', 'name', 'email', 'phone_number', 'rating', 'vendor_status'],
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+    order: [['createdAt', 'DESC']]
+  });
+
+  return {
+    vendors: rows,
+    total: count,
+    page: parseInt(page),
+    totalPages: Math.ceil(count / limit)
+  };
+};
+
 const getVendorStatusCounts = async () => {
   const [active, pending, deactivated, total] = await Promise.all([
     User.count({ where: { vendor_status: 'Active' } }),
@@ -206,4 +232,5 @@ module.exports = {
   getVendorStatusCounts,
   getVendorProfile,
   getVendorAndProductsByPhone,
+  getAllActiveVendors,
 };

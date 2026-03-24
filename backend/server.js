@@ -28,8 +28,8 @@ app.use(express.json());
 // const syncDeliverymanVehicleTables = require('./src/app/models/seeders/deliverymanVehicleSeeders');
 // syncDeliverymanVehicleTables();
 
-//const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
-//syncWalletTables();
+// const syncWalletTables = require('./src/app/models/seeders/walletSeeders');
+// syncWalletTables();
 
 // const syncProdTables = require('./src/app/models/seeders/prodSeeders');
 // syncProdTables();
@@ -104,6 +104,9 @@ const server = http.createServer(app);
 socketManager.initialize(server);
 app.set('io', socketManager.getIO());
 
+const { adminAuthMiddleware } = require('./src/modules/admin/middlewares/adminAuth.middleware');
+
+
 // Routes
 const captainRoutes = require('./src/modules/captain/routes/captain.routes')
 const customerRoutes = require('./src/modules/customer/routes/customer.routes');
@@ -116,6 +119,11 @@ const walletRoutes = require('./src/modules/wallet/routes/wallet.routes');
 const adminWalletRoutes = require('./src/modules/wallet/routes/admin.wallet.routes');
 const serviceFee = require('./src/modules/serviceFee/serviceFee');
 const deliveryZone = require('./src/modules/deliveryZones/deliveryzone')
+const ticketsRoutes = require('./src/modules/ticket/routes/tickets.routes')
+const adminTicketRoutes = require('./src/modules/ticket/routes/tickets.admin.routes');
+
+
+
 
 app.use('/api/captain', captainRoutes);
 app.use('/api/customers',customerRoutes)
@@ -127,6 +135,9 @@ app.use('/api/deliveryman', deliverymanRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/serviceFee', serviceFee);
 app.use('/api/deliveryZone',deliveryZone);
+app.use('/api/tickets',ticketsRoutes);
+app.use('/api/admin/tickets',adminAuthMiddleware ,adminTicketRoutes);
+
 
 //admin routes
 const adminRoutes = require('./src/modules/admin/routes/admin.routes');

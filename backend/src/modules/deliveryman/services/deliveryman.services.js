@@ -209,6 +209,9 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
     if (order.status !== 'ready') {
       throw new Error('Order is not ready for delivery');
     }
+    if (order.deliveryman_id) {
+      throw new Error('Order has already been assigned to a deliveryman');
+    }
     
     const vendor = await VendorInfo.findOne({ 
       where: { vendor_id: order.vendor_id },
@@ -233,6 +236,8 @@ const acceptDeliveryOrder = async (orderId, deliverymanId) => {
     order.deliveryman_id = deliverymanId;
     // Order status remains 'ready' until delivery confirmation is complete
     await order.save();
+    OrderSocket.notifyAllDeliverymenOrderTaken(orderId, deliverymanId);
+
     
     console.log(`Order ${orderId} accepted by deliveryman ${deliverymanId}`);
     

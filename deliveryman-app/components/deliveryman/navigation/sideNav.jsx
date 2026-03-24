@@ -86,6 +86,8 @@ export default function DeliverymanSideNav({ visible, onClose }) {
     { icon: 'list', label: 'Orders', route: '/deliveryMan/(tabs)/Activeorders' },
     { icon: 'wallet', label: 'Wallet', route: '/deliveryMan/(tabs)/wallet' },
     { icon: 'person', label: 'Profile', route: '/deliveryMan/(tabs)/profile' },
+    { icon: 'confirmation-number', label: 'My Tickets',    route: '/deliveryMan/tickets' },
+    { icon: 'add-comment',   label: 'Create Ticket',  route: '/deliveryMan/createticket' },
   ];
 
   const handleNavigate = async (route) => {
@@ -103,43 +105,6 @@ export default function DeliverymanSideNav({ visible, onClose }) {
   if (!visible) return null;
 
   return (
-    // <SafeAreaView className="absolute top-0 left-0  w-[70%] h-full bg-white z-50 ">
-    //   <View className="flex-1 p-5">
-    //     {/* Close */}
-    //     <TouchableOpacity onPress={onClose} className="self-end mb-4">
-    //       <MaterialCommunityIcons name="close" size={24} color="#000" />
-    //     </TouchableOpacity>
-
-    //     {/* Profile */}
-       
-    //     {/* Menu Items */}
-    //     {/* {menuItems.map(({ icon, label, type: Icon, route }, i) => (
-    //       <TouchableOpacity
-    //         key={i}
-    //         className="flex-row items-center py-3 space-x-4"
-    //         onPress={() => handleNavigate(route)}
-    //       >
-    //         <Icon name={icon} size={20} color="#007233" />
-    //         <Text className="text-gray-800">{label}</Text>
-    //       </TouchableOpacity>
-    //     ))} */}
-    //      {menuItems.map((item, index) => (
-    //           <Pressable
-    //             key={index}
-    //             onPress={() => handleNavigate(item.route)}
-    //             className="flex-row items-center py-4 px-2 mb-2 rounded-lg"
-    //           >
-    //             <MaterialIcons name={item.icon} size={24} color="green" />
-    //             <Text className="ml-4 text-lg text-gray-700">{item.label}</Text>
-    //           </Pressable>
-    //         ))}
-
-    //     {/* Switch Role */}
-    //     <TouchableOpacity onPress={() => handleNavigate('Logout')} className="mt-auto rounded-full bg-red-500 p-3 items-center justify-center">
-    //       <Text className="text-white font-semibold">Logout</Text>
-    //     </TouchableOpacity>
-    //   </View>
-    // </SafeAreaView>
 
   <View className="absolute top-0 left-0 w-[75%] h-full bg-white z-50 shadow-2xl">
   <SafeAreaView className="flex-1">

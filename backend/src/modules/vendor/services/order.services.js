@@ -1,5 +1,28 @@
 const { Order, OrderItem, Product, User, DeliverymanVehicle, VendorInfo } = require('../../../app/models');
 const { OrderSocket } = require('../../../config/socket');
+const { Op } = require('sequelize');
+
+const HISTORY_STATUSES = ['shipped', 'delivered', 'cancelled'];
+const Active_STATUSES = ['pending', 'confirmed', 'ready'];
+const buildOrdersFromItems = async (items, vendorId) => {
+  const ordersMap = {};
+  items.forEach(item => {
+    const orderId = item.order_id;
+    if (!ordersMap[orderId]) {
+      ordersMap[orderId] = { ...item.order.dataValues, items: [] };
+    }
+    ordersMap[orderId].items.push(item);
+  });
+
+  const orders = Object.values(ordersMap);
+  const vendor = await VendorInfo.findOne({
+    where: { vendor_id: vendorId },
+    attributes: ['id', 'vendor_id', 'shop_name', 'phone_number', 'shop_location']
+  });
+
+  orders.forEach(order => { order.vendor = vendor; });
+  return orders;
+};
 
 // Get all orders that include products belonging to this vendor
 const getVendorOrders = async (vendorId) => {
@@ -11,6 +34,7 @@ const getVendorOrders = async (vendorId) => {
       where: { vendor_id: vendorId },
     }, {
       model: Order,
+      where: { status: { [Op.in]: Active_STATUSES } },
       as: 'order',
       include: [
         { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
@@ -54,6 +78,74 @@ const getVendorOrders = async (vendorId) => {
   });
   
   return orders;
+};
+
+
+// ── History orders — shipped, delivered, cancelled — with pagination ──
+const getVendorOrderHistory = async (vendorId, page = 1, limit = 10) => {
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
+  // Get all unique order IDs for this vendor with history status
+  const allItems = await OrderItem.findAll({
+    attributes: ['order_id'],
+    include: [
+      {
+        model: Product,
+        as: 'product',
+        where: { vendor_id: vendorId },
+        attributes: [],
+      },
+      {
+        model: Order,
+        as: 'order',
+        where: { status: { [Op.in]: HISTORY_STATUSES } },
+        attributes: [],
+      }
+    ],
+    group: ['order_id'],
+  });
+
+  const totalOrders = allItems.length;
+  const totalPages = Math.ceil(totalOrders / limit);
+
+  // Get paginated order IDs
+  const orderIds = allItems
+    .map(i => i.order_id)
+    .slice(offset, offset + parseInt(limit));
+
+  if (orderIds.length === 0) {
+    return { orders: [], total: totalOrders, totalPages, currentPage: parseInt(page) };
+  }
+
+  // Fetch full data for paginated order IDs
+  const items = await OrderItem.findAll({
+    where: { order_id: { [Op.in]: orderIds } },
+    include: [
+      {
+        model: Product,
+        as: 'product',
+        where: { vendor_id: vendorId },
+      },
+      {
+        model: Order,
+        as: 'order',
+        include: [
+          { model: User, as: 'customer', attributes: ['id', 'name', 'email', 'phone_number'] },
+          {
+            model: User,
+            as: 'deliveryman',
+            attributes: ['id', 'name', 'phone_number'],
+            required: false,
+          }
+        ]
+      }
+    ],
+    order: [[{ model: Order, as: 'order' }, 'createdAt', 'DESC']],
+  });
+
+  const orders = await buildOrdersFromItems(items, vendorId);
+
+  return { orders, total: totalOrders, totalPages, currentPage: parseInt(page) };
 };
 
 // Get order details for this vendor (only their products/items)
@@ -290,4 +382,5 @@ module.exports = {
   getVendorOrderDetails,
   updateOrderStatus,
   updateDeliveryStatus,
+  getVendorOrderHistory,
 }; 

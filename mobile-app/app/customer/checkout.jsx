@@ -18,6 +18,8 @@ import axios from 'axios';
 import { CartContext } from '../../context/customer/CartContext';
 import { useWallet } from '../../context/customer/WalletContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
@@ -426,7 +428,11 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }} edges={['top']}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       {/* Header */}
       <View className="bg-white px-4 py-4 border-b border-gray-200">
         <View className="flex-row items-center">
@@ -437,7 +443,9 @@ export default function CheckoutScreen() {
         </View>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled" 
+      >
 
         {/* Shipping Address */}
         <View className="bg-white mx-4 mt-4 rounded-2xl p-4 border border-gray-100">
@@ -825,6 +833,7 @@ export default function CheckoutScreen() {
           </View>
         </View>
       )}
-    </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
