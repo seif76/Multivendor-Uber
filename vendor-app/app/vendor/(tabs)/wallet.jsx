@@ -457,9 +457,17 @@ export default function VendorWalletPage() {
               className="flex-1 px-4 py-6"
               keyboardShouldPersistTaps="handled"
             >
-              <Text className="text-gray-600 mb-4">
-                Enter amount and bank details to request a withdrawal.
+              {/* Current balance info */}
+            <View className="bg-green-50 p-4 rounded-xl mb-4">
+              <Text className="text-sm text-gray-600">Available Balance</Text>
+              <Text className="text-2xl font-bold text-green-700">
+                ${parseFloat(wallet?.balance || 0).toFixed(2)}
               </Text>
+            </View>
+
+            <Text className="text-gray-600 mb-4">
+              Enter amount and bank details to request a withdrawal.
+            </Text>
               
               {/* Amount */}
               <Text className="text-gray-700 font-semibold mb-2">Amount</Text>
