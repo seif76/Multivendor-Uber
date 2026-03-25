@@ -9,6 +9,7 @@ const {
   settleDebtByAmountController,
   settleAllDebtController,
   
+  
 } = require('../controllers/Walletdashboard.controller ');
 
 const{
@@ -16,6 +17,12 @@ const{
     freezeWalletController,
     unfreezeWalletController,
 }= require('../controllers/Freezewallet.controller');
+
+const{
+    getAllWithdrawalRequestsController,
+    approveWithdrawalController,
+    rejectWithdrawalController,
+}= require('../../wallet/controllers/wallet.controller');
 
 // Admin wallet balance
 router.get('/balance', getAdminWalletBalanceController);
@@ -44,5 +51,9 @@ router.get('/wallets', getAllWalletsController);
 // Freeze / unfreeze a wallet (Admin only)
 router.post('/wallets/:userId/freeze', freezeWalletController);
 router.post('/wallets/:userId/unfreeze', unfreezeWalletController);
+
+router.get('/withdrawals', getAllWithdrawalRequestsController);
+router.post('/withdrawals/:id/approve', approveWithdrawalController);
+router.post('/withdrawals/:id/reject', rejectWithdrawalController);
 
 module.exports = router;

@@ -212,9 +212,15 @@ const createWithdrawalRequest = async (userId, amount, bankDetails) => {
  * Approve withdrawal request
  */
 const approveWithdrawal = async (withdrawalId, adminId) => {
+  console.log('=== approveWithdrawal called ===');
+  console.log('withdrawalId:', withdrawalId);
+  console.log('adminId:', adminId);
   const withdrawalRequest = await WithdrawalRequest.findByPk(withdrawalId, {
     include: [{ model: Wallet, as: 'wallet' }]
   });
+   console.log('withdrawalRequest found:', !!withdrawalRequest);
+  console.log('wallet:', withdrawalRequest?.wallet ? 'EXISTS' : 'NULL');
+  console.log('status:', withdrawalRequest?.status);
   
   if (!withdrawalRequest) {
     throw new Error('Withdrawal request not found');
@@ -243,14 +249,16 @@ const approveWithdrawal = async (withdrawalId, adminId) => {
   // Update withdrawal request
   await withdrawalRequest.update({
     status: 'approved',
-    processed_by: adminId,
+    processed_by: adminId || null,
     processed_at: new Date()
   });
   
   // Create transaction record
   const transaction = await WalletTransaction.create({
     wallet_id: wallet.id,
-    type: 'withdrawal',
+    //type: 'withdrawal',
+    direction: 'outcoming',
+    category:'withdrawal',
     amount: amountToWithdraw,
     balance_before: balanceBefore,
     balance_after: balanceAfter,
@@ -258,7 +266,7 @@ const approveWithdrawal = async (withdrawalId, adminId) => {
     reference_id: withdrawalId.toString(),
     reference_type: 'withdrawal',
     status: 'completed',
-    created_by: adminId
+    //created_by: adminId
   });
   
   return { withdrawalRequest, transaction };
@@ -280,7 +288,7 @@ const rejectWithdrawal = async (withdrawalId, adminId, rejectionReason) => {
   
   await withdrawalRequest.update({
     status: 'rejected',
-    processed_by: adminId,
+    processed_by: adminId || null,
     processed_at: new Date(),
     rejection_reason: rejectionReason
   });
@@ -318,7 +326,7 @@ const adjustBalance = async (userId, amount, description, adminId) => {
     description,
     reference_type: 'adjustment',
     status: 'completed',
-    created_by: adminId
+    //created_by: adminId
   });
   
   return { wallet, transaction };
@@ -339,10 +347,12 @@ const getAllWithdrawalRequests = async (page = 1, limit = 10, status = null) => 
       {
         model: Wallet,
         as: 'wallet',
+        required: false,
         include: [
           {
             model: User,
             as: 'user',
+            required: false,
             attributes: ['id', 'name', 'email', 'phone_number']
           }
         ]
