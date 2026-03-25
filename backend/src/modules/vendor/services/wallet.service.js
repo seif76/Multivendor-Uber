@@ -166,22 +166,23 @@ const releaseDeliveryFeeToDeliveryman = async (orderId) => {
           { balance: adminBalanceAfter, last_updated: new Date() },
           { transaction: t }
         );
-
-        await WalletTransaction.create(
-          {
-            wallet_id: adminWalletRecord.id,
-            category: 'earning',
-            direction: 'incoming',
-            amount: serviceFee,
-            balance_before: adminBalanceBefore,
-            balance_after: adminBalanceAfter,
-            description: `Service fee for order #${orderId}`,
-            reference_id: orderId.toString(),
-            reference_type: 'order',
-            status: 'completed',
-          },
-          { transaction: t }
-        );
+        // this is for the wrong assocciation in the admin so that wallet_id her needs to be in table wallets
+        // needs to be added a table adminwallettransactions
+        // await WalletTransaction.create(
+        //   {
+        //     wallet_id: adminWalletRecord.id,
+        //     category: 'earning',
+        //     direction: 'incoming',
+        //     amount: serviceFee,
+        //     balance_before: adminBalanceBefore,
+        //     balance_after: adminBalanceAfter,
+        //     description: `Service fee for order #${orderId}`,
+        //     reference_id: orderId.toString(),
+        //     reference_type: 'order',
+        //     status: 'completed',
+        //   },
+        //   { transaction: t }
+        // );
 
         console.log(`✅ Service fee $${serviceFee} credited to admin wallet for order #${orderId}`);
       }
