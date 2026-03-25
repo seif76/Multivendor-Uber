@@ -25,6 +25,9 @@ module.exports = async function productionSeeders() {
     const ServiceFee = require('../serviceFee')(sequelize);
     const Ticket = require('../tickets')(sequelize);
     const DebtTransaction = require("../debtTransaction")(sequelize);
+    const Adminwallet = require("../adminwallet")(sequelize);
+
+    
 
 
     const Rating = require('../rating')(sequelize);
@@ -61,7 +64,8 @@ module.exports = async function productionSeeders() {
         DeliveryZone,
         ServiceFee,
         Ticket,
-        DebtTransaction
+        DebtTransaction,
+        Adminwallet
     };
 
     // Setup associations if needed
