@@ -25,7 +25,6 @@ export default function VendorOrderDetailsPage() {
         const res = await axios.get(`${BACKEND_URL}/api/vendor/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        //alert('Order fetched: ' + JSON.stringify(res.data));
         setOrder(res.data);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to fetch order');
@@ -88,6 +87,7 @@ export default function VendorOrderDetailsPage() {
       <Text className="text-2xl font-bold text-primary mb-2">Order #{order.id}</Text>
       <Text className="text-base text-gray-600 mb-2">Status: <Text className="font-semibold text-primary">{order.status}</Text></Text>
       <Text className="text-base text-gray-600 mb-2">Total: <Text className="font-bold text-green-600">EGP {parseFloat(order.total_price).toFixed(2)}</Text></Text>
+      <Text className="text-base text-gray-600 mb-2">Vendor Fees: <Text className="font-bold text-green-600">EGP {parseFloat(order.vendor_fee).toFixed(2)}</Text></Text>
       <Text className="text-base text-gray-600 mb-4">Placed: {new Date(order.createdAt).toLocaleString()}</Text>
       {/* Customer Info */}
       <View className="bg-white rounded-xl shadow p-4 mb-4 border border-gray-100">

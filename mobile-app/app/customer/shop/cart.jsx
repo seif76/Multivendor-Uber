@@ -97,7 +97,7 @@ export default function CartScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between mb-6">
         <Pressable
-          onPress={() => router.push('/customer/shop/shop')}
+          onPress={() => router.push('/customer/shop/shoppage')}
           className="flex items-center justify-center w-12 h-12 rounded-full"
         >
           <Ionicons name="arrow-back" size={24} color="#0f9d58" />

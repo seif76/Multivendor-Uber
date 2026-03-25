@@ -85,6 +85,10 @@ class SocketManager {
           this.io.to(captainSocket).emit('rideRequest', { customerId, route });
         }
       });
+      socket.on('orderAccepted', ({ orderId, deliverymanId }) => {
+        console.log(`✅ Order ${orderId} accepted by deliveryman ${deliverymanId}`);
+        this.markOrderAccepted(orderId);
+      });
 
       // Order status update event
       socket.on('orderStatusUpdate', ({ orderId, status, customerId }) => {
@@ -119,21 +123,108 @@ class SocketManager {
     }
   }
 
+  // notifyDeliverymenNewOrder(orderId, customerId, status, orderDetails) {
+  //   // Broadcast to all connected deliverymen
+  //   Object.keys(this.deliverymen).forEach(deliverymanId => {
+  //     const deliverymanSocket = this.deliverymen[deliverymanId]?.socketId;
+  //     if (deliverymanSocket) {
+  //       this.io.to(deliverymanSocket).emit('newDeliveryOrder', { 
+  //         orderId, 
+  //         deliverymanId, 
+  //         customerId, 
+  //         status, 
+  //         orderDetails 
+  //       });
+  //     }
+  //   });
+  //   console.log(`Delivery order ${orderId} broadcasted to ${Object.keys(this.deliverymen).length} deliverymen`);
+  // }
   notifyDeliverymenNewOrder(orderId, customerId, status, orderDetails) {
-    // Broadcast to all connected deliverymen
-    Object.keys(this.deliverymen).forEach(deliverymanId => {
+    const deliverymanIds = Object.keys(this.deliverymen);
+    if (deliverymanIds.length === 0) {
+      console.log('No deliverymen available');
+      return;
+    }
+  
+    let currentIndex = 0;
+    const TIMEOUT_SECONDS = 15;
+  
+    const notifyNext = () => {
+      // Stop if all deliverymen have been tried
+      
+      if (currentIndex >= deliverymanIds.length) {
+        console.log(`Full rotation done for order ${orderId}, looping again...`);
+        currentIndex = 0; // ← reset index to loop again
+      }
+  
+      const deliverymanId = deliverymanIds[currentIndex];
       const deliverymanSocket = this.deliverymen[deliverymanId]?.socketId;
-      if (deliverymanSocket) {
-        this.io.to(deliverymanSocket).emit('newDeliveryOrder', { 
-          orderId, 
-          deliverymanId, 
-          customerId, 
-          status, 
-          orderDetails 
-        });
+  
+      if (!deliverymanSocket) {
+        currentIndex++;
+        notifyNext();
+        return;
+      }
+  
+      console.log(`Notifying deliveryman ${deliverymanId} for order ${orderId} — attempt ${currentIndex + 1}`);
+  
+      // Send to this deliveryman with countdown
+      this.io.to(deliverymanSocket).emit('newDeliveryOrder', {
+        orderId,
+        deliverymanId,
+        customerId,
+        status,
+        orderDetails,
+        timeoutSeconds: TIMEOUT_SECONDS,
+      });
+  
+      // Set timer — if not accepted, move to next
+      const timer = setTimeout(() => {
+        // Check if order was already accepted
+        if (this.acceptedOrders && this.acceptedOrders.has(orderId)) {
+          console.log(`Order ${orderId} already accepted, stopping rotation`);
+          return;
+        }
+  
+        // Cancel notification for current deliveryman
+        this.io.to(deliverymanSocket).emit('orderExpired', { orderId });
+  
+        currentIndex++;
+        notifyNext();
+      }, TIMEOUT_SECONDS * 1000);
+  
+      // Store timer so it can be cleared when order is accepted
+      if (!this.orderTimers) this.orderTimers = {};
+      this.orderTimers[orderId] = timer;
+    };
+  
+    notifyNext();
+  
+    console.log(`Started order rotation for order ${orderId} among ${deliverymanIds.length} deliverymen`);
+  }
+  
+  // Call this when a deliveryman accepts the order
+  markOrderAccepted(orderId) {
+    if (!this.acceptedOrders) this.acceptedOrders = new Set();
+    this.acceptedOrders.add(orderId);
+  
+    // Clear the rotation timer
+    if (this.orderTimers && this.orderTimers[orderId]) {
+      clearTimeout(this.orderTimers[orderId]);
+      delete this.orderTimers[orderId];
+    }
+  }
+  notifyAllDeliverymenOrderTaken(orderId, acceptedByDeliverymanId) {
+    Object.keys(this.deliverymen).forEach(deliverymanId => {
+      if (parseInt(deliverymanId) !== parseInt(acceptedByDeliverymanId)) {
+        const deliverymanSocket = this.deliverymen[deliverymanId]?.socketId;
+        if (deliverymanSocket) {
+          this.io.to(deliverymanSocket).emit('orderTaken', { orderId });
+        }
       }
     });
-    console.log(`Delivery order ${orderId} broadcasted to ${Object.keys(this.deliverymen).length} deliverymen`);
+    this.markOrderAccepted(orderId);
+    console.log(`Order ${orderId} marked as taken, notified all other deliverymen`);
   }
 
   notifyVendorOrderAccepted(orderId, vendorId, deliveryman) {

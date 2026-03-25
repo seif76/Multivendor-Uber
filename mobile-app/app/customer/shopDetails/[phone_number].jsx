@@ -358,7 +358,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, ScrollView, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { FlatList,Alert, Image, Pressable, ScrollView, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { CartContext } from '../../../context/customer/CartContext';
 
 export default function ShopDetails() {
@@ -612,7 +612,7 @@ export default function ShopDetails() {
                 <Text className="text-xs text-gray-500 ml-1">{item.stock || 0} left</Text>
               </View>
             </View>
-            <Pressable
+            {/* <Pressable
              onPress={() => addToCart(item)}
              disabled={item.stock === 0}
              className={`absolute bottom-8 right-3 w-12 h-12 rounded-full items-center justify-center shadow-md ${
@@ -624,7 +624,26 @@ export default function ShopDetails() {
            size={26}
            color={item.stock > 0 ? '#fff' : '#9ca3af'}
            />
-         </Pressable>
+         </Pressable> */}
+            <Pressable
+          onPress={() => {
+            if (isOpen === false) {
+              Alert.alert('Shop Closed', 'This shop is currently closed. You cannot add items to your cart.');
+              return;
+            }
+            addToCart(item);
+          }}
+          disabled={item.stock === 0}
+          className={`absolute bottom-8 right-3 w-12 h-12 rounded-full items-center justify-center shadow-md ${
+            item.stock > 0 ? 'bg-[#007233]' : 'bg-gray-300'
+          }`}
+        >
+          <Ionicons
+            name="add"
+            size={26}
+            color={item.stock > 0 ? '#fff' : '#9ca3af'}
+          />
+        </Pressable>
             
             {/* <Pressable 
               className={`w-full py-3 rounded-xl ${item.stock > 0 ? 'bg-primary' : 'bg-gray-300'}`}

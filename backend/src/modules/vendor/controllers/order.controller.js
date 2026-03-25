@@ -3,6 +3,7 @@ const {
   getVendorOrderDetails,
   updateOrderStatus,
   updateDeliveryStatus,
+  getVendorOrderHistory,
 } = require('../services/order.services');
 
 // Get all orders for the authenticated vendor
@@ -11,6 +12,16 @@ const getVendorOrdersController = async (req, res) => {
     const vendorId = req.user.id;
     const orders = await getVendorOrders(vendorId);
     res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+// this is for the history orders 
+const getVendorHistoryOrdersController = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const result = await getVendorOrderHistory(req.user.id, page, limit);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -94,4 +105,5 @@ module.exports = {
   getVendorOrderDetailsController,
   updateOrderStatusController,
   updateDeliveryStatusController,
+  getVendorHistoryOrdersController,
 }; 

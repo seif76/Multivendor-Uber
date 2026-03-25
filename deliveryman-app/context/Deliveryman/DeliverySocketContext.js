@@ -62,18 +62,37 @@ export const DeliverySocketProvider = ({ children }) => {
         // New Order Arrived
         socketRef.current.on('newDeliveryOrder', (data) => {
           console.log('🔔 New Order via Socket:', data.orderId);
-          // Add to available orders if not exists
           setAvailableOrders(prev => {
             if (prev.find(o => o.id === data.orderId)) return prev;
-            return [data.orderDetails, ...prev];
+            // ← missing timeoutSeconds
+            return [{ ...data.orderDetails, timeoutSeconds: data.timeoutSeconds }, ...prev];
           });
         });
-
+        socketRef.current.on('orderExpired', ({ orderId }) => {
+          console.log('⏰ Order expired/moved on:', orderId);
+          setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
+        });
+        // ← add here
+        socketRef.current.on('orderTaken', ({ orderId }) => {
+          console.log('🚫 Order taken by another deliveryman:', orderId);
+          setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
+        });
         // Delivery Status Update
         socketRef.current.on('deliveryStatusUpdate', ({ orderId, status }) => {
           console.log('🔄 Status Update:', orderId, status);
           setAcceptedOrders(prev => prev.map(o => 
             o.id === orderId ? { ...o, delivery_status: status } : o
+          ));
+        });
+        socketRef.current.on('deliveryStatusUpdate', ({ orderId, status, orderDetails }) => {
+          console.log('🔄 Status Update:', orderId, status , "oreder advchvajs : " , JSON.stringify(orderDetails));
+          setAcceptedOrders(prev => prev.map(o =>
+            parseInt(o.id) === parseInt(orderId) ? {
+              ...o,
+              delivery_status: orderDetails?.delivery_status ?? status,
+              customer_delivery_status: orderDetails?.customer_delivery_status ?? o.customer_delivery_status,
+              status: orderDetails?.status ?? o.status,
+            } : o
           ));
         });
 
@@ -96,23 +115,49 @@ export const DeliverySocketProvider = ({ children }) => {
   }, []);
 
   // 2. Global Function to Accept Order
+  // const acceptOrder = async (orderId) => {
+  //   try {
+  //     const token = await AsyncStorage.getItem('token');
+  //     const res = await axios.put(`${BACKEND_URL}/api/deliveryman/orders/${orderId}/accept`, 
+  //       { deliverymanId }, 
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+
+  //     if (res.data.success) {
+  //       // Move from Available to Accepted locally
+  //       setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
+  //       setAcceptedOrders(prev => [res.data.order, ...prev]);
+  //       return true;
+  //     }
+  //   } catch (error) {
+  //     console.error('Accept Error:', error);
+  //     Alert.alert('Error', 'Could not accept order.');
+  //     return false;
+  //   }
+  // };
+  
   const acceptOrder = async (orderId) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await axios.put(`${BACKEND_URL}/api/deliveryman/orders/${orderId}/accept`, 
-        { deliverymanId }, 
+      const res = await axios.put(
+        `${BACKEND_URL}/api/deliveryman/orders/${orderId}/accept`,
+        { deliverymanId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
       if (res.data.success) {
+        // Tell backend to stop the rotation timer
+        socketRef.current?.emit('orderAccepted', { orderId, deliverymanId });
+  
         // Move from Available to Accepted locally
         setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
         setAcceptedOrders(prev => [res.data.order, ...prev]);
         return true;
       }
+      return false;
     } catch (error) {
       console.error('Accept Error:', error);
-      Alert.alert('Error', 'Could not accept order.');
+      Alert.alert('Order Taken', 'This order has already been taken by another deliveryman.');
       return false;
     }
   };
@@ -142,6 +187,7 @@ export const DeliverySocketProvider = ({ children }) => {
       console.error('Error fetching initial active orders:', err);
     }
   };
+
 
   return (
     <DeliverySocketContext.Provider value={{
