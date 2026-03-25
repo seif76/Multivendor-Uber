@@ -37,7 +37,7 @@ const recordCodDebtOnDeliveryman = async (orderId, order) => {
 
   const deliverymanWallet = await getOrCreateWallet(order.deliveryman_id);
 
-  const debtAmount = parseFloat(order.vendor_fee);
+  const debtAmount = parseFloat(order.service_fee);
   const debtBefore = parseFloat(deliverymanWallet.debt || 0);
   const debtAfter = parseFloat((debtBefore + debtAmount).toFixed(2));
 
