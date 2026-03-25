@@ -118,7 +118,7 @@ export default function CartScreen() {
             Your cart is empty
           </Text>
           <Pressable
-            onPress={() => router.push('/customer/shop/shop')}
+            onPress={() => router.push('/customer/shop/shoppage')}
             className="mt-8 bg-primary px-8 py-3 rounded-xl"
           >
             <Text className="text-white font-bold text-base">Continue Shopping</Text>

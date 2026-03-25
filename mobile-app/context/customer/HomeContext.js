@@ -41,9 +41,9 @@ export const HomeProvider = ({ children }) => {
       const token = await getAuthToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       
-      // Use /api/vendor/all to get all vendors (including pending ones)
+      // Use /api/vendor/all to get all vendors
       // This matches what the browse stores page uses
-      const response = await axios.get(`${BACKEND_URL}/api/vendor/all`, { headers });
+      const response = await axios.get(`${BACKEND_URL}/api/vendor/allActive`, { headers });
       
       if (response.data && response.data.vendors && Array.isArray(response.data.vendors)) {
         // Transform the data to match expected structure
