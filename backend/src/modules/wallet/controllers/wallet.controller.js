@@ -222,7 +222,7 @@ const createWithdrawalRequestController = async (req, res) => {
 const approveWithdrawalController = async (req, res) => {
   try {
     const { id } = req.params;
-    const adminId = req.user.id;
+    const adminId = req.user?.id || req.admin?.id || null;
     
     const result = await approveWithdrawal(parseInt(id), adminId);
     
@@ -246,7 +246,7 @@ const rejectWithdrawalController = async (req, res) => {
   try {
     const { id } = req.params;
     const { rejection_reason } = req.body;
-    const adminId = req.user.id;
+    const adminId = req.user?.id || req.admin?.id || null;;
     
     if (!rejection_reason) {
       return res.status(400).json({
