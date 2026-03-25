@@ -122,6 +122,8 @@ const deliveryZone = require('./src/modules/deliveryZones/deliveryzone')
 const ticketsRoutes = require('./src/modules/ticket/routes/tickets.routes')
 const adminTicketRoutes = require('./src/modules/ticket/routes/tickets.admin.routes');
 const admindeliveryzone = require('./src/modules/admin/routes/deliveryZones.routes');
+const settings = require('./src/modules/admin/routes/settings.routes');
+
 
 
 
@@ -139,6 +141,8 @@ app.use('/api/deliveryZone',deliveryZone);
 app.use('/api/tickets',ticketsRoutes);
 app.use('/api/admin/tickets',adminAuthMiddleware ,adminTicketRoutes);
 app.use('/api/admin/delivery-zones',adminAuthMiddleware ,admindeliveryzone);
+app.use('/api/admin/settings',adminAuthMiddleware ,settings);
+
 
 
 
