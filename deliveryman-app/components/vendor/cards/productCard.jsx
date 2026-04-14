@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function ProductCard({ product, onEdit ,onDelete }) {
   return (
@@ -11,7 +12,7 @@ export default function ProductCard({ product, onEdit ,onDelete }) {
       />
       <View className="flex-1">
         <Text className="text-base font-semibold text-black">{product.name}</Text>
-        <Text className="text-sm text-gray-600">{product.price} EGP</Text>
+        <Text className="text-sm text-gray-600">{formatCurrency(product.price || '0')} </Text>
       </View>
       {/* <Pressable className="bg-primary px-3 py-1 rounded-full" onPress={() => onEdit(product)}>
         <Text className="text-white text-sm font-semibold">Edit</Text>

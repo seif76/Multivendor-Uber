@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { formatCurrency } from '../../../utlis/currency';
 
 const statusConfig = {
   pending: {
@@ -153,7 +154,7 @@ export default function OrderTrackingCard({ order, onStatusUpdate, onDismiss }) 
           </View>
           <View className="flex-row justify-between">
             <Text className="text-gray-600">Total Price:</Text>
-            <Text className="font-semibold text-primary">${currentOrder.total_price}</Text>
+            <Text className="font-semibold text-primary">{formatCurrency(currentOrder.total_price || "0")}</Text>
           </View>
           {currentOrder.address && (
             <View className="mt-2">

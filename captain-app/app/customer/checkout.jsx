@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatCurrency } from '../../utlis/currency';
 
 export default function CheckoutScreen() {
   const cartContext = useContext(CartContext);
@@ -595,7 +596,8 @@ export default function CheckoutScreen() {
                 <View>
                   <Text className="font-semibold text-gray-900">Pay with Wallet</Text>
                   <Text className="text-sm text-gray-500">
-                    Balance: EGP {wallet?.balance?.toFixed(2) || '0.00'}
+                    Balance: {formatCurrency(wallet?.balance || '0.00')}
+                    
                   </Text>
                 </View>
               </View>

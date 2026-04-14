@@ -15,6 +15,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { VendorAuthContext } from '../../../context/VendorAuthContext';
 import { useWallet } from '../../../context/customer/WalletContext';
+import { formatCurrency } from '../../../utlis/currency';
 
 // ─── Colors ───
 const PRIMARY_COLOR = '#2ECC71';
@@ -195,7 +196,7 @@ export default function VendorDashboard() {
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: MAX_HEIGHT + 24 }}>
         {value > 0 && (
           <Text style={{ fontSize: 9, color: TEXT_SECONDARY, marginBottom: 2 }}>
-            ${value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toFixed(0)}
+            {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toFixed(0)}
           </Text>
         )}
         <View
@@ -262,7 +263,7 @@ export default function VendorDashboard() {
       </View>
       <View className="items-end gap-1">
         <Text className="font-bold" style={{ color: TEXT_PRIMARY }}>
-          ${parseFloat(order.total).toFixed(2)}
+          {formatCurrency(order.total || "0")}
         </Text>
         <StatusBadge status={order.status} />
       </View>
@@ -296,7 +297,7 @@ export default function VendorDashboard() {
           {product.name}
         </Text>
         <Text style={{ fontSize: 12, color: TEXT_SECONDARY }}>
-          ${product.revenue?.toFixed(2) || '0.00'} revenue
+          {formatCurrency(product.revenue || '0.00')} revenue
         </Text>
       </View>
       <View className="items-end">
@@ -368,7 +369,7 @@ export default function VendorDashboard() {
           >
             <Text style={{ fontSize: 13, color: TEXT_SECONDARY }}>Total Sales</Text>
             <Text className="text-2xl font-bold mt-1" style={{ color: TEXT_PRIMARY }}>
-              ${data.salesSummary?.total?.toFixed(2) || '0.00'}
+              {formatCurrency(data.salesSummary?.total || '0.00')}
             </Text>
             <Text style={{ fontSize: 11, color: TEXT_SECONDARY, marginTop: 2 }}>
               {TIMEFRAMES.find((t) => t.key === timeframe)?.label}
@@ -424,7 +425,7 @@ export default function VendorDashboard() {
             <View>
               <Text style={{ fontSize: 13, color: TEXT_SECONDARY }}>Wallet Balance</Text>
               <Text className="text-2xl font-bold mt-1" style={{ color: TEXT_PRIMARY }}>
-                ${parseFloat(walletBalance).toFixed(2)}
+                {formatCurrency(walletBalance || "0")}
               </Text>
             </View>
             <MaterialIcons name="account-balance-wallet" size={40} color={PRIMARY_COLOR} />

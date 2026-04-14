@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWallet } from '../../../context/customer/WalletContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -150,7 +151,7 @@ export default function WalletPage() {
 
   const formatBalance = (balance) => {
     if (balance === null || balance === undefined) return '$0.00';
-    return `$${parseFloat(balance).toFixed(2)}`;
+    return `LYD${parseFloat(balance).toFixed(2)}`;
   };
 
   const formatDate = (dateString) => {
@@ -190,10 +191,10 @@ export default function WalletPage() {
             item.type === 'withdrawal'
               ? '-'
               : '+'}
-            ${parseFloat(item.amount).toFixed(2)}
+            ${formatCurrency(item.amount || "0")}
           </Text>
           <Text className="text-xs text-gray-400">
-            Balance: ${parseFloat(item.balance_after).toFixed(2)}
+            Balance: {formatCurrency(item.balance_after || "0")}
           </Text>
         </View>
       </View>

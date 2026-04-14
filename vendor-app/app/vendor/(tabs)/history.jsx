@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function VendorOrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -78,7 +79,7 @@ export default function VendorOrderHistoryPage() {
         <View className={`px-2.5 py-1 rounded-full ${getStatusColor(item?.status)}`}>
           <Text className="text-xs font-semibold capitalize">{item?.status}</Text>
         </View>
-        <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item?.total_price).toFixed(2)}</Text>
+        <Text className="text-lg font-bold text-green-600"> {formatCurrency(item?.total_price || "0" )}</Text>
       </View>
 
       <Text className="text-sm text-gray-600 mb-1">Payment: {item?.payment_method?.toUpperCase()}</Text>

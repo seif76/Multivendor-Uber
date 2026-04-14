@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function VendorOrderDetailsPage() {
   const { orderId } = useLocalSearchParams();
@@ -86,8 +87,8 @@ export default function VendorOrderDetailsPage() {
       </Pressable>
       <Text className="text-2xl font-bold text-primary mb-2">Order #{order.id}</Text>
       <Text className="text-base text-gray-600 mb-2">Status: <Text className="font-semibold text-primary">{order.status}</Text></Text>
-      <Text className="text-base text-gray-600 mb-2">Total: <Text className="font-bold text-green-600">EGP {parseFloat(order.total_price).toFixed(2)}</Text></Text>
-      <Text className="text-base text-gray-600 mb-2">Vendor Fees: <Text className="font-bold text-green-600">EGP {parseFloat(order.vendor_fee).toFixed(2)}</Text></Text>
+      <Text className="text-base text-gray-600 mb-2">Total: <Text className="font-bold text-green-600">{formatCurrency(order.total_price || "0")}</Text></Text>
+      <Text className="text-base text-gray-600 mb-2">Vendor Fees: <Text className="font-bold text-green-600"> {formatCurrency(order.vendor_fee || "0")}</Text></Text>
       <Text className="text-base text-gray-600 mb-4">Placed: {new Date(order.createdAt).toLocaleString()}</Text>
       {/* Customer Info */}
       <View className="bg-white rounded-xl shadow p-4 mb-4 border border-gray-100">
@@ -105,7 +106,7 @@ export default function VendorOrderDetailsPage() {
           <View className="bg-white rounded-xl shadow p-4 mb-3 border border-gray-100">
             <Text className="font-semibold text-gray-800">{item.product?.name || 'Product'}</Text>
             <Text className="text-gray-600">Qty: {item.quantity}</Text>
-            <Text className="text-green-600 font-bold">EGP {parseFloat(item.price).toFixed(2)}</Text>
+            <Text className="text-green-600 font-bold"> {formatCurrency(item.price || "0")}</Text>
           </View>
         )}
         ListEmptyComponent={<Text className="text-gray-400">No items found.</Text>}

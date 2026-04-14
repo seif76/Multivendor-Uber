@@ -6,6 +6,8 @@ import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import VendorDeliveryConfirmation from '../../../components/vendor/custom/VendorDeliveryConfirmation';
+import { formatCurrency } from '../../../utlis/currency';
+
 
 export default function VendorOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -213,7 +215,7 @@ export default function VendorOrdersPage() {
         </View>
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-sm text-gray-600">Status: <Text className="font-semibold text-primary">{item?.status}</Text></Text>
-          <Text className="text-lg font-bold text-green-600">EGP {parseFloat(item?.total_price).toFixed(2)}</Text>
+          <Text className="text-lg font-bold text-green-600"> {formatCurrency(item?.total_price || "0")}</Text>
         </View>
         
         {/* Deliveryman Information */}

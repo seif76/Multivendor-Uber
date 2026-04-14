@@ -277,6 +277,7 @@ import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-
 import { useRouter } from 'expo-router';
 import { useDeliverySocket } from '../../../context/Deliveryman/DeliverySocketContext'; 
 import { Ionicons } from '@expo/vector-icons';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function DeliveryActiveOrders() {
   const router = useRouter();
@@ -355,7 +356,7 @@ export default function DeliveryActiveOrders() {
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1">
                   <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
-                  <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+                  <Text className="text-sm text-gray-600">Amount: {formatCurrency(order.total_price || '0.00')}</Text>
                   <Text className="text-xs text-gray-500 mt-1">Created: {formatDate(order.createdAt)}</Text>
                 </View>
                 <View className="flex-row space-x-2 gap-1">

@@ -360,6 +360,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList,Alert, Image, Pressable, ScrollView, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { CartContext } from '../../../context/customer/CartContext';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function ShopDetails() {
   const { phone_number } = useLocalSearchParams();
@@ -534,7 +535,7 @@ export default function ShopDetails() {
                 </View>
                 <View className="flex-row items-center">
                   <Ionicons name="bicycle-outline" size={16} color="#6b7280" />
-                  <Text className="text-sm text-gray-600 ml-2">EGP {vendorInfo?.deliveryFee || 18.99}</Text>
+                  <Text className="text-sm text-gray-600 ml-2"> {formatCurrency('18.00')}</Text>
                 </View>
               </View>
             </View>
@@ -601,7 +602,7 @@ export default function ShopDetails() {
           </View>
           <View className="p-4">
             <Text className="font-bold text-base text-gray-900 mb-2" numberOfLines={2}>{item.name}</Text>
-            <Text className="font-bold text-sm text-gray-900 mb-2">EGP {parseFloat(item.price).toFixed(2)}</Text>
+            <Text className="font-bold text-sm text-gray-900 mb-2">{formatCurrency(item.price || '0.00')}</Text>
             <Text className="text-sm text-gray-500 mb-3" numberOfLines={2}>{item.description || 'Fresh and delicious'}</Text>
             
             <View className="flex-row items-center justify-between mb-3">

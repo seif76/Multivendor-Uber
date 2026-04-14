@@ -821,7 +821,7 @@ export default function CheckoutScreen() {
               <Pressable
                 onPress={() => {
                   setShowSuccessModal(false);
-                  router.push('/customer/shop/shop');
+                  router.push('/customer/shop/shoppage');
                 }}
                 className="bg-white border-2 border-primary py-4 rounded-xl mt-3"
               >

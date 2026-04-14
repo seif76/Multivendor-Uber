@@ -7,6 +7,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Ionicons } from '@expo/vector-icons';
 import CustomerDeliveryConfirmation from '../../../../components/customer/custom/CustomerDeliveryConfirmation';
+import { formatCurrency } from '../../../../utlis/currency';
 
 export default function OrderDetailsPage() {
   const { orderId } = useLocalSearchParams();
@@ -234,7 +235,7 @@ export default function OrderDetailsPage() {
         </View>
         
         <Text className="text-base text-gray-600 mb-2">Status: <Text className="font-semibold text-primary">{order.status}</Text></Text>
-        <Text className="text-base text-gray-600 mb-2">Total: <Text className="font-bold text-green-600">EGP {parseFloat(order.total_price).toFixed(2)}</Text></Text>
+        <Text className="text-base text-gray-600 mb-2">Total: <Text className="font-bold text-green-600"> {formatCurrency(order.total_price || '0')}</Text></Text>
         <Text className="text-base text-gray-600 mb-4">Placed: {new Date(order.createdAt).toLocaleString()}</Text>
         
         {/* Vendor Information */}
@@ -253,7 +254,7 @@ export default function OrderDetailsPage() {
               <View key={item.id?.toString() || item.product_id?.toString() || index} className="bg-white rounded-xl shadow p-4 mb-3 border border-gray-100">
                 <Text className="font-semibold text-gray-800">{item.product?.name || 'Product'}</Text>
                 <Text className="text-gray-600">Qty: {item.quantity}</Text>
-                <Text className="text-green-600 font-bold">EGP {parseFloat(item.price).toFixed(2)}</Text>
+                <Text className="text-green-600 font-bold"> {formatCurrency(item.price || '0')}</Text>
               </View>
             ))
           ) : (
@@ -276,7 +277,7 @@ export default function OrderDetailsPage() {
         <View className="mt-6 space-y-3">
           {/* Chat with Vendor Button */}
           <Pressable
-            className={`bg-blue-500 py-4 rounded-xl flex-row items-center justify-center ${chatLoading ? 'opacity-60' : ''}`}
+            className={`bg-blue-500 py-4  mb-4 rounded-xl flex-row items-center justify-center ${chatLoading ? 'opacity-60' : ''}`}
             onPress={handleChatWithVendor}
             disabled={chatLoading}
           >

@@ -226,6 +226,7 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { formatCurrency } from '../../../utlis/currency';
 
 // ── Status flow config ──
 // CASH:     none → deliveryman_arrived → [vendor] order_handed_over → order_received → payment_made → [vendor] payment_confirmed
@@ -318,7 +319,7 @@ export default function DeliveryConfirmation({ order, onStatusUpdate }) {
       {/* Order Info */}
       <View className="mb-4 p-3 bg-gray-50 rounded-lg">
         <Text className="text-sm font-semibold text-gray-700">Order #{order.id}</Text>
-        <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+        <Text className="text-sm text-gray-600">Amount: {formatCurrency(order.total_price || '0')}</Text>
         <Text className="text-sm text-gray-600">Payment: {order.payment_method?.toUpperCase()}</Text>
         <Text className="text-sm text-gray-600">Address: {order.address}</Text>
       </View>

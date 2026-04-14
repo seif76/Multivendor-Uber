@@ -101,6 +101,7 @@ import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useDeliverySocket } from '../../../context/Deliveryman/DeliverySocketContext';
 import { useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function GlobalOrderPopup() {
   const { availableOrders, acceptOrder, rejectOrder } = useDeliverySocket();
@@ -223,7 +224,7 @@ export default function GlobalOrderPopup() {
               {countdown}s
             </Text>
             <View className="bg-green-100 px-2 py-1 rounded">
-              <Text className="text-green-700 font-bold">EGP {currentOrder.total_price}</Text>
+              <Text className="text-green-700 font-bold"> {formatCurrency(currentOrder.total_price || '0')}</Text>
             </View>
           </View>
         </View>

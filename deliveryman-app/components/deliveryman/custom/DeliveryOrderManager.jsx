@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import DeliveryConfirmation from './DeliveryConfirmation';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function DeliveryOrderManager() {
   const [availableOrders, setAvailableOrders] = useState([]);
@@ -235,7 +236,7 @@ export default function DeliveryOrderManager() {
                 <View className="flex-row justify-between items-start mb-3">
                   <View className="flex-1">
                     <Text className="text-lg font-bold text-gray-800">Order #{order.id}</Text>
-                    <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+                    <Text className="text-sm text-gray-600">Amount: {formatCurrency(order.total_price || '0')}</Text>
                     
                     {/* Customer Details */}
                     <View className="mt-2 p-2 bg-blue-50 rounded-lg">
@@ -307,7 +308,7 @@ export default function DeliveryOrderManager() {
                         <Text className="text-white text-xs font-bold">ACCEPTED</Text>
                       </View>
                     </View>
-                    <Text className="text-sm text-gray-600">Amount: EGP {parseFloat(order.total_price).toFixed(2)}</Text>
+                    <Text className="text-sm text-gray-600">Amount: {formatCurrency(order.total_price || '0')}</Text>
                     
                     {/* Customer Details */}
                     <View className="mt-2 p-2 bg-blue-50 rounded-lg">

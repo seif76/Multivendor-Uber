@@ -12,6 +12,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { formatCurrency } from '../../utlis/currency';
 
 export default function OrderConfirmationScreen() {
   const { orderId } = useLocalSearchParams();
@@ -49,7 +50,7 @@ export default function OrderConfirmationScreen() {
   };
 
   const handleContinueShopping = () => {
-    router.push('/customer/shop/shop');
+    router.push('/customer/shop/shoppage');
   };
 
   const handleViewOrders = () => {
@@ -124,7 +125,7 @@ export default function OrderConfirmationScreen() {
               <View className="flex-row justify-between">
                 <Text className="text-gray-600">Total Amount</Text>
                 <Text className="font-bold text-primary text-lg">
-                  EGP {order.total_amount?.toFixed(2) || '0.00'}
+                   {formatCurrency(order.total_amount || '0.00')}
                 </Text>
               </View>
             </View>
@@ -169,7 +170,7 @@ export default function OrderConfirmationScreen() {
                   <Text className="text-sm text-gray-500">Qty: {item.quantity}</Text>
                 </View>
                 <Text className="font-semibold text-primary">
-                  EGP {((item.product?.price || 0) * item.quantity).toFixed(2)}
+                   {formatCurrency((item.product?.price || 0) * item.quantity)}
                 </Text>
               </View>
             ))}

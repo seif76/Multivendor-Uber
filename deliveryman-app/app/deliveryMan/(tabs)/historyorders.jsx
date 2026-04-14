@@ -5,6 +5,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function DeliveryHistoryOrders() {
   const [historyOrders, setHistoryOrders] = useState([]);
@@ -60,7 +61,7 @@ export default function DeliveryHistoryOrders() {
                 </Text>
               </View>
               <Text className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</Text>
-              <Text className="text-xs text-gray-800 mt-2">EGP {order.total_price}</Text>
+              <Text className="text-xs text-gray-800 mt-2">{formatCurrency(order.total_price || '0.00')}</Text>
             </TouchableOpacity>
           ))
         )}

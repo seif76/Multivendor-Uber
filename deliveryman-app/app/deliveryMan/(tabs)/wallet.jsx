@@ -153,7 +153,7 @@ export default function DeliverymanWalletPage() {
 
   const formatAmount = (amount, type) => {
     const numAmount = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
-    const formattedAmount = `$${Math.abs(numAmount).toFixed(2)}`;
+    const formattedAmount = `LYD${Math.abs(numAmount).toFixed(2)}`;
     if (type === 'earning' || type === 'refund' || type === 'topup') {
       return `+ ${formattedAmount}`;
     } else {

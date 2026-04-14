@@ -134,34 +134,7 @@ export default function VendorProfile() {
           </View>
         </View>
         
-        {/* --- Quick Stats --- */}
-        <View className="flex-row gap-3 mt-4 mx-4">
-          <View className="flex-1 bg-white rounded-xl shadow-md p-4">
-            <View className="flex-row items-center justify-between">
-              <View>
-                {/* HARDCODED: Total Orders */}
-                <Text className="text-gray-500 text-xs">Total Orders</Text>
-                <Text className="text-gray-800 text-lg font-bold">156</Text> 
-              </View>
-              <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center">
-                <Ionicons name="bag-outline" size={16} color="#3b82f6" />
-              </View>
-            </View>
-          </View>
-          
-          <View className="flex-1 bg-white rounded-xl shadow-md p-4">
-            <View className="flex-row items-center justify-between">
-              <View>
-                 {/* HARDCODED: Earnings */}
-                <Text className="text-gray-500 text-xs">Earnings</Text>
-                <Text className="text-gray-800 text-lg font-bold">$3,250</Text> 
-              </View>
-              <View className="w-8 h-8 bg-green-100 rounded-full items-center justify-center">
-                <Ionicons name="cash-outline" size={16} color="#10b981" />
-              </View>
-            </View>
-          </View>
-        </View>
+      
 
         {/* --- Personal Information (Expandable) --- */}
         <View className="mt-4 mx-4 bg-white rounded-xl shadow-md overflow-hidden">

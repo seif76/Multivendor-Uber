@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { CartContext } from '../../../context/customer/CartContext';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import { formatCurrency } from '../../../utlis/currency';
 
 
 export default function CartScreen() {
@@ -60,7 +61,7 @@ export default function CartScreen() {
           {item.name}
         </Text>
         <Text className="text-primary font-bold text-sm mb-2">
-          EGP {parseFloat(item.price).toFixed(2)}
+           {formatCurrency(item.price || '0')}
         </Text>
 
         {/* Quantity Controls */}
@@ -139,7 +140,7 @@ export default function CartScreen() {
           <View className="bg-white rounded-t-2xl shadow-[0_-4px_8px_-1px_rgba(0,0,0,0.05)] p-5 border-t border-gray-100">
             <View className="flex-row justify-between py-2">
               <Text className="text-sm text-gray-500">Subtotal</Text>
-              <Text className="text-sm font-medium">EGP {total.toFixed(2)}</Text>
+              <Text className="text-sm font-medium"> {formatCurrency(total || '0')}</Text>
             </View>
 
             <View className="flex-row justify-between py-2">
@@ -152,7 +153,7 @@ export default function CartScreen() {
             <View className="flex-row justify-between py-2">
               <Text className="text-lg font-bold">Total</Text>
               <Text className="text-lg font-bold text-primary">
-                EGP {total.toFixed(2)}
+                 {formatCurrency(total || "0")}
               </Text>
             </View>
 

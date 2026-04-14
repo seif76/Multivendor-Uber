@@ -16,6 +16,7 @@ import {
   View 
 } from 'react-native';
 import { useWallet } from '../../../context/customer/WalletContext';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function VendorWalletPage() {
   const router = useRouter();
@@ -169,7 +170,7 @@ export default function VendorWalletPage() {
   // Format transaction amount (Logic from File 1)
   const formatAmount = (amount, type) => {
     const numAmount = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
-    const formattedAmount = `$${Math.abs(numAmount).toFixed(2)}`;
+    const formattedAmount = `LYD${Math.abs(numAmount).toFixed(2)}`;
     if (type === 'earning' || type === 'refund' || type === 'topup') {
       return `+ ${formattedAmount}`;
     } else {
@@ -217,7 +218,7 @@ export default function VendorWalletPage() {
             {formatAmount(item.amount, item.category)}
           </Text>
           <Text className="text-xs text-gray-400">
-            Balance: ${typeof item.balance_after === 'number' ? item.balance_after.toFixed(2) : '0.00'}
+            Balance: LYD{typeof item.balance_after === 'number' ? item.balance_after.toFixed(2) : '0.00'}
           </Text>
         </View>
       </View>
@@ -261,7 +262,7 @@ export default function VendorWalletPage() {
             <View className="flex-row items-end justify-between mt-2">
               <View>
                 <Text className="text-gray-900 text-5xl font-bold">
-                  ${wallet?.balance?.toFixed(2) || '0.00'}
+                  {formatCurrency(wallet?.balance || '0.00')}
                 </Text>
                 <Text className="text-gray-500 text-sm mt-1">
                   Last updated:{' '}
@@ -423,7 +424,7 @@ export default function VendorWalletPage() {
                 <ActivityIndicator color="white" />
               ) : (
                 <Text className="text-white font-semibold text-center text-lg">
-                  Add ${topUpAmount || '0.00'}
+                  Add {formatCurrency(topUpAmount || '0.00')}
                 </Text>
               )}
             </Pressable>
@@ -461,7 +462,7 @@ export default function VendorWalletPage() {
             <View className="bg-green-50 p-4 rounded-xl mb-4">
               <Text className="text-sm text-gray-600">Available Balance</Text>
               <Text className="text-2xl font-bold text-green-700">
-                ${parseFloat(wallet?.balance || 0).toFixed(2)}
+                {formatCurrency(wallet?.balance || "0")}
               </Text>
             </View>
 

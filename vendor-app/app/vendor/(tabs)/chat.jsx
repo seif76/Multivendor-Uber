@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable , SafeAreaView } from 'react-native';
+import { View, Text, Pressable ,SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ChatList from '../../../components/chat/ChatList';
 import ChatScreen from '../../../components/chat/ChatScreen';
