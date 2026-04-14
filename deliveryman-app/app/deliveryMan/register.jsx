@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import mime from "mime";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-const VEHICLE_TYPES = ['motorcycle', 'bicycle', 'car', 'van'];
+const VEHICLE_TYPES = ['motorcycle','car', 'van'];
 
 export default function DeliverymanRegister() {
   const [form, setForm] = useState({
