@@ -6,6 +6,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import OrderTrackingCard from './OrderTrackingCard';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatCurrency } from '../../../utlis/currency';
 
 export default function OrderTrackingManager() {
   const [activeOrders, setActiveOrders] = useState([]);

@@ -8,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useRouter } from 'expo-router';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 // Enable smooth expand animation (required for Android)
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -104,6 +106,7 @@ export default function VendorProfile() {
   );
 
   return (
+    <KeyboardAwareScrollView>
     <View className="flex-1 bg-[#f6f8f6]" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
         {/* Profile Card Header */}
@@ -284,5 +287,6 @@ export default function VendorProfile() {
         </View>
       </ScrollView>
     </View>
+    </KeyboardAwareScrollView>
   );
 }

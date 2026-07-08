@@ -153,7 +153,7 @@ export default function DeliverymanWalletPage() {
 
   const formatAmount = (amount, type) => {
     const numAmount = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
-    const formattedAmount = `LYD${Math.abs(numAmount).toFixed(2)}`;
+    const formattedAmount = `LYD ${Math.abs(numAmount).toFixed(2)}`;
     if (type === 'earning' || type === 'refund' || type === 'topup') {
       return `+ ${formattedAmount}`;
     } else {
@@ -199,7 +199,7 @@ export default function DeliverymanWalletPage() {
             {formatAmount(item.amount, item.category || item.type)}
           </Text>
           <Text className="text-xs text-gray-400">
-            Balance: ${typeof item.balance_after === 'number' ? item.balance_after.toFixed(2) : '0.00'}
+            Balance: LYD {typeof item.balance_after === 'number' ? item.balance_after.toFixed(2) : '0.00'}
           </Text>
         </View>
       </View>
@@ -229,8 +229,8 @@ export default function DeliverymanWalletPage() {
             <Text className="text-gray-600 text-base font-medium">Current Balance</Text>
             <View className="flex-row items-end justify-between mt-2">
               <View>
-                <Text className="text-gray-900 text-5xl font-bold">
-                  ${wallet?.balance?.toFixed(2) || '0.00'}
+                <Text className="text-gray-900 text-3xl font-bold">
+                  LYD {wallet?.balance?.toFixed(2) || '0.00'}
                 </Text>
                 <Text className="text-gray-500 text-xs mt-1">
                   Last updated:{' '}

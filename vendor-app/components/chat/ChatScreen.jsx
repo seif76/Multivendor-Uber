@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function ChatScreen({ chat, onBack }) {
   const [messages, setMessages] = useState([]);
@@ -227,9 +228,11 @@ export default function ChatScreen({ chat, onBack }) {
   const otherParticipant = getOtherParticipant();
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAwareScrollView
+    style={{ flex: 1, backgroundColor: 'white' }}
+    contentContainerStyle={{ flexGrow: 1 }}
+    // This prop magically handles the math for both Android and iOS
+    enableOnAndroid={true}
     >
       {/* Header */}
       <View className="flex-row items-center p-4 mb-4 border-b border-gray-200 bg-white">
@@ -312,6 +315,6 @@ export default function ChatScreen({ chat, onBack }) {
           )}
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 } 

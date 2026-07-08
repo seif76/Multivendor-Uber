@@ -15,6 +15,8 @@ import Constants from "expo-constants";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "expo-router";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 // Define primary color for better readability and consistency
 const PRIMARY_COLOR = "#007233"; 
@@ -138,6 +140,7 @@ export default function EditVendorProfile() {
   );
 
   return (
+    <KeyboardAwareScrollView>
     <View className="flex-1 bg-white">
       {/* Header and Back Button */}
       <View className="flex-row items-center pt-16 pb-4 px-6 bg-white border-b border-gray-100 shadow-md">
@@ -272,5 +275,6 @@ export default function EditVendorProfile() {
         </Pressable>
       </ScrollView>
     </View>
+     </KeyboardAwareScrollView>
   );
 }

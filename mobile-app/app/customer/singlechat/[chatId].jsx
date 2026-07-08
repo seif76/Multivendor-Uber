@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 export default function CustomerChatScreen() {
   const { chatId, vendorName, orderId } = useLocalSearchParams();
@@ -183,12 +185,14 @@ export default function CustomerChatScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAwareScrollView
+        style={{ flex: 1, backgroundColor: 'white' }}
+    contentContainerStyle={{ flexGrow: 1 }}
+    // This prop magically handles the math for both Android and iOS
+    enableOnAndroid={true}
     >
       {/* Header */}
-      <View className="flex-row items-center p-4 border-b border-gray-200 bg-white">
+      <View className="flex-row items-center mb-4 p-4 border-b border-gray-200 bg-white">
         <Pressable onPress={() => router.back()} className="mr-3">
           <Ionicons name="arrow-back" size={24} color="#007233" />
         </Pressable>
@@ -265,6 +269,6 @@ export default function CustomerChatScreen() {
           )}
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 } 

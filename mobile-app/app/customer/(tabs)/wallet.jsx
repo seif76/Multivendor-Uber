@@ -151,7 +151,7 @@ export default function WalletPage() {
 
   const formatBalance = (balance) => {
     if (balance === null || balance === undefined) return '$0.00';
-    return `LYD${parseFloat(balance).toFixed(2)}`;
+    return `LYD ${parseFloat(balance).toFixed(2)}`;
   };
 
   const formatDate = (dateString) => {
@@ -248,7 +248,7 @@ export default function WalletPage() {
               <Text className="text-gray-600 text-base font-medium">Current Balance</Text>
               <View className="flex-row items-end justify-between mt-2">
                 <View>
-                  <Text className="text-gray-900 text-5xl font-bold">
+                  <Text className="text-gray-900 text-3xl font-bold">
                     {formatBalance(wallet?.balance)}
                   </Text>
                   <Text className="text-gray-500 text-xs mt-1">

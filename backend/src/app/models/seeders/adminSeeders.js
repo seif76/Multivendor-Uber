@@ -61,3 +61,10 @@ module.exports = async function syncAdminTables() {
     console.error('Error seeding default admins:', error);
   }
 };
+
+// Run automatically if executed directly
+if (require.main === module) {
+  (async () => {
+    await module.exports();
+  })();
+}

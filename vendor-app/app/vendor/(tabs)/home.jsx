@@ -330,7 +330,7 @@ export default function VendorDashboard() {
         <Text className="text-lg font-bold flex-1 text-center" style={{ color: TEXT_PRIMARY }}>
           Dashboard
         </Text>
-        <Pressable onPress={() => router.push('/vendor/notifications')}>
+        <Pressable >
           <Ionicons name="notifications-outline" size={24} color={TEXT_PRIMARY} />
         </Pressable>
       </View>

@@ -261,7 +261,7 @@ export default function VendorWalletPage() {
             <Text className="text-gray-600 text-base font-medium">Current Balance</Text>
             <View className="flex-row items-end justify-between mt-2">
               <View>
-                <Text className="text-gray-900 text-5xl font-bold">
+                <Text className="text-gray-900 text-3xl font-bold">
                   {formatCurrency(wallet?.balance || '0.00')}
                 </Text>
                 <Text className="text-gray-500 text-sm mt-1">

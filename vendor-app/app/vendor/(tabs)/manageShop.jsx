@@ -19,6 +19,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 const BACKEND_URL = Constants.expoConfig.extra.BACKEND_URL;
 
@@ -182,6 +184,7 @@ export default function ManageShopScreen() {
   }
 
   return (
+    <KeyboardAwareScrollView>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView className="flex-1 bg-white" keyboardShouldPersistTaps="handled">
       
@@ -307,6 +310,7 @@ export default function ManageShopScreen() {
       </View>
     </ScrollView>
     </TouchableWithoutFeedback>
+    </KeyboardAwareScrollView>
     
   );
 }
